@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pitmaster Command Center · Science &amp; Mathematics Suite</title>
   <meta name="description" content="Empirical data models & thermodynamic calculators for precision low-and-slow cooking." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -35,6 +36,17 @@
   </style>
 </head>
 <body class="min-h-screen flex flex-col bg-base-850 text-base-300 font-display antialiased selection:bg-flame-500/30">
+
+  <nav class="relative z-10 bg-[#121824] border-b border-gray-800 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+    <a href="index.html" aria-current="page" class="text-[#f59e0b] hover:text-[#f97316] font-bold tracking-wide flex items-center gap-2 transition-colors shrink-0">
+      <span aria-hidden="true">🔥</span><span class="hidden sm:inline">PITMASTER</span>
+    </a>
+    <div class="flex items-center gap-1 overflow-x-auto text-xs font-medium">
+      <a href="brisket-calculator.html" class="text-gray-400 hover:text-white hover:bg-white/5 rounded-md px-3 py-1.5 whitespace-nowrap transition-colors">Brisket</a>
+      <a href="stall-predictor.html" class="text-gray-400 hover:text-white hover:bg-white/5 rounded-md px-3 py-1.5 whitespace-nowrap transition-colors">Stall</a>
+      <a href="fuel-estimator.html" class="text-gray-400 hover:text-white hover:bg-white/5 rounded-md px-3 py-1.5 whitespace-nowrap transition-colors">Fuel</a>
+    </div>
+  </nav>
 
   <div class="relative z-10 flex-1 w-full">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

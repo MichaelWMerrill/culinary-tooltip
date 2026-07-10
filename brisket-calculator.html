@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Brisket Trim, Shrinkage &amp; Yield Cost Calculator</title>
+  <meta name="description" content="Calculate brisket trim, shrinkage, yield and true cost per cooked pound by weight and USDA grade." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥩</text></svg>" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -85,12 +87,15 @@
 </head>
 <body class="min-h-screen bg-smoke-900 text-smoke-300 font-display antialiased">
 
-  <!-- TODO: add `relative z-10` to this nav so it sits cleanly above the fixed body::before gradient overlay (currently a faint warm tint can bleed over one corner). -->
-  <nav class="bg-[#121824] border-b border-gray-800 px-6 py-4 flex justify-between items-center">
-    <a href="index.html" class="text-[#f59e0b] hover:text-[#f97316] font-bold tracking-wide flex items-center gap-2 transition-colors">
-      <span>←</span> PITMASTER COMMAND CENTER
+  <nav class="relative z-10 bg-[#121824] border-b border-gray-800 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+    <a href="index.html" class="text-[#f59e0b] hover:text-[#f97316] font-bold tracking-wide flex items-center gap-2 transition-colors shrink-0">
+      <span aria-hidden="true">🔥</span><span class="hidden sm:inline">PITMASTER</span>
     </a>
-    <span class="text-xs text-gray-500 font-mono tracking-widest uppercase">Precision Cooking Suite</span>
+    <div class="flex items-center gap-1 overflow-x-auto text-xs font-medium">
+      <a href="brisket-calculator.html" aria-current="page" class="bg-[#f59e0b]/15 text-[#f59e0b] ring-1 ring-[#f59e0b]/40 rounded-md px-3 py-1.5 whitespace-nowrap transition-colors">Brisket</a>
+      <a href="stall-predictor.html" class="text-gray-400 hover:text-white hover:bg-white/5 rounded-md px-3 py-1.5 whitespace-nowrap transition-colors">Stall</a>
+      <a href="fuel-estimator.html" class="text-gray-400 hover:text-white hover:bg-white/5 rounded-md px-3 py-1.5 whitespace-nowrap transition-colors">Fuel</a>
+    </div>
   </nav>
 
   <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -160,11 +165,11 @@
         <!-- Trim Style Toggle -->
         <div class="mb-6">
           <label class="block text-sm font-medium text-smoke-300 mb-2">Trim Style</label>
-          <div id="trimToggle" class="grid grid-cols-2 gap-1 rounded-lg bg-smoke-800 ring-1 ring-smoke-600 p-1" role="tablist">
-            <button data-trim="commercial" class="trim-opt rounded-md px-3 py-2 text-sm font-medium transition-colors" aria-selected="true">
+          <div id="trimToggle" aria-label="Trim style" class="grid grid-cols-2 gap-1 rounded-lg bg-smoke-800 ring-1 ring-smoke-600 p-1" role="group">
+            <button data-trim="commercial" class="trim-opt rounded-md px-3 py-2 text-sm font-medium transition-colors" aria-pressed="true">
               Commercial
             </button>
-            <button data-trim="competition" class="trim-opt rounded-md px-3 py-2 text-sm font-medium transition-colors" aria-selected="false">
+            <button data-trim="competition" class="trim-opt rounded-md px-3 py-2 text-sm font-medium transition-colors" aria-pressed="false">
               Aggressive
             </button>
           </div>
@@ -174,10 +179,10 @@
         <!-- Cook Wrap Method -->
         <div>
           <label class="block text-sm font-medium text-smoke-300 mb-2">Cook Wrap Method</label>
-          <div id="wrapToggle" class="grid grid-cols-3 gap-1 rounded-lg bg-smoke-800 ring-1 ring-smoke-600 p-1" role="tablist">
-            <button data-wrap="naked" class="wrap-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-selected="false">Naked</button>
-            <button data-wrap="paper" class="wrap-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-selected="true">Butcher Paper</button>
-            <button data-wrap="foil" class="wrap-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-selected="false">Foil</button>
+          <div id="wrapToggle" aria-label="Wrap method" class="grid grid-cols-3 gap-1 rounded-lg bg-smoke-800 ring-1 ring-smoke-600 p-1" role="group">
+            <button data-wrap="naked" class="wrap-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="false">Naked</button>
+            <button data-wrap="paper" class="wrap-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="true">Butcher Paper</button>
+            <button data-wrap="foil" class="wrap-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="false">Foil</button>
           </div>
           <p class="text-[11px] text-smoke-500 mt-1.5" id="wrapDesc">Balanced bark and moisture retention.</p>
         </div>
@@ -410,6 +415,7 @@
 
       renderHoldingAdvice(r);
       renderServing(r);
+      persist();
     }
 
     // Holding & resting guidance — small finished mass loses heat fast.
@@ -475,10 +481,49 @@
     function paintGroup(selector, dataAttr, current) {
       document.querySelectorAll(selector).forEach((btn) => {
         const on = btn.dataset[dataAttr] === current;
-        btn.setAttribute("aria-selected", on ? "true" : "false");
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
         ACTIVE.forEach((c) => btn.classList.toggle(c, on));
         INACTIVE.forEach((c) => btn.classList.toggle(c, !on));
       });
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Persistence — per-page state + shared cross-tool cook profile       */
+    /* ------------------------------------------------------------------ */
+    const STORE_KEY = "pitmaster.brisket";
+    const SHARED_KEY = "pitmaster.cook";
+    // Shared wrap vocabulary across tools: none | paper | foil
+    const WRAP_TO_CANON = { naked: "none", paper: "paper", foil: "foil" };
+    const CANON_TO_WRAP = { none: "naked", paper: "paper", foil: "foil" };
+
+    function persist() {
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(state));
+        const shared = JSON.parse(localStorage.getItem(SHARED_KEY) || "{}");
+        shared.weight = state.weight;
+        shared.wrap = WRAP_TO_CANON[state.wrap];
+        localStorage.setItem(SHARED_KEY, JSON.stringify(shared));
+      } catch (e) { /* storage unavailable — ignore */ }
+    }
+
+    function loadState() {
+      try {
+        Object.assign(state, JSON.parse(localStorage.getItem(STORE_KEY) || "{}"));
+        const shared = JSON.parse(localStorage.getItem(SHARED_KEY) || "{}");
+        if (typeof shared.weight === "number") state.weight = Math.min(22, Math.max(4, shared.weight));
+        if (shared.wrap && CANON_TO_WRAP[shared.wrap]) state.wrap = CANON_TO_WRAP[shared.wrap];
+      } catch (e) { /* ignore */ }
+    }
+
+    function syncControls() {
+      const weight = $("weight"), price = $("price"), grade = $("grade"), guests = $("guests");
+      weight.value = state.weight; $("weightVal").textContent = fmt(state.weight);
+      price.value = state.price; $("priceVal").textContent = money(state.price);
+      grade.value = state.grade;
+      guests.value = state.guests;
+      paintGroup(".trim-opt", "trim", state.trim);
+      paintGroup(".wrap-opt", "wrap", state.wrap);
+      setRangeFill(weight); setRangeFill(price); setRangeFill(guests);
     }
 
     /* ------------------------------------------------------------------ */
@@ -552,12 +597,9 @@
         $("servingChevron").style.transform = open ? "" : "rotate(180deg)";
       });
 
-      // Initial paint
-      paintGroup(".trim-opt", "trim", state.trim);
-      paintGroup(".wrap-opt", "wrap", state.wrap);
-      setRangeFill(weight);
-      setRangeFill(price);
-      setRangeFill(guests);
+      // Restore persisted state, hydrate controls, then paint
+      loadState();
+      syncControls();
       render();
     }
 

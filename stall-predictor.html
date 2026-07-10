@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Brisket Stall Predictor &amp; Cook-Time Curve</title>
+  <meta name="description" content="Predict the brisket stall duration and plot the internal temperature curve by pit, wrap and climate." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -50,12 +52,15 @@
 </head>
 <body class="min-h-screen bg-slate-950 text-slate-300 font-display antialiased">
 
-  <!-- TODO: add `relative z-10` to this nav so it sits cleanly above the fixed body::before gradient overlay (currently a faint warm tint can bleed over one corner). -->
-  <nav class="bg-[#121824] border-b border-gray-800 px-6 py-4 flex justify-between items-center">
-    <a href="index.html" class="text-[#f59e0b] hover:text-[#f97316] font-bold tracking-wide flex items-center gap-2 transition-colors">
-      <span>←</span> PITMASTER COMMAND CENTER
+  <nav class="relative z-10 bg-[#121824] border-b border-gray-800 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+    <a href="index.html" class="text-[#f59e0b] hover:text-[#f97316] font-bold tracking-wide flex items-center gap-2 transition-colors shrink-0">
+      <span aria-hidden="true">🔥</span><span class="hidden sm:inline">PITMASTER</span>
     </a>
-    <span class="text-xs text-gray-500 font-mono tracking-widest uppercase">Precision Cooking Suite</span>
+    <div class="flex items-center gap-1 overflow-x-auto text-xs font-medium">
+      <a href="brisket-calculator.html" class="text-gray-400 hover:text-white hover:bg-white/5 rounded-md px-3 py-1.5 whitespace-nowrap transition-colors">Brisket</a>
+      <a href="stall-predictor.html" aria-current="page" class="bg-[#f59e0b]/15 text-[#f59e0b] ring-1 ring-[#f59e0b]/40 rounded-md px-3 py-1.5 whitespace-nowrap transition-colors">Stall</a>
+      <a href="fuel-estimator.html" class="text-gray-400 hover:text-white hover:bg-white/5 rounded-md px-3 py-1.5 whitespace-nowrap transition-colors">Fuel</a>
+    </div>
   </nav>
 
   <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -90,10 +95,10 @@
         <!-- Target Pit Temp -->
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-2">Target Pit Temp</label>
-          <div id="pitTempToggle" class="grid grid-cols-3 gap-1 rounded-lg bg-slate-800 ring-1 ring-slate-700 p-1" role="tablist">
-            <button data-temp="225" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-selected="true">225&deg;F</button>
-            <button data-temp="250" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-selected="false">250&deg;F</button>
-            <button data-temp="275" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-selected="false">275&deg;F</button>
+          <div id="pitTempToggle" aria-label="Target pit temperature" class="grid grid-cols-3 gap-1 rounded-lg bg-slate-800 ring-1 ring-slate-700 p-1" role="group">
+            <button data-temp="225" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="true">225&deg;F</button>
+            <button data-temp="250" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="false">250&deg;F</button>
+            <button data-temp="275" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="false">275&deg;F</button>
           </div>
         </div>
 
@@ -114,10 +119,10 @@
         <!-- Wrap Type -->
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-2">Wrap Type</label>
-          <div id="wrapToggle" class="grid grid-cols-3 gap-1 rounded-lg bg-slate-800 ring-1 ring-slate-700 p-1" role="tablist">
-            <button data-wrap="none" class="wrap-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-selected="false">No Wrap</button>
-            <button data-wrap="peach_butcher_paper" class="wrap-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-selected="true">Butcher Paper</button>
-            <button data-wrap="aluminum_foil" class="wrap-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-selected="false">Foil</button>
+          <div id="wrapToggle" aria-label="Wrap type" class="grid grid-cols-3 gap-1 rounded-lg bg-slate-800 ring-1 ring-slate-700 p-1" role="group">
+            <button data-wrap="none" class="wrap-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-pressed="false">No Wrap</button>
+            <button data-wrap="peach_butcher_paper" class="wrap-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-pressed="true">Butcher Paper</button>
+            <button data-wrap="aluminum_foil" class="wrap-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-pressed="false">Foil</button>
           </div>
           <p id="wrapDesc" class="text-[11px] text-slate-500 mt-1.5 leading-snug">Semi-permeable: trims the stall while preserving bark.</p>
         </div>
@@ -136,10 +141,10 @@
         <!-- Regional Climate Profile -->
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-2">Regional Climate Profile</label>
-          <div id="climateToggle" class="grid grid-cols-3 gap-1 rounded-lg bg-slate-800 ring-1 ring-slate-700 p-1" role="tablist">
-            <button data-climate="arid" class="climate-opt rounded-md px-1 py-2 text-[11px] leading-tight font-medium transition-colors" aria-selected="false">Arid / Desert<br /><span class="text-[9px] opacity-70">&lt;20% RH</span></button>
-            <button data-climate="moderate" class="climate-opt rounded-md px-1 py-2 text-[11px] leading-tight font-medium transition-colors" aria-selected="true">Moderate<br /><span class="text-[9px] opacity-70">20&ndash;60% RH</span></button>
-            <button data-climate="humid" class="climate-opt rounded-md px-1 py-2 text-[11px] leading-tight font-medium transition-colors" aria-selected="false">Humid / Coastal<br /><span class="text-[9px] opacity-70">&gt;60% RH</span></button>
+          <div id="climateToggle" aria-label="Regional climate profile" class="grid grid-cols-3 gap-1 rounded-lg bg-slate-800 ring-1 ring-slate-700 p-1" role="group">
+            <button data-climate="arid" class="climate-opt rounded-md px-1 py-2 text-[11px] leading-tight font-medium transition-colors" aria-pressed="false">Arid / Desert<br /><span class="text-[9px] opacity-70">&lt;20% RH</span></button>
+            <button data-climate="moderate" class="climate-opt rounded-md px-1 py-2 text-[11px] leading-tight font-medium transition-colors" aria-pressed="true">Moderate<br /><span class="text-[9px] opacity-70">20&ndash;60% RH</span></button>
+            <button data-climate="humid" class="climate-opt rounded-md px-1 py-2 text-[11px] leading-tight font-medium transition-colors" aria-pressed="false">Humid / Coastal<br /><span class="text-[9px] opacity-70">&gt;60% RH</span></button>
           </div>
           <p id="climateDesc" class="text-[11px] text-slate-500 mt-1.5 leading-snug">Standard baseline stall behavior.</p>
         </div>
@@ -393,6 +398,10 @@
       return e;
     }
 
+    // Hover state — pixel/data samples of the current curve, read by the hover handler.
+    let chartSamples = [];
+    let chartPlot = null;
+
     function renderChart(m, pts) {
       const svg = $("chart");
       while (svg.firstChild) svg.removeChild(svg.firstChild);
@@ -400,6 +409,9 @@
       const W = 900, H = 470;
       const ml = 58, mr = 24, mt = 20, mb = 48;
       const pw = W - ml - mr, ph = H - mt - mb;
+
+      // transparent capture layer so pointer moves anywhere in the plot are hit-tested
+      svg.appendChild(el("rect", { x: 0, y: 0, width: W, height: H, fill: "transparent", "pointer-events": "all" }));
 
       const yMin = 40, yMax = 210;
       const xMax = Math.max(2, Math.ceil(m.totalTime));
@@ -483,6 +495,41 @@
       svg.appendChild(el("circle", { cx: start[0], cy: start[1], r: "4", fill: "#0f172a", stroke: "#f59e0b", "stroke-width": "2" }));
       svg.appendChild(el("circle", { cx: stallEntry[0], cy: stallEntry[1], r: "4", fill: "#0f172a", stroke: "#fbbf24", "stroke-width": "2" }));
       svg.appendChild(el("circle", { cx: finish[0], cy: finish[1], r: "5", fill: "#22c55e", stroke: "#0f172a", "stroke-width": "2" }));
+
+      // ---- interactive hover layer (crosshair + tooltip) ----
+      chartSamples = pts.map((p, i) => ({ x: coords[i][0], y: coords[i][1], t: p.t, temp: p.temp }));
+      chartPlot = { left: ml, right: W - mr, top: mt, bottom: mt + ph };
+
+      svg.appendChild(el("line", { id: "hoverLine", x1: 0, y1: mt, x2: 0, y2: mt + ph, stroke: "#cbd5e1", "stroke-width": "1", "stroke-dasharray": "4 3", opacity: "0", "pointer-events": "none" }));
+      svg.appendChild(el("circle", { id: "hoverDot", r: "4.5", fill: "#fb923c", stroke: "#0f172a", "stroke-width": "2", opacity: "0", "pointer-events": "none" }));
+      const tip = el("g", { id: "hoverTip", opacity: "0", "pointer-events": "none" });
+      tip.appendChild(el("rect", { x: "0", y: "0", width: "118", height: "24", rx: "5", fill: "#0b1120", stroke: "#334155", "stroke-width": "1" }));
+      tip.appendChild(el("text", { id: "hoverTipText", x: "59", y: "16", "text-anchor": "middle", "font-size": "11", fill: "#e2e8f0", "font-family": "ui-monospace, monospace", "font-weight": "600" }, ""));
+      svg.appendChild(tip);
+    }
+
+    function onChartHover(evt) {
+      if (!chartSamples.length || !chartPlot) return;
+      const svg = $("chart");
+      const rect = svg.getBoundingClientRect();
+      if (!rect.width) return;
+      const sx = (evt.clientX - rect.left) * (900 / rect.width);
+      if (sx < chartPlot.left - 6 || sx > chartPlot.right + 6) { hideChartHover(); return; }
+      let best = chartSamples[0], bd = Infinity;
+      for (const s of chartSamples) { const d = Math.abs(s.x - sx); if (d < bd) { bd = d; best = s; } }
+      const line = $("hoverLine"), dot = $("hoverDot"), tip = $("hoverTip"), txt = $("hoverTipText");
+      if (!line) return;
+      line.setAttribute("x1", best.x); line.setAttribute("x2", best.x); line.setAttribute("opacity", "1");
+      dot.setAttribute("cx", best.x); dot.setAttribute("cy", best.y); dot.setAttribute("opacity", "1");
+      txt.textContent = fmtHrs(best.t) + " · " + Math.round(best.temp) + "°F";
+      let tx = Math.max(chartPlot.left, Math.min(best.x - 59, chartPlot.right - 118));
+      let ty = best.y - 34; if (ty < chartPlot.top) ty = best.y + 12;
+      tip.setAttribute("transform", `translate(${tx} ${ty})`);
+      tip.setAttribute("opacity", "1");
+    }
+
+    function hideChartHover() {
+      ["hoverLine", "hoverDot", "hoverTip"].forEach((id) => { const e = $(id); if (e) e.setAttribute("opacity", "0"); });
     }
 
     /* ================================================================= */
@@ -493,7 +540,7 @@
     function paintGroup(selector, dataAttr, current) {
       document.querySelectorAll(selector).forEach((btn) => {
         const on = btn.dataset[dataAttr] === current;
-        btn.setAttribute("aria-selected", on ? "true" : "false");
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
         ACTIVE.forEach((c) => btn.classList.toggle(c, on));
         INACTIVE.forEach((c) => btn.classList.toggle(c, !on));
       });
@@ -521,11 +568,52 @@
       $("wrapTemp").disabled = state.wrap === "none";
 
       $("climateDesc").textContent = CLIMATE_COPY[state.climate];
+      persist();
     }
 
     function setFill(el) {
       const min = parseFloat(el.min), max = parseFloat(el.max), val = parseFloat(el.value);
       el.style.setProperty("--fill", ((val - min) / (max - min)) * 100 + "%");
+    }
+
+    /* ================================================================= */
+    /* Persistence — per-page state + shared cross-tool cook profile      */
+    /* ================================================================= */
+    const STORE_KEY = "pitmaster.stall";
+    const SHARED_KEY = "pitmaster.cook";
+    // Shared wrap vocabulary across tools: none | paper | foil
+    const WRAP_TO_CANON = { none: "none", peach_butcher_paper: "paper", aluminum_foil: "foil" };
+    const CANON_TO_WRAP = { none: "none", paper: "peach_butcher_paper", foil: "aluminum_foil" };
+
+    function persist() {
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(state));
+        const shared = JSON.parse(localStorage.getItem(SHARED_KEY) || "{}");
+        shared.weight = state.weight;
+        shared.wrap = WRAP_TO_CANON[state.wrap];
+        localStorage.setItem(SHARED_KEY, JSON.stringify(shared));
+      } catch (e) { /* storage unavailable — ignore */ }
+    }
+
+    function loadState() {
+      try {
+        Object.assign(state, JSON.parse(localStorage.getItem(STORE_KEY) || "{}"));
+        const shared = JSON.parse(localStorage.getItem(SHARED_KEY) || "{}");
+        if (typeof shared.weight === "number") state.weight = Math.min(20, Math.max(4, shared.weight));
+        if (shared.wrap && CANON_TO_WRAP[shared.wrap]) state.wrap = CANON_TO_WRAP[shared.wrap];
+      } catch (e) { /* ignore */ }
+    }
+
+    function syncControls() {
+      const weight = $("weight"), wrapTemp = $("wrapTemp"), pit = $("pit");
+      weight.value = state.weight; $("weightVal").textContent = state.weight.toFixed(1);
+      wrapTemp.value = state.wrapTemp; $("wrapTempVal").textContent = state.wrapTemp;
+      pit.value = state.pit; $("pitDesc").textContent = DATA.pit_profiles[state.pit].description;
+      $("wrapDesc").textContent = WRAP_COPY[state.wrap];
+      paintGroup(".temp-opt", "temp", state.pitTemp);
+      paintGroup(".wrap-opt", "wrap", state.wrap);
+      paintGroup(".climate-opt", "climate", state.climate);
+      setFill(weight); setFill(wrapTemp);
     }
 
     /* ================================================================= */
@@ -578,11 +666,14 @@
         render();
       });
 
-      // initial paint
-      paintGroup(".temp-opt", "temp", state.pitTemp);
-      paintGroup(".wrap-opt", "wrap", state.wrap);
-      paintGroup(".climate-opt", "climate", state.climate);
-      setFill(weight); setFill(wrapTemp);
+      // Chart hover crosshair + tooltip
+      const chart = $("chart");
+      chart.addEventListener("pointermove", onChartHover);
+      chart.addEventListener("pointerleave", hideChartHover);
+
+      // Restore persisted state, hydrate controls, then paint
+      loadState();
+      syncControls();
       render();
     }
 
