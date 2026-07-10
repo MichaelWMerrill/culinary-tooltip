@@ -108,12 +108,15 @@
 
         <!-- Ambient Temp -->
         <div>
-          <label class="block text-sm font-medium text-charcoal-300 mb-2">Ambient Outdoor Temp</label>
-          <div id="ambientToggle" class="grid grid-cols-4 gap-1 rounded-lg bg-charcoal-800 ring-1 ring-charcoal-700 p-1" role="tablist">
-            <button data-amb="hot_90f" class="amb-opt rounded-md px-1 py-2 text-xs font-medium transition-colors" aria-selected="false">90&deg;</button>
-            <button data-amb="ideal_70f" class="amb-opt rounded-md px-1 py-2 text-xs font-medium transition-colors" aria-selected="true">70&deg;</button>
-            <button data-amb="crisp_40f" class="amb-opt rounded-md px-1 py-2 text-xs font-medium transition-colors" aria-selected="false">40&deg;</button>
-            <button data-amb="freezing_20f" class="amb-opt rounded-md px-1 py-2 text-xs font-medium transition-colors" aria-selected="false">20&deg;</button>
+          <div class="flex items-baseline justify-between mb-2">
+            <label for="ambient" class="text-sm font-medium text-charcoal-300">Ambient Outdoor Temp</label>
+            <span class="text-sm font-mono"><span id="ambientVal" class="text-white font-semibold">70</span><span class="text-charcoal-400">&deg;F</span></span>
+          </div>
+          <input id="ambient" type="range" min="20" max="125" step="5" value="70" class="w-full" />
+          <div class="flex justify-between text-[10px] text-charcoal-500 mt-1 font-mono"><span>20&deg;F</span><span>125&deg;F</span></div>
+          <!-- Extreme-heat solar-assist badge: only visible at >= 110°F -->
+          <div id="heatBadge" class="hidden mt-2 rounded-lg bg-amber-500/10 ring-1 ring-amber-500/40 px-3 py-2">
+            <p class="text-[11px] font-medium text-amber-300 leading-snug">☀️ Extreme Heat: Ambient Solar Assist Active (Fuel Burn Reduced by 35%)</p>
           </div>
         </div>
 
@@ -267,11 +270,14 @@
         "ceramic_double_wall": { "efficiency_eta": 0.85, "loss_coefficient_u": 0.4 },
         "insulated_blanket": { "efficiency_eta": 0.70, "loss_coefficient_u": 0.7 }
       },
-      "ambient_tiers": {
-        "hot_90f": { "multiplier": 0.80 },
-        "ideal_70f": { "multiplier": 1.00 },
-        "crisp_40f": { "multiplier": 1.35 },
-        "freezing_20f": { "multiplier": 1.75 }
+      "environmental_multipliers": {
+        "ambient_temp": {
+          "freezing_20": 1.75,
+          "crisp_40": 1.35,
+          "ideal_70": 1.00,
+          "hot_90": 0.80,
+          "above_110": 0.65
+        }
       },
       "wind_modifiers": {
         "calm_0_5mph": 1.00,
@@ -298,7 +304,7 @@
       fuel: "wood_pellets",
       duration: 12,
       insulation: "single_wall_steel",
-      ambient: "ideal_70f",
+      ambientTemp: 70,
       wind: "calm_0_5mph",
       bagCost: 18,
       bagWeight: 20,
@@ -308,6 +314,24 @@
     const $ = (id) => document.getElementById(id);
     const money = (n) => Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+    // Ambient temp -> burn multiplier, interpolated across empirical anchor points.
+    // At >= 110°F the "solar assist" tier (environmental_multipliers.ambient_temp.above_110)
+    // engages, cutting the baseline hourly burn rate to 0.65 (a 35% reduction).
+    const AMBIENT_ANCHORS = [[20, 1.75], [40, 1.35], [70, 1.00], [90, 0.80], [110, 0.65], [125, 0.65]];
+    function ambientMultiplier(tempF) {
+      const et = CONFIG.environmental_multipliers.ambient_temp;
+      if (tempF >= 110) return et.above_110; // Extreme heat: solar assist active
+      const a = AMBIENT_ANCHORS;
+      if (tempF <= a[0][0]) return a[0][1];
+      for (let i = 1; i < a.length; i++) {
+        if (tempF <= a[i][0]) {
+          const t0 = a[i - 1][0], m0 = a[i - 1][1], t1 = a[i][0], m1 = a[i][1];
+          return m0 + (m1 - m0) * (tempF - t0) / (t1 - t0);
+        }
+      }
+      return a[a.length - 1][1];
+    }
+
     /* ================================================================= */
     /* Core fuel model                                                   */
     /*   lbs = base_burn * duration * ambient * wind / efficiency_eta    */
@@ -315,7 +339,7 @@
     function estimate(insulationKey) {
       const fm = CONFIG.fuel_metrics[state.fuel];
       const ins = CONFIG.insulation_profiles[insulationKey];
-      const amb = CONFIG.ambient_tiers[state.ambient].multiplier;
+      const amb = ambientMultiplier(state.ambientTemp);
       const wind = CONFIG.wind_modifiers[state.wind];
 
       const lbs = fm.base_burn_ideal * state.duration * amb * wind / ins.efficiency_eta;
@@ -346,6 +370,9 @@
       // insulation description
       const ins = CONFIG.insulation_profiles[state.insulation];
       $("insDesc").textContent = "η " + Math.round(ins.efficiency_eta * 100) + "% efficiency · U-loss " + ins.loss_coefficient_u;
+
+      // Extreme-heat solar-assist badge appears at >= 110°F
+      $("heatBadge").classList.toggle("hidden", state.ambientTemp < 110);
 
       renderWhatIf(r);
     }
@@ -419,7 +446,7 @@
     /* ================================================================= */
     function init() {
       const duration = $("duration"), insulation = $("insulation"),
-            bagCost = $("bagCost"), bagWeight = $("bagWeight");
+            ambient = $("ambient"), bagCost = $("bagCost"), bagWeight = $("bagWeight");
 
       $("fuelToggle").addEventListener("click", (e) => {
         const btn = e.target.closest(".fuel-opt"); if (!btn) return;
@@ -439,11 +466,10 @@
         render();
       });
 
-      $("ambientToggle").addEventListener("click", (e) => {
-        const btn = e.target.closest(".amb-opt"); if (!btn) return;
-        state.ambient = btn.dataset.amb;
-        paintGroup(".amb-opt", "amb", state.ambient);
-        render();
+      ambient.addEventListener("input", () => {
+        state.ambientTemp = parseInt(ambient.value, 10);
+        $("ambientVal").textContent = state.ambientTemp;
+        setFill(ambient); render();
       });
 
       $("windToggle").addEventListener("click", (e) => {
@@ -474,9 +500,9 @@
 
       // initial paint
       paintGroup(".fuel-opt", "fuel", state.fuel);
-      paintGroup(".amb-opt", "amb", state.ambient);
       paintGroup(".wind-opt", "wind", state.wind);
       setFill(duration);
+      setFill(ambient);
       render();
     }
 
