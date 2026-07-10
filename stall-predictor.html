@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brisket Stall Predictor &amp; Cook-Time Curve</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: {
+              950: '#020617', 925: '#0a1120', 900: '#0f172a', 850: '#141f38',
+              800: '#1e293b', 700: '#334155', 600: '#475569', 500: '#64748b', 400: '#94a3b8', 300: '#cbd5e1'
+            },
+            amber: { 500: '#f59e0b', 400: '#fbbf24', 300: '#fcd34d' },
+            flame: { 600: '#ea580c', 500: '#f97316', 400: '#fb923c' }
+          },
+          fontFamily: { display: ['ui-sans-serif', 'system-ui', 'Segoe UI', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <style>
+    input[type="range"] {
+      -webkit-appearance: none; appearance: none; height: 8px; border-radius: 9999px;
+      background: linear-gradient(to right, #f97316 var(--fill, 50%), #1e293b var(--fill, 50%));
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 9999px;
+      background: #fbbf24; border: 3px solid #020617;
+      box-shadow: 0 0 0 1px #f59e0b, 0 2px 8px rgba(0,0,0,.6); cursor: pointer; transition: transform .1s ease;
+    }
+    input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.15); }
+    input[type="range"]::-moz-range-thumb {
+      width: 22px; height: 22px; border-radius: 9999px; background: #fbbf24; border: 3px solid #020617;
+      box-shadow: 0 0 0 1px #f59e0b, 0 2px 8px rgba(0,0,0,.6); cursor: pointer;
+    }
+    .curve-path { transition: stroke-dashoffset .1s linear; }
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(1100px 550px at 85% -10%, rgba(249,115,22,.12), transparent 60%),
+        radial-gradient(800px 500px at -5% 105%, rgba(245,158,11,.07), transparent 55%);
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-300 font-display antialiased">
+
+  <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+
+    <!-- Header -->
+    <header class="mb-8">
+      <div class="flex items-center gap-3">
+        <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-flame-500/15 ring-1 ring-flame-500/40 text-2xl">📈</div>
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">Stall Predictor</h1>
+          <p class="text-sm text-slate-400 mt-0.5">Internal-temp curve, stall duration &amp; total cook time modeling</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- ============ CONTROLS ============ -->
+      <section class="lg:col-span-4 rounded-2xl bg-slate-900 ring-1 ring-slate-800 shadow-xl shadow-black/40 p-5 sm:p-6 space-y-6">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400">Cook Parameters</h2>
+
+        <!-- Weight -->
+        <div>
+          <div class="flex items-baseline justify-between mb-2">
+            <label for="weight" class="text-sm font-medium text-slate-300">Meat Weight</label>
+            <span class="text-sm font-mono"><span id="weightVal" class="text-white font-semibold">12.0</span> <span class="text-slate-400">lb</span></span>
+          </div>
+          <input id="weight" type="range" min="4" max="20" step="0.5" value="12" class="w-full" />
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-mono"><span>4 lb</span><span>20 lb</span></div>
+        </div>
+
+        <!-- Target Pit Temp -->
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-2">Target Pit Temp</label>
+          <div id="pitTempToggle" class="grid grid-cols-3 gap-1 rounded-lg bg-slate-800 ring-1 ring-slate-700 p-1" role="tablist">
+            <button data-temp="225" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-selected="true">225&deg;F</button>
+            <button data-temp="250" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-selected="false">250&deg;F</button>
+            <button data-temp="275" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-selected="false">275&deg;F</button>
+          </div>
+        </div>
+
+        <!-- Pit Type -->
+        <div>
+          <label for="pit" class="block text-sm font-medium text-slate-300 mb-2">Pit Type</label>
+          <div class="relative">
+            <select id="pit" class="w-full appearance-none rounded-lg bg-slate-800 ring-1 ring-slate-700 text-white text-sm font-medium px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-flame-500 cursor-pointer">
+              <option value="pellet_cooker">Pellet Cooker</option>
+              <option value="offset_smoker" selected>Offset Smoker</option>
+              <option value="ceramic_kamado">Ceramic Kamado</option>
+            </select>
+            <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <p id="pitDesc" class="text-[11px] text-slate-500 mt-1.5 leading-snug">High natural draft velocity balanced by radiant energy from heavy steel walls.</p>
+        </div>
+
+        <!-- Wrap Type -->
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-2">Wrap Type</label>
+          <div id="wrapToggle" class="grid grid-cols-3 gap-1 rounded-lg bg-slate-800 ring-1 ring-slate-700 p-1" role="tablist">
+            <button data-wrap="none" class="wrap-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-selected="false">No Wrap</button>
+            <button data-wrap="peach_butcher_paper" class="wrap-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-selected="true">Butcher Paper</button>
+            <button data-wrap="aluminum_foil" class="wrap-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-selected="false">Foil</button>
+          </div>
+          <p id="wrapDesc" class="text-[11px] text-slate-500 mt-1.5 leading-snug">Semi-permeable: trims the stall while preserving bark.</p>
+        </div>
+
+        <!-- Wrap Target Temp -->
+        <div id="wrapTempWrap">
+          <div class="flex items-baseline justify-between mb-2">
+            <label for="wrapTemp" class="text-sm font-medium text-slate-300">Wrap at Internal Temp</label>
+            <span class="text-sm font-mono"><span id="wrapTempVal" class="text-white font-semibold">160</span><span class="text-slate-400">&deg;F</span></span>
+          </div>
+          <input id="wrapTemp" type="range" min="150" max="170" step="1" value="160" class="w-full" />
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-mono"><span>150&deg;F</span><span>170&deg;F</span></div>
+          <p class="text-[11px] text-slate-500 mt-1.5 leading-snug">Internal temp at which you'll wrap. Wrapping earlier cuts the stall short.</p>
+        </div>
+      </section>
+
+      <!-- ============ OUTPUT ============ -->
+      <section class="lg:col-span-8 space-y-6">
+
+        <!-- Big indicators -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="rounded-2xl bg-gradient-to-br from-flame-600/25 via-slate-900 to-slate-900 ring-1 ring-flame-500/40 shadow-xl shadow-black/40 p-5 sm:p-6">
+            <p class="text-[11px] font-semibold uppercase tracking-widest text-flame-300/90">Estimated Total Cook</p>
+            <p class="mt-2 text-4xl sm:text-5xl font-extrabold text-white tabular-nums leading-none" id="totalTime">—</p>
+            <p class="text-xs text-slate-400 mt-1.5" id="totalTimeSub">to 203&deg;F finish</p>
+          </div>
+          <div class="rounded-2xl bg-gradient-to-br from-amber-500/20 via-slate-900 to-slate-900 ring-1 ring-amber-500/40 shadow-xl shadow-black/40 p-5 sm:p-6">
+            <p class="text-[11px] font-semibold uppercase tracking-widest text-amber-300/90">Projected Stall</p>
+            <p class="mt-2 text-4xl sm:text-5xl font-extrabold text-white tabular-nums leading-none" id="stallTime">—</p>
+            <p class="text-xs text-slate-400 mt-1.5" id="stallSub">plateau duration</p>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="rounded-2xl bg-slate-900 ring-1 ring-slate-800 shadow-xl shadow-black/40 p-4 sm:p-5">
+          <div class="flex items-center justify-between mb-2 px-1">
+            <h3 class="text-sm font-semibold text-white">Internal Temperature Curve</h3>
+            <div class="flex items-center gap-3 text-[10px] text-slate-400">
+              <span class="flex items-center gap-1.5"><span class="inline-block h-2 w-3 rounded-sm bg-flame-500"></span>Temp</span>
+              <span class="flex items-center gap-1.5"><span class="inline-block h-2 w-3 rounded-sm bg-amber-400/40"></span>Stall</span>
+            </div>
+          </div>
+          <div class="w-full overflow-x-auto">
+            <svg id="chart" viewBox="0 0 900 470" preserveAspectRatio="xMidYMid meet" class="w-full h-auto" role="img" aria-label="Internal meat temperature over cook time"></svg>
+          </div>
+          <div class="grid grid-cols-3 gap-3 mt-3 px-1">
+            <div class="text-center">
+              <p class="text-[10px] uppercase tracking-wider text-slate-500">Initial Climb</p>
+              <p class="text-sm font-semibold text-white tabular-nums" id="phase1">—</p>
+            </div>
+            <div class="text-center">
+              <p class="text-[10px] uppercase tracking-wider text-slate-500">Stall Phase</p>
+              <p class="text-sm font-semibold text-white tabular-nums" id="phase2">—</p>
+            </div>
+            <div class="text-center">
+              <p class="text-[10px] uppercase tracking-wider text-slate-500">Final Climb</p>
+              <p class="text-sm font-semibold text-white tabular-nums" id="phase3">—</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="mt-8 text-center text-[11px] text-slate-500">
+      <p>Phenomenological model (engine v1.0.0) using convective, radiative &amp; evaporative boundary conditions. Real cooks vary &mdash; probe your meat.</p>
+    </footer>
+  </div>
+
+  <script>
+    "use strict";
+
+    /* ================================================================= */
+    /* Empirical physics data matrix                                     */
+    /* ================================================================= */
+    const DATA = {
+      "simulation_metadata": {
+        "engine_version": "1.0.0",
+        "target_proteins": ["beef_brisket", "pork_shoulder"],
+        "base_thermal_diffusivity_alpha": 0.0014,
+        "latent_heat_vaporization_Lv": 2260000
+      },
+      "pit_profiles": {
+        "pellet_cooker": { "name": "Pellet Cooker", "convective_coefficient_hc": 1.45, "radiative_multiplier_epsilon": 0.30, "base_relative_humidity": 0.15, "description": "High forced-draft airflow accelerates mass transfer and evaporative cooling." },
+        "offset_smoker": { "name": "Offset Smoker", "convective_coefficient_hc": 1.15, "radiative_multiplier_epsilon": 0.65, "base_relative_humidity": 0.25, "description": "High natural draft velocity balanced by radiant energy from heavy steel walls." },
+        "ceramic_kamado": { "name": "Ceramic Kamado", "convective_coefficient_hc": 0.65, "radiative_multiplier_epsilon": 0.90, "base_relative_humidity": 0.45, "description": "Low air exchange volume suppresses evaporation; high thermal mass maximizes radiant flux." }
+      },
+      "cook_temperatures": {
+        "225": { "target_fahrenheit": 225, "base_hourly_climb_rate_initial": 25.0, "stall_threshold_fahrenheit": 155.0 },
+        "250": { "target_fahrenheit": 250, "base_hourly_climb_rate_initial": 32.0, "stall_threshold_fahrenheit": 162.0 },
+        "275": { "target_fahrenheit": 275, "base_hourly_climb_rate_initial": 40.0, "stall_threshold_fahrenheit": 170.0 }
+      },
+      "mass_geometry_scaling": {
+        "geometric_constant_beta": 0.42, "exponent": -0.333,
+        "weight_bounds_lbs": { "min": 4.0, "max": 18.0 }
+      },
+      "wrapping_boundary_conditions": {
+        "none": { "name": "Naked / No Wrap", "permeability_psi": 1.0, "stall_duration_multiplier": 1.0, "post_stall_climb_modifier": 0.85 },
+        "peach_butcher_paper": { "name": "Peach Butcher Paper", "permeability_psi": 0.35, "stall_duration_multiplier": 0.45, "post_stall_climb_modifier": 1.20 },
+        "aluminum_foil": { "name": "Aluminum Foil (The Texas Crutch)", "permeability_psi": 0.0, "stall_duration_multiplier": 0.0, "post_stall_climb_modifier": 1.65 }
+      }
+    };
+
+    const START_TEMP = 40;     // °F, fridge-cold meat
+    const FINISH_TEMP = 203;   // °F, probe-tender target
+    const REF_WEIGHT = 10;     // lb, normalization reference
+    const REF_PIT_POWER = 1.13; // offset smoker baseline
+
+    const WRAP_COPY = {
+      none: "Naked cook — full evaporative stall, slower finish, deepest bark.",
+      peach_butcher_paper: "Semi-permeable: trims the stall while preserving bark.",
+      aluminum_foil: "The Texas Crutch — halts evaporation, powers through the stall."
+    };
+
+    /* ================================================================= */
+    /* State                                                             */
+    /* ================================================================= */
+    const state = {
+      weight: 12,
+      pitTemp: "225",
+      pit: "offset_smoker",
+      wrap: "peach_butcher_paper",
+      wrapTemp: 160
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    /* ================================================================= */
+    /* Model — convert inputs into phase durations & a temp path         */
+    /* ================================================================= */
+    function computeModel() {
+      const pit = DATA.pit_profiles[state.pit];
+      const ct = DATA.cook_temperatures[state.pitTemp];
+      const wrap = DATA.wrapping_boundary_conditions[state.wrap];
+      const geo = DATA.mass_geometry_scaling;
+
+      // Mass scaling: larger mass climbs slower / stalls longer.
+      // rate ∝ W^exponent (-0.333); duration ∝ 1/rate.
+      const massRateScale = Math.pow(state.weight / REF_WEIGHT, geo.exponent); // <1 for big meat
+      const massDurScale = 1 / massRateScale;                                  // >1 for big meat
+
+      // Combined pit "drive": convective airflow + radiant flux.
+      const pitPower = 0.7 * pit.convective_coefficient_hc + 0.5 * pit.radiative_multiplier_epsilon;
+      const pitFactor = pitPower / REF_PIT_POWER;
+
+      const stallStart = ct.stall_threshold_fahrenheit;
+
+      // ---- Phase 1: initial climb 40°F -> stall threshold ----
+      const climb1 = ct.base_hourly_climb_rate_initial * pitFactor * massRateScale; // °F/hr avg-ish
+      const t1 = (stallStart - START_TEMP) / climb1 * 1.15; // mild easing correction
+
+      // ---- Phase 2: the stall ----
+      // Evaporative potential: drier pit + more airflow => longer stall.
+      const evapFactor = (1 - pit.base_relative_humidity) * (pit.convective_coefficient_hc / REF_PIT_POWER);
+      const nakedStall = 1.9 * massDurScale * evapFactor; // hours if never wrapped
+
+      let stallDuration;
+      if (state.wrap === "none") {
+        stallDuration = nakedStall;
+      } else {
+        // Fraction of the stall band ridden out *before* the wrap goes on.
+        const stallBand = 12; // °F width of the plateau region
+        const wrapProgress = Math.min(1, Math.max(0, (state.wrapTemp - stallStart) / stallBand));
+        const nakedPortion = nakedStall * wrapProgress;
+        const wrappedPortion = nakedStall * (1 - wrapProgress) * wrap.stall_duration_multiplier;
+        stallDuration = nakedPortion + wrappedPortion;
+      }
+
+      // Plateau rises only slightly; scales with how long the stall lasts.
+      const plateauRise = Math.min(10, stallDuration * 5);
+      const stallEndTemp = stallStart + plateauRise;
+
+      // ---- Phase 3: secondary climb -> finish ----
+      const climb3 = climb1 * wrap.post_stall_climb_modifier;
+      const t3 = (FINISH_TEMP - stallEndTemp) / climb3 * 1.1;
+
+      const totalTime = t1 + stallDuration + t3;
+
+      return {
+        t1, stallDuration, t3, totalTime,
+        stallStart, stallEndTemp, climb1, climb3,
+        postMod: wrap.post_stall_climb_modifier
+      };
+    }
+
+    // Sample a smooth temperature path: array of {t (hours), temp (°F)}
+    function buildPath(m) {
+      const pts = [];
+      const N1 = 60, N2 = 40, N3 = 60;
+
+      // Phase 1: exponential approach (fast then easing into the stall)
+      for (let i = 0; i <= N1; i++) {
+        const f = i / N1;
+        const t = f * m.t1;
+        const temp = m.stallStart - (m.stallStart - START_TEMP) * Math.exp(-2.6 * f);
+        pts.push({ t, temp });
+      }
+      // Phase 2: near-flat plateau, gently rising
+      for (let i = 1; i <= N2; i++) {
+        const f = i / N2;
+        const t = m.t1 + f * m.stallDuration;
+        const temp = m.stallStart + (m.stallEndTemp - m.stallStart) * f;
+        pts.push({ t, temp });
+      }
+      // Phase 3: accelerating climb to finish (steeper when wrapped)
+      const p = 1 / m.postMod; // <1 => fast early rise (foil), >1 => gentle
+      for (let i = 1; i <= N3; i++) {
+        const f = i / N3;
+        const t = m.t1 + m.stallDuration + f * m.t3;
+        const temp = m.stallEndTemp + (FINISH_TEMP - m.stallEndTemp) * Math.pow(f, p);
+        pts.push({ t, temp });
+      }
+      return pts;
+    }
+
+    /* ================================================================= */
+    /* Formatting                                                        */
+    /* ================================================================= */
+    function fmtHrs(h) {
+      if (!isFinite(h) || h <= 0) return "0h 00m";
+      const hours = Math.floor(h);
+      const mins = Math.round((h - hours) * 60);
+      if (mins === 60) return (hours + 1) + "h 00m";
+      return hours + "h " + String(mins).padStart(2, "0") + "m";
+    }
+    function fmtHrsShort(h) {
+      if (!isFinite(h) || h <= 0) return "0.0 h";
+      return h.toFixed(1) + " h";
+    }
+
+    /* ================================================================= */
+    /* SVG chart rendering                                               */
+    /* ================================================================= */
+    const NS = "http://www.w3.org/2000/svg";
+    function el(name, attrs, text) {
+      const e = document.createElementNS(NS, name);
+      for (const k in attrs) e.setAttribute(k, attrs[k]);
+      if (text != null) e.textContent = text;
+      return e;
+    }
+
+    function renderChart(m, pts) {
+      const svg = $("chart");
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+      const W = 900, H = 470;
+      const ml = 58, mr = 24, mt = 20, mb = 48;
+      const pw = W - ml - mr, ph = H - mt - mb;
+
+      const yMin = 40, yMax = 210;
+      const xMax = Math.max(2, Math.ceil(m.totalTime));
+
+      const xScale = (t) => ml + (t / xMax) * pw;
+      const yScale = (v) => mt + (1 - (v - yMin) / (yMax - yMin)) * ph;
+
+      // defs: gradients
+      const defs = el("defs", {});
+      const lg = el("linearGradient", { id: "lineGrad", x1: "0", y1: "0", x2: "1", y2: "0" });
+      lg.appendChild(el("stop", { offset: "0%", "stop-color": "#f59e0b" }));
+      lg.appendChild(el("stop", { offset: "60%", "stop-color": "#f97316" }));
+      lg.appendChild(el("stop", { offset: "100%", "stop-color": "#fb923c" }));
+      defs.appendChild(lg);
+      const ag = el("linearGradient", { id: "areaGrad", x1: "0", y1: "0", x2: "0", y2: "1" });
+      ag.appendChild(el("stop", { offset: "0%", "stop-color": "#f97316", "stop-opacity": "0.28" }));
+      ag.appendChild(el("stop", { offset: "100%", "stop-color": "#f97316", "stop-opacity": "0" }));
+      defs.appendChild(ag);
+      svg.appendChild(defs);
+
+      // horizontal gridlines + Y labels (every 20°F)
+      for (let v = yMin; v <= yMax; v += 20) {
+        const y = yScale(v);
+        svg.appendChild(el("line", { x1: ml, y1: y, x2: W - mr, y2: y, stroke: "#1e293b", "stroke-width": "1" }));
+        svg.appendChild(el("text", { x: ml - 10, y: y + 4, "text-anchor": "end", "font-size": "11", fill: "#64748b", "font-family": "ui-monospace, monospace" }, v + "°"));
+      }
+      // vertical gridlines + X labels
+      const xStep = xMax > 12 ? 2 : 1;
+      for (let hh = 0; hh <= xMax; hh += xStep) {
+        const x = xScale(hh);
+        svg.appendChild(el("line", { x1: x, y1: mt, x2: x, y2: mt + ph, stroke: "#141f38", "stroke-width": "1" }));
+        svg.appendChild(el("text", { x: x, y: H - mb + 20, "text-anchor": "middle", "font-size": "11", fill: "#64748b", "font-family": "ui-monospace, monospace" }, hh + "h"));
+      }
+
+      // axis titles
+      svg.appendChild(el("text", { x: ml + pw / 2, y: H - 6, "text-anchor": "middle", "font-size": "12", fill: "#94a3b8", "font-weight": "600" }, "Hours of Cook Time"));
+      const yTitle = el("text", { x: 16, y: mt + ph / 2, "text-anchor": "middle", "font-size": "12", fill: "#94a3b8", "font-weight": "600", transform: `rotate(-90 16 ${mt + ph / 2})` }, "Internal Meat Temp (°F)");
+      svg.appendChild(yTitle);
+
+      // stall band shading
+      if (m.stallDuration > 0.04) {
+        const x0 = xScale(m.t1), x1 = xScale(m.t1 + m.stallDuration);
+        svg.appendChild(el("rect", { x: x0, y: mt, width: Math.max(1, x1 - x0), height: ph, fill: "#fbbf24", "fill-opacity": "0.10" }));
+        svg.appendChild(el("line", { x1: x0, y1: mt, x2: x0, y2: mt + ph, stroke: "#fbbf24", "stroke-width": "1", "stroke-dasharray": "3 3", "stroke-opacity": "0.5" }));
+        svg.appendChild(el("line", { x1: x1, y1: mt, x2: x1, y2: mt + ph, stroke: "#fbbf24", "stroke-width": "1", "stroke-dasharray": "3 3", "stroke-opacity": "0.5" }));
+        if (x1 - x0 > 44) {
+          svg.appendChild(el("text", { x: (x0 + x1) / 2, y: mt + 14, "text-anchor": "middle", "font-size": "10", fill: "#fcd34d", "font-weight": "700", "letter-spacing": "1" }, "THE STALL"));
+        }
+      }
+
+      // finish line (203°F)
+      const yFin = yScale(FINISH_TEMP);
+      svg.appendChild(el("line", { x1: ml, y1: yFin, x2: W - mr, y2: yFin, stroke: "#22c55e", "stroke-width": "1.25", "stroke-dasharray": "5 4", "stroke-opacity": "0.65" }));
+      svg.appendChild(el("text", { x: W - mr - 4, y: yFin - 6, "text-anchor": "end", "font-size": "10", fill: "#4ade80", "font-weight": "600" }, "Done · 203°F"));
+
+      // wrap target line (only meaningful when a wrap is used)
+      if (state.wrap !== "none") {
+        const yW = yScale(state.wrapTemp);
+        svg.appendChild(el("line", { x1: ml, y1: yW, x2: W - mr, y2: yW, stroke: "#38bdf8", "stroke-width": "1", "stroke-dasharray": "2 4", "stroke-opacity": "0.5" }));
+        svg.appendChild(el("text", { x: ml + 4, y: yW - 5, "text-anchor": "start", "font-size": "10", fill: "#7dd3fc", "font-weight": "600" }, "Wrap · " + state.wrapTemp + "°F"));
+      }
+
+      // build point coords
+      const coords = pts.map((p) => [xScale(Math.min(p.t, xMax)), yScale(Math.min(Math.max(p.temp, yMin), yMax))]);
+
+      // area under curve
+      let areaD = `M ${coords[0][0]} ${yScale(yMin)} `;
+      coords.forEach((c) => { areaD += `L ${c[0].toFixed(1)} ${c[1].toFixed(1)} `; });
+      areaD += `L ${coords[coords.length - 1][0]} ${yScale(yMin)} Z`;
+      svg.appendChild(el("path", { d: areaD, fill: "url(#areaGrad)" }));
+
+      // main curve
+      let lineD = `M ${coords[0][0].toFixed(1)} ${coords[0][1].toFixed(1)} `;
+      for (let i = 1; i < coords.length; i++) lineD += `L ${coords[i][0].toFixed(1)} ${coords[i][1].toFixed(1)} `;
+      svg.appendChild(el("path", { d: lineD, fill: "none", stroke: "url(#lineGrad)", "stroke-width": "3.25", "stroke-linejoin": "round", "stroke-linecap": "round" }));
+
+      // markers: start, stall-entry, finish
+      const start = coords[0];
+      const finish = coords[coords.length - 1];
+      const stallEntry = [xScale(m.t1), yScale(m.stallStart)];
+      svg.appendChild(el("circle", { cx: start[0], cy: start[1], r: "4", fill: "#0f172a", stroke: "#f59e0b", "stroke-width": "2" }));
+      svg.appendChild(el("circle", { cx: stallEntry[0], cy: stallEntry[1], r: "4", fill: "#0f172a", stroke: "#fbbf24", "stroke-width": "2" }));
+      svg.appendChild(el("circle", { cx: finish[0], cy: finish[1], r: "5", fill: "#22c55e", stroke: "#0f172a", "stroke-width": "2" }));
+    }
+
+    /* ================================================================= */
+    /* Segmented control painter                                         */
+    /* ================================================================= */
+    const ACTIVE = ["bg-flame-500", "text-white", "shadow"];
+    const INACTIVE = ["text-slate-400", "hover:text-slate-300"];
+    function paintGroup(selector, dataAttr, current) {
+      document.querySelectorAll(selector).forEach((btn) => {
+        const on = btn.dataset[dataAttr] === current;
+        btn.setAttribute("aria-selected", on ? "true" : "false");
+        ACTIVE.forEach((c) => btn.classList.toggle(c, on));
+        INACTIVE.forEach((c) => btn.classList.toggle(c, !on));
+      });
+    }
+
+    /* ================================================================= */
+    /* Render everything                                                 */
+    /* ================================================================= */
+    function render() {
+      const m = computeModel();
+      const pts = buildPath(m);
+      renderChart(m, pts);
+
+      $("totalTime").textContent = fmtHrs(m.totalTime);
+      $("totalTimeSub").textContent = "≈ " + m.totalTime.toFixed(1) + " hrs to 203°F";
+      $("stallTime").textContent = fmtHrs(m.stallDuration);
+      $("stallSub").textContent = m.stallDuration < 0.05 ? "crushed by the crutch" : "plateau near " + Math.round(m.stallStart) + "°F";
+
+      $("phase1").textContent = fmtHrsShort(m.t1);
+      $("phase2").textContent = fmtHrsShort(m.stallDuration);
+      $("phase3").textContent = fmtHrsShort(m.t3);
+
+      // wrap temp control only relevant when wrapping
+      $("wrapTempWrap").style.opacity = state.wrap === "none" ? "0.4" : "1";
+      $("wrapTemp").disabled = state.wrap === "none";
+    }
+
+    function setFill(el) {
+      const min = parseFloat(el.min), max = parseFloat(el.max), val = parseFloat(el.value);
+      el.style.setProperty("--fill", ((val - min) / (max - min)) * 100 + "%");
+    }
+
+    /* ================================================================= */
+    /* Wiring                                                            */
+    /* ================================================================= */
+    function init() {
+      const weight = $("weight"), wrapTemp = $("wrapTemp"), pit = $("pit");
+
+      weight.addEventListener("input", () => {
+        state.weight = parseFloat(weight.value);
+        $("weightVal").textContent = state.weight.toFixed(1);
+        setFill(weight); render();
+      });
+
+      wrapTemp.addEventListener("input", () => {
+        state.wrapTemp = parseInt(wrapTemp.value, 10);
+        $("wrapTempVal").textContent = state.wrapTemp;
+        setFill(wrapTemp); render();
+      });
+
+      pit.addEventListener("change", () => {
+        state.pit = pit.value;
+        $("pitDesc").textContent = DATA.pit_profiles[state.pit].description;
+        render();
+      });
+
+      $("pitTempToggle").addEventListener("click", (e) => {
+        const btn = e.target.closest(".temp-opt");
+        if (!btn) return;
+        state.pitTemp = btn.dataset.temp;
+        paintGroup(".temp-opt", "temp", state.pitTemp);
+        render();
+      });
+
+      $("wrapToggle").addEventListener("click", (e) => {
+        const btn = e.target.closest(".wrap-opt");
+        if (!btn) return;
+        state.wrap = btn.dataset.wrap;
+        paintGroup(".wrap-opt", "wrap", state.wrap);
+        $("wrapDesc").textContent = WRAP_COPY[state.wrap];
+        render();
+      });
+
+      // initial paint
+      paintGroup(".temp-opt", "temp", state.pitTemp);
+      paintGroup(".wrap-opt", "wrap", state.wrap);
+      setFill(weight); setFill(wrapTemp);
+      render();
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
