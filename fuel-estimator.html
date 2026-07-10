@@ -112,6 +112,7 @@
             <label for="ambient" class="text-sm font-medium text-charcoal-300">Ambient Outdoor Temp</label>
             <span class="text-sm font-mono"><span id="ambientVal" class="text-white font-semibold">70</span><span class="text-charcoal-400">&deg;F</span></span>
           </div>
+          <!-- TODO: offer finer 1°F granularity (step="1"); currently step="5" so the slider skips odd values like 109°F. -->
           <input id="ambient" type="range" min="20" max="125" step="5" value="70" class="w-full" />
           <div class="flex justify-between text-[10px] text-charcoal-500 mt-1 font-mono"><span>20&deg;F</span><span>125&deg;F</span></div>
           <!-- Extreme-heat solar-assist badge: only visible at >= 110°F -->
