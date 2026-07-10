@@ -43,7 +43,6 @@
       box-shadow: 0 0 0 1px #f97316, 0 2px 8px rgba(0,0,0,.6); cursor: pointer;
     }
     .bar-fill { transition: width .4s cubic-bezier(.22,1,.36,1); }
-    /* toggle switch */
     .switch { transition: background-color .2s ease; }
     .switch-knob { transition: transform .2s ease; }
     body::before {
@@ -69,7 +68,6 @@
 
   <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
 
-    <!-- Header -->
     <header class="mb-8">
       <div class="flex items-center gap-3">
         <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-flame-500/15 ring-1 ring-flame-500/40 text-2xl">🪵</div>
@@ -82,11 +80,27 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <!-- ============ INPUTS ============ -->
       <section class="lg:col-span-5 rounded-2xl bg-charcoal-900 ring-1 ring-charcoal-800 shadow-xl shadow-black/40 p-5 sm:p-6 space-y-6">
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400">Cook Setup</h2>
+        
+        <div class="flex items-center justify-between">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400">Cook Setup</h2>
+          <span class="text-[10px] bg-charcoal-800 text-charcoal-400 px-2 py-0.5 rounded border border-charcoal-700 font-mono">v1.1</span>
+        </div>
 
-        <!-- Fuel Type -->
+        <div class="border-b border-charcoal-800 pb-4">
+          <label class="block text-xs font-medium text-charcoal-400 uppercase tracking-wider mb-2">Smoker Presets Quick-Fill</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" id="presetPellet" class="rounded-xl bg-charcoal-800 hover:bg-charcoal-700/80 ring-1 ring-charcoal-700 hover:ring-charcoal-600 p-2.5 text-left text-xs transition-all">
+              <p class="font-semibold text-white flex items-center gap-1">🪵 Pellet Smoker</p>
+              <p class="text-[10px] text-charcoal-400 mt-0.5 font-mono">Traeger/Pit Boss (20lb)</p>
+            </button>
+            <button type="button" id="presetCharcoal" class="rounded-xl bg-charcoal-800 hover:bg-charcoal-700/80 ring-1 ring-charcoal-700 hover:ring-charcoal-600 p-2.5 text-left text-xs transition-all">
+              <p class="font-semibold text-white flex items-center gap-1">🧱 Charcoal Kettle</p>
+              <p class="text-[10px] text-charcoal-400 mt-0.5 font-mono">Weber Kettle (16lb)</p>
+            </button>
+          </div>
+        </div>
+
         <div>
           <label class="block text-sm font-medium text-charcoal-300 mb-2">Fuel Type</label>
           <div id="fuelToggle" aria-label="Fuel type" class="grid grid-cols-3 gap-1 rounded-lg bg-charcoal-800 ring-1 ring-charcoal-700 p-1" role="group">
@@ -97,7 +111,6 @@
           <p id="fuelDesc" class="text-[11px] text-charcoal-500 mt-1.5 font-mono">8,000 BTU/lb &middot; ~1.2 lb/hr ideal burn</p>
         </div>
 
-        <!-- Duration -->
         <div>
           <div class="flex items-baseline justify-between mb-2">
             <label for="duration" class="text-sm font-medium text-charcoal-300">Planned Cook Duration</label>
@@ -107,7 +120,6 @@
           <div class="flex justify-between text-[10px] text-charcoal-500 mt-1 font-mono"><span>1 hr</span><span>24 hr</span></div>
         </div>
 
-        <!-- Insulation -->
         <div>
           <label for="insulation" class="block text-sm font-medium text-charcoal-300 mb-2">Cooker Insulation</label>
           <div class="relative">
@@ -121,22 +133,18 @@
           <p id="insDesc" class="text-[11px] text-charcoal-500 mt-1.5 font-mono">η 45% efficiency &middot; high heat loss</p>
         </div>
 
-        <!-- Ambient Temp -->
         <div>
           <div class="flex items-baseline justify-between mb-2">
             <label for="ambient" class="text-sm font-medium text-charcoal-300">Ambient Outdoor Temp</label>
             <span class="text-sm font-mono"><span id="ambientVal" class="text-white font-semibold">70</span><span class="text-charcoal-400">&deg;F</span></span>
           </div>
-          <!-- TODO: offer finer 1°F granularity (step="1"); currently step="5" so the slider skips odd values like 109°F. -->
-          <input id="ambient" type="range" min="20" max="125" step="5" value="70" class="w-full" />
+          <input id="ambient" type="range" min="20" max="125" step="1" value="70" class="w-full" />
           <div class="flex justify-between text-[10px] text-charcoal-500 mt-1 font-mono"><span>20&deg;F</span><span>125&deg;F</span></div>
-          <!-- Extreme-heat solar-assist badge: only visible at >= 110°F -->
           <div id="heatBadge" class="hidden mt-2 rounded-lg bg-amber-500/10 ring-1 ring-amber-500/40 px-3 py-2">
             <p class="text-[11px] font-medium text-amber-300 leading-snug">☀️ Extreme Heat: Ambient Solar Assist Active (Fuel Burn Reduced by 35%)</p>
           </div>
         </div>
 
-        <!-- Wind -->
         <div>
           <label class="block text-sm font-medium text-charcoal-300 mb-2">Wind Speed</label>
           <div id="windToggle" aria-label="Wind speed" class="grid grid-cols-3 gap-1 rounded-lg bg-charcoal-800 ring-1 ring-charcoal-700 p-1" role="group">
@@ -146,7 +154,6 @@
           </div>
         </div>
 
-        <!-- Fuel unit cost + bag weight -->
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label for="bagCost" class="block text-sm font-medium text-charcoal-300 mb-2">Bag Cost</label>
@@ -165,10 +172,8 @@
         </div>
       </section>
 
-      <!-- ============ OUTPUT ============ -->
       <section class="lg:col-span-7 space-y-6">
 
-        <!-- Metric cards -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="rounded-2xl bg-charcoal-900 ring-1 ring-charcoal-800 shadow-xl shadow-black/40 p-5">
             <p class="text-[11px] font-semibold uppercase tracking-widest text-charcoal-400">Fuel Required</p>
@@ -187,15 +192,14 @@
           </div>
         </div>
 
-        <!-- What-If Optimization Box -->
         <div class="rounded-2xl bg-charcoal-900 ring-1 ring-charcoal-800 shadow-xl shadow-black/40 p-5 sm:p-6">
           <div class="flex items-start justify-between gap-4">
             <div>
               <h3 class="text-sm font-semibold text-white flex items-center gap-2">
-                <span class="text-lg">🧥</span> Simulate Adding a Thermal Insulation Blanket
+                <span class="text-lg">🧥</span> <span id="whatifTitle">Insulation Efficiency Dashboard</span>
               </h3>
               <p class="text-[11px] text-charcoal-500 mt-1 leading-snug max-w-md">
-                See how much fuel &amp; money an insulation upgrade would save on this exact cook.
+                Compare uninsulated baseline performance against modified thermal structures for this exact setup.
               </p>
             </div>
             <button id="whatifSwitch" role="switch" aria-checked="false" class="switch shrink-0 mt-0.5 relative inline-flex h-7 w-12 items-center rounded-full bg-charcoal-700 ring-1 ring-charcoal-600">
@@ -204,55 +208,46 @@
           </div>
 
           <div id="whatifBody" class="hidden mt-5 pt-5 border-t border-charcoal-800">
-            <!-- Non-single-wall notice -->
-            <div id="whatifNotice" class="hidden rounded-xl bg-charcoal-800/60 ring-1 ring-charcoal-700 p-4 text-sm text-charcoal-300">
-              <p><span class="text-emerald-400 font-semibold">You're already insulated.</span> <span id="noticeText"></span> The blanket upgrade models an improvement over a <span class="font-medium text-white">single-wall steel</span> cooker &mdash; switch Insulation to Single-Wall Steel to see the savings.</p>
-            </div>
-
-            <!-- Comparison -->
             <div id="whatifCompare">
-              <!-- Savings callout -->
               <div class="grid grid-cols-2 gap-4 mb-5">
                 <div class="rounded-xl bg-emerald-500/10 ring-1 ring-emerald-500/40 p-4 text-center">
-                  <p class="text-[10px] font-semibold uppercase tracking-wider text-emerald-300">Fuel Saved</p>
+                  <p id="lbsSavedTitle" class="text-[10px] font-semibold uppercase tracking-wider text-emerald-300">Fuel Saved</p>
                   <p class="mt-1 text-2xl font-extrabold text-emerald-400 tabular-nums"><span id="lbsSaved">0</span> <span class="text-sm">lb</span></p>
-                  <p class="text-[10px] text-emerald-300/70 mt-0.5"><span id="pctLbsSaved">0</span>% less fuel</p>
+                  <p class="text-[10px] text-emerald-300/70 mt-0.5"><span id="pctLbsSaved">0</span>% less burn</p>
                 </div>
                 <div class="rounded-xl bg-emerald-500/10 ring-1 ring-emerald-500/40 p-4 text-center">
-                  <p class="text-[10px] font-semibold uppercase tracking-wider text-emerald-300">Money Saved</p>
+                  <p id="costSavedTitle" class="text-[10px] font-semibold uppercase tracking-wider text-emerald-300">Money Saved</p>
                   <p class="mt-1 text-2xl font-extrabold text-emerald-400 tabular-nums">$<span id="costSaved">0.00</span></p>
-                  <p class="text-[10px] text-emerald-300/70 mt-0.5">on this cook</p>
+                  <p id="savingsSubtext" class="text-[10px] text-emerald-300/70 mt-0.5">on this cook</p>
                 </div>
               </div>
 
-              <!-- Bar chart: Fuel -->
               <p class="text-[11px] font-semibold uppercase tracking-wider text-charcoal-400 mb-2">Fuel Weight (lb)</p>
               <div class="space-y-2 mb-5">
                 <div class="flex items-center gap-3">
-                  <span class="w-24 shrink-0 text-[11px] text-charcoal-400">Single-Wall</span>
+                  <span id="lblFuelCur" class="w-28 shrink-0 text-[11px] text-charcoal-400 truncate">Baseline</span>
                   <div class="flex-1 h-6 rounded-md bg-charcoal-800 overflow-hidden">
                     <div id="barFuelCur" class="bar-fill h-full rounded-md bg-charcoal-500 flex items-center justify-end pr-2" style="width:0%"><span id="barFuelCurLbl" class="text-[10px] font-mono text-white"></span></div>
                   </div>
                 </div>
                 <div class="flex items-center gap-3">
-                  <span class="w-24 shrink-0 text-[11px] text-emerald-300">+ Blanket</span>
+                  <span id="lblFuelNew" class="w-28 shrink-0 text-[11px] text-emerald-300 truncate">Insulated</span>
                   <div class="flex-1 h-6 rounded-md bg-charcoal-800 overflow-hidden">
                     <div id="barFuelNew" class="bar-fill h-full rounded-md bg-emerald-500 flex items-center justify-end pr-2" style="width:0%"><span id="barFuelNewLbl" class="text-[10px] font-mono text-charcoal-950"></span></div>
                   </div>
                 </div>
               </div>
 
-              <!-- Bar chart: Cost -->
               <p class="text-[11px] font-semibold uppercase tracking-wider text-charcoal-400 mb-2">Cost of Cook ($)</p>
               <div class="space-y-2">
                 <div class="flex items-center gap-3">
-                  <span class="w-24 shrink-0 text-[11px] text-charcoal-400">Single-Wall</span>
+                  <span id="lblCostCur" class="w-28 shrink-0 text-[11px] text-charcoal-400 truncate">Baseline</span>
                   <div class="flex-1 h-6 rounded-md bg-charcoal-800 overflow-hidden">
                     <div id="barCostCur" class="bar-fill h-full rounded-md bg-charcoal-500 flex items-center justify-end pr-2" style="width:0%"><span id="barCostCurLbl" class="text-[10px] font-mono text-white"></span></div>
                   </div>
                 </div>
                 <div class="flex items-center gap-3">
-                  <span class="w-24 shrink-0 text-[11px] text-emerald-300">+ Blanket</span>
+                  <span id="lblCostNew" class="w-28 shrink-0 text-[11px] text-emerald-300 truncate">Insulated</span>
                   <div class="flex-1 h-6 rounded-md bg-charcoal-800 overflow-hidden">
                     <div id="barCostNew" class="bar-fill h-full rounded-md bg-emerald-500 flex items-center justify-end pr-2" style="width:0%"><span id="barCostNewLbl" class="text-[10px] font-mono text-charcoal-950"></span></div>
                   </div>
@@ -272,9 +267,6 @@
   <script>
     "use strict";
 
-    /* ================================================================= */
-    /* Empirical fuel metrics configuration                              */
-    /* ================================================================= */
     const CONFIG = {
       "fuel_metrics": {
         "wood_pellets": { "btu_per_lb": 8000, "base_burn_ideal": 1.2 },
@@ -283,8 +275,8 @@
       },
       "insulation_profiles": {
         "single_wall_steel": { "efficiency_eta": 0.45, "loss_coefficient_u": 1.5 },
-        "ceramic_double_wall": { "efficiency_eta": 0.85, "loss_coefficient_u": 0.4 },
-        "insulated_blanket": { "efficiency_eta": 0.70, "loss_coefficient_u": 0.7 }
+        "insulated_blanket": { "efficiency_eta": 0.70, "loss_coefficient_u": 0.7 },
+        "ceramic_double_wall": { "efficiency_eta": 0.85, "loss_coefficient_u": 0.4 }
       },
       "environmental_multipliers": {
         "ambient_temp": {
@@ -307,15 +299,7 @@
       charcoal_briquettes: "Charcoal",
       hardwood_splits: "Wood Splits"
     };
-    const INS_LABELS = {
-      single_wall_steel: "Single-Wall Steel",
-      insulated_blanket: "Insulated Blanket",
-      ceramic_double_wall: "Ceramic Double-Wall"
-    };
 
-    /* ================================================================= */
-    /* State                                                             */
-    /* ================================================================= */
     const state = {
       fuel: "wood_pellets",
       duration: 12,
@@ -330,13 +314,10 @@
     const $ = (id) => document.getElementById(id);
     const money = (n) => Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    // Ambient temp -> burn multiplier, interpolated across empirical anchor points.
-    // At >= 110°F the "solar assist" tier (environmental_multipliers.ambient_temp.above_110)
-    // engages, cutting the baseline hourly burn rate to 0.65 (a 35% reduction).
     const AMBIENT_ANCHORS = [[20, 1.75], [40, 1.35], [70, 1.00], [90, 0.80], [110, 0.65], [125, 0.65]];
     function ambientMultiplier(tempF) {
       const et = CONFIG.environmental_multipliers.ambient_temp;
-      if (tempF >= 110) return et.above_110; // Extreme heat: solar assist active
+      if (tempF >= 110) return et.above_110; 
       const a = AMBIENT_ANCHORS;
       if (tempF <= a[0][0]) return a[0][1];
       for (let i = 1; i < a.length; i++) {
@@ -348,10 +329,6 @@
       return a[a.length - 1][1];
     }
 
-    /* ================================================================= */
-    /* Core fuel model                                                   */
-    /*   lbs = base_burn * duration * ambient * wind / efficiency_eta    */
-    /* ================================================================= */
     function estimate(insulationKey) {
       const fm = CONFIG.fuel_metrics[state.fuel];
       const ins = CONFIG.insulation_profiles[insulationKey];
@@ -367,9 +344,6 @@
       return { lbs, cost, bags, costPerLb, effRate };
     }
 
-    /* ================================================================= */
-    /* Render                                                            */
-    /* ================================================================= */
     function render() {
       const r = estimate(state.insulation);
 
@@ -380,14 +354,12 @@
       $("cost").textContent = money(r.cost);
       $("costPerHr").textContent = "$" + money(state.duration > 0 ? r.cost / state.duration : 0);
 
-      // fuel description
       const fm = CONFIG.fuel_metrics[state.fuel];
       $("fuelDesc").textContent = fm.btu_per_lb.toLocaleString() + " BTU/lb · ~" + fm.base_burn_ideal + " lb/hr ideal burn";
-      // insulation description
+      
       const ins = CONFIG.insulation_profiles[state.insulation];
       $("insDesc").textContent = "η " + Math.round(ins.efficiency_eta * 100) + "% efficiency · U-loss " + ins.loss_coefficient_u;
 
-      // Extreme-heat solar-assist badge appears at >= 110°F
       $("heatBadge").classList.toggle("hidden", state.ambientTemp < 110);
 
       renderWhatIf(r);
@@ -399,51 +371,69 @@
       if (!state.whatif) { body.classList.add("hidden"); return; }
       body.classList.remove("hidden");
 
-      const notice = $("whatifNotice");
-      const compare = $("whatifCompare");
+      let baseData, altData;
+      let labelCur = "", labelAlt = "";
+      
+      const uninsulated = estimate("single_wall_steel");
+      const blanket = estimate("insulated_blanket");
+      const ceramic = estimate("ceramic_double_wall");
 
-      // The blanket upgrade only makes sense as an improvement over single-wall steel.
-      if (state.insulation !== "single_wall_steel") {
-        notice.classList.remove("hidden");
-        compare.classList.add("hidden");
-        $("noticeText").textContent = "You're running " + INS_LABELS[state.insulation] + " (η " +
-          Math.round(CONFIG.insulation_profiles[state.insulation].efficiency_eta * 100) + "%).";
-        return;
+      // Dynamic switching based on active state insulation profile
+      if (state.insulation === "single_wall_steel") {
+        baseData = uninsulated;
+        altData = blanket;
+        labelCur = "Single-Wall";
+        labelAlt = "+ Blanket Upgrade";
+        $("whatifTitle").textContent = "Simulate Adding an Insulation Blanket";
+        $("lbsSavedTitle").textContent = "Potential Fuel Saved";
+        $("costSavedTitle").textContent = "Potential Money Saved";
+        $("savingsSubtext").textContent = "by upgrading pit setup";
+      } else if (state.insulation === "insulated_blanket") {
+        baseData = uninsulated;
+        altData = blanket;
+        labelCur = "Uninsulated Base";
+        labelAlt = "Your Blanket (Active)";
+        $("whatifTitle").textContent = "Active Thermal Blanket Analysis";
+        $("lbsSavedTitle").textContent = "Current Fuel Saved";
+        $("costSavedTitle").textContent = "Current Money Saved";
+        $("savingsSubtext").textContent = "vs uninsulated steel";
+      } else {
+        baseData = uninsulated;
+        altData = ceramic;
+        labelCur = "Uninsulated Base";
+        labelAlt = "Your Ceramic (Active)";
+        $("whatifTitle").textContent = "Active Ceramic Core Analysis";
+        $("lbsSavedTitle").textContent = "Current Fuel Saved";
+        $("costSavedTitle").textContent = "Current Money Saved";
+        $("savingsSubtext").textContent = "vs uninsulated steel";
       }
-      notice.classList.add("hidden");
-      compare.classList.remove("hidden");
 
-      const cur = estimate("single_wall_steel");
-      const upg = estimate("insulated_blanket");
-
-      const lbsSaved = Math.max(0, cur.lbs - upg.lbs);
-      const costSaved = Math.max(0, cur.cost - upg.cost);
-      const pctSaved = cur.lbs > 0 ? (lbsSaved / cur.lbs) * 100 : 0;
+      const lbsSaved = Math.max(0, baseData.lbs - altData.lbs);
+      const costSaved = Math.max(0, baseData.cost - altData.cost);
+      const pctSaved = baseData.lbs > 0 ? (lbsSaved / baseData.lbs) * 100 : 0;
 
       $("lbsSaved").textContent = lbsSaved.toFixed(1);
       $("pctLbsSaved").textContent = Math.round(pctSaved);
       $("costSaved").textContent = money(costSaved);
 
-      // Fuel bars (scaled to the larger = current single-wall)
-      const maxLbs = Math.max(cur.lbs, upg.lbs, 0.0001);
-      $("barFuelCur").style.width = (cur.lbs / maxLbs * 100) + "%";
-      $("barFuelNew").style.width = (upg.lbs / maxLbs * 100) + "%";
-      $("barFuelCurLbl").textContent = cur.lbs.toFixed(1) + " lb";
-      $("barFuelNewLbl").textContent = upg.lbs.toFixed(1) + " lb";
+      $("lblFuelCur").textContent = labelCur;
+      $("lblFuelNew").textContent = labelAlt;
+      $("lblCostCur").textContent = labelCur;
+      $("lblCostNew").textContent = labelAlt;
 
-      // Cost bars
-      const maxCost = Math.max(cur.cost, upg.cost, 0.0001);
-      $("barCostCur").style.width = (cur.cost / maxCost * 100) + "%";
-      $("barCostNew").style.width = (upg.cost / maxCost * 100) + "%";
-      $("barCostCurLbl").textContent = "$" + money(cur.cost);
-      $("barCostNewLbl").textContent = "$" + money(upg.cost);
+      const maxLbs = Math.max(baseData.lbs, altData.lbs, 0.0001);
+      $("barFuelCur").style.width = (baseData.lbs / maxLbs * 100) + "%";
+      $("barFuelNew").style.width = (altData.lbs / maxLbs * 100) + "%";
+      $("barFuelCurLbl").textContent = baseData.lbs.toFixed(1) + " lb";
+      $("barFuelNewLbl").textContent = altData.lbs.toFixed(1) + " lb";
+
+      const maxCost = Math.max(baseData.cost, altData.cost, 0.0001);
+      $("barCostCur").style.width = (baseData.cost / maxCost * 100) + "%";
+      $("barCostNew").style.width = (altData.cost / maxCost * 100) + "%";
+      $("barCostCurLbl").textContent = "$" + money(baseData.cost);
+      $("barCostNewLbl").textContent = "$" + money(altData.cost);
     }
 
-    /* ================================================================= */
-    /* Segmented control painter                                         */
-    /* ================================================================= */
-    const ACTIVE = ["bg-flame-500", "text-charcoal-950", "shadow", "font-semibold"];
-    const INACTIVE = ["text-charcoal-400", "hover:text-charcoal-300"];
     function paintGroup(selector, dataAttr, current) {
       document.querySelectorAll(selector).forEach((btn) => {
         const on = btn.dataset[dataAttr] === current;
@@ -453,14 +443,14 @@
       });
     }
 
+    const ACTIVE = ["bg-flame-500", "text-charcoal-950", "shadow", "font-semibold"];
+    const INACTIVE = ["text-charcoal-400", "hover:text-charcoal-300"];
+
     function setFill(el) {
       const min = parseFloat(el.min), max = parseFloat(el.max), val = parseFloat(el.value);
       el.style.setProperty("--fill", ((val - min) / (max - min)) * 100 + "%");
     }
 
-    /* ================================================================= */
-    /* Persistence — per-page state (fuel has no shared meat weight/wrap) */
-    /* ================================================================= */
     const STORE_KEY = "pitmaster.fuel";
     function persist() {
       try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
@@ -468,6 +458,7 @@
     function loadState() {
       try { Object.assign(state, JSON.parse(localStorage.getItem(STORE_KEY) || "{}")); } catch (e) { /* ignore */ }
     }
+    
     function syncControls() {
       const duration = $("duration"), insulation = $("insulation"), ambient = $("ambient"),
             bagCost = $("bagCost"), bagWeight = $("bagWeight");
@@ -485,9 +476,6 @@
       setFill(duration); setFill(ambient);
     }
 
-    /* ================================================================= */
-    /* Wiring                                                            */
-    /* ================================================================= */
     function init() {
       const duration = $("duration"), insulation = $("insulation"),
             ambient = $("ambient"), bagCost = $("bagCost"), bagWeight = $("bagWeight");
@@ -531,7 +519,24 @@
       bagCost.addEventListener("input", onCost);
       bagWeight.addEventListener("input", onCost);
 
-      // What-if toggle switch
+      // Presets wiring
+      $("presetPellet").addEventListener("click", () => {
+        state.fuel = "wood_pellets";
+        state.bagWeight = 20;
+        state.bagCost = 18;
+        syncControls();
+        render();
+      });
+
+      $("presetCharcoal").addEventListener("click", () => {
+        state.fuel = "charcoal_briquettes";
+        state.bagWeight = 16;
+        state.bagCost = 12;
+        syncControls();
+        render();
+      });
+
+      // What-if dashboard toggle switch
       const sw = $("whatifSwitch"), knob = sw.querySelector(".switch-knob");
       sw.addEventListener("click", () => {
         state.whatif = !state.whatif;
@@ -542,7 +547,6 @@
         render();
       });
 
-      // Restore persisted state, hydrate controls, then paint
       loadState();
       syncControls();
       render();
