@@ -124,6 +124,17 @@
           <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-mono"><span>150&deg;F</span><span>170&deg;F</span></div>
           <p class="text-[11px] text-slate-500 mt-1.5 leading-snug">Internal temp at which you'll wrap. Wrapping earlier cuts the stall short.</p>
         </div>
+
+        <!-- Regional Climate Profile -->
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-2">Regional Climate Profile</label>
+          <div id="climateToggle" class="grid grid-cols-3 gap-1 rounded-lg bg-slate-800 ring-1 ring-slate-700 p-1" role="tablist">
+            <button data-climate="arid" class="climate-opt rounded-md px-1 py-2 text-[11px] leading-tight font-medium transition-colors" aria-selected="false">Arid / Desert<br /><span class="text-[9px] opacity-70">&lt;20% RH</span></button>
+            <button data-climate="moderate" class="climate-opt rounded-md px-1 py-2 text-[11px] leading-tight font-medium transition-colors" aria-selected="true">Moderate<br /><span class="text-[9px] opacity-70">20&ndash;60% RH</span></button>
+            <button data-climate="humid" class="climate-opt rounded-md px-1 py-2 text-[11px] leading-tight font-medium transition-colors" aria-selected="false">Humid / Coastal<br /><span class="text-[9px] opacity-70">&gt;60% RH</span></button>
+          </div>
+          <p id="climateDesc" class="text-[11px] text-slate-500 mt-1.5 leading-snug">Standard baseline stall behavior.</p>
+        </div>
       </section>
 
       <!-- ============ OUTPUT ============ -->
@@ -223,6 +234,23 @@
       aluminum_foil: "The Texas Crutch — halts evaporation, powers through the stall."
     };
 
+    // Regional climate modifiers applied on top of the base curve.
+    //   stallTempMult   — shifts the stall onset temperature (arid lower, humid higher)
+    //   stallDurationMult — scales plateau length (humid extends it)
+    //   postClimbMult   — scales post-wrap climb rate (arid accelerates)
+    // Multipliers land the default 225°F profile (155°F stall) near the
+    // real-world targets: arid ≈145°F, humid ≈162°F.
+    const CLIMATE = {
+      arid:     { stallTempMult: 0.935, stallDurationMult: 1.00, postClimbMult: 1.20 },
+      moderate: { stallTempMult: 1.00,  stallDurationMult: 1.00, postClimbMult: 1.00 },
+      humid:    { stallTempMult: 1.045, stallDurationMult: 1.15, postClimbMult: 1.00 }
+    };
+    const CLIMATE_COPY = {
+      arid: "Arid desert air — intense evaporative cooling drops the stall onset (~145°F) but races ~20% faster to the finish once wrapped.",
+      moderate: "Standard baseline stall behavior.",
+      humid: "Humid coastal air — suppressed evaporation lifts the stall onset (~162°F) and stretches the plateau ~15% longer."
+    };
+
     /* ================================================================= */
     /* State                                                             */
     /* ================================================================= */
@@ -231,7 +259,8 @@
       pitTemp: "225",
       pit: "offset_smoker",
       wrap: "peach_butcher_paper",
-      wrapTemp: 160
+      wrapTemp: 160,
+      climate: "moderate"
     };
 
     const $ = (id) => document.getElementById(id);
@@ -244,6 +273,7 @@
       const ct = DATA.cook_temperatures[state.pitTemp];
       const wrap = DATA.wrapping_boundary_conditions[state.wrap];
       const geo = DATA.mass_geometry_scaling;
+      const cl = CLIMATE[state.climate];
 
       // Mass scaling: larger mass climbs slower / stalls longer.
       // rate ∝ W^exponent (-0.333); duration ∝ 1/rate.
@@ -254,7 +284,8 @@
       const pitPower = 0.7 * pit.convective_coefficient_hc + 0.5 * pit.radiative_multiplier_epsilon;
       const pitFactor = pitPower / REF_PIT_POWER;
 
-      const stallStart = ct.stall_threshold_fahrenheit;
+      // Climate shifts where the stall lands on the temperature scale.
+      const stallStart = ct.stall_threshold_fahrenheit * cl.stallTempMult;
 
       // ---- Phase 1: initial climb 40°F -> stall threshold ----
       const climb1 = ct.base_hourly_climb_rate_initial * pitFactor * massRateScale; // °F/hr avg-ish
@@ -276,13 +307,17 @@
         const wrappedPortion = nakedStall * (1 - wrapProgress) * wrap.stall_duration_multiplier;
         stallDuration = nakedPortion + wrappedPortion;
       }
+      // Humid air suppresses evaporation and extends the plateau.
+      stallDuration *= cl.stallDurationMult;
 
       // Plateau rises only slightly; scales with how long the stall lasts.
       const plateauRise = Math.min(10, stallDuration * 5);
       const stallEndTemp = stallStart + plateauRise;
 
       // ---- Phase 3: secondary climb -> finish ----
-      const climb3 = climb1 * wrap.post_stall_climb_modifier;
+      // Climate can accelerate the post-wrap climb (arid surface dries fast).
+      const effPostMod = wrap.post_stall_climb_modifier * cl.postClimbMult;
+      const climb3 = climb1 * effPostMod;
       const t3 = (FINISH_TEMP - stallEndTemp) / climb3 * 1.1;
 
       const totalTime = t1 + stallDuration + t3;
@@ -290,7 +325,7 @@
       return {
         t1, stallDuration, t3, totalTime,
         stallStart, stallEndTemp, climb1, climb3,
-        postMod: wrap.post_stall_climb_modifier
+        postMod: effPostMod
       };
     }
 
@@ -476,6 +511,8 @@
       // wrap temp control only relevant when wrapping
       $("wrapTempWrap").style.opacity = state.wrap === "none" ? "0.4" : "1";
       $("wrapTemp").disabled = state.wrap === "none";
+
+      $("climateDesc").textContent = CLIMATE_COPY[state.climate];
     }
 
     function setFill(el) {
@@ -524,9 +561,19 @@
         render();
       });
 
+      // Regional climate profile — recompute & redraw the curve on change.
+      $("climateToggle").addEventListener("click", (e) => {
+        const btn = e.target.closest(".climate-opt");
+        if (!btn) return;
+        state.climate = btn.dataset.climate;
+        paintGroup(".climate-opt", "climate", state.climate);
+        render();
+      });
+
       // initial paint
       paintGroup(".temp-opt", "temp", state.pitTemp);
       paintGroup(".wrap-opt", "wrap", state.wrap);
+      paintGroup(".climate-opt", "climate", state.climate);
       setFill(weight); setFill(wrapTemp);
       render();
     }
