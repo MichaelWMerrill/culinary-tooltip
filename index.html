@@ -33,6 +33,8 @@
     /* animated mock heat curve */
     @keyframes dash { to { stroke-dashoffset: 0; } }
     .curve-anim { stroke-dasharray: 240; stroke-dashoffset: 240; animation: dash 2.4s ease forwards; }
+    @keyframes fade-in { from { opacity: 0; transform: translateY(-2px); } to { opacity: 1; transform: none; } }
+    .animate-fade-in { animation: fade-in .3s ease both; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col bg-base-850 text-base-300 font-display antialiased selection:bg-flame-500/30">
@@ -192,6 +194,13 @@
               <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
             </span>
           </a>
+
+          <div class="group flex flex-col rounded-2xl bg-base-800/30 ring-1 ring-base-700/40 p-6 border border-dashed border-base-700/50 min-h-[340px] overflow-hidden relative backdrop-blur-[2px]">
+            <div class="absolute top-2 right-3 text-[9px] font-mono font-bold uppercase tracking-widest text-base-500">Sponsored Placement</div>
+            <div class="flex-1 flex flex-col items-center justify-center text-center p-4">
+              <div class="w-[300px] h-[250px] bg-base-900/60 rounded-xl border border-base-800 flex items-center justify-center text-xs font-mono text-base-500 tracking-wider">[300x250 Medium Rectangle Ad Wrapper]</div>
+            </div>
+          </div>
 
           <div class="relative group flex flex-col rounded-2xl bg-base-800/40 ring-1 ring-base-700/60 p-6 shadow-xl shadow-black/20 border border-dashed border-base-600/30 overflow-hidden backdrop-blur-[2px]">
             <div class="absolute inset-0 bg-base-900/10 pointer-events-none"></div>
@@ -411,5 +420,12 @@
       initComingSoonMetrics();
     });
   </script>
+
+  <div class="sticky bottom-0 left-0 right-0 z-50 bg-[#0d121b]/95 border-t border-gray-800 backdrop-blur-md w-full min-h-[60px] sm:min-h-[90px] flex flex-col items-center justify-center p-1 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.5)]">
+    <div class="text-[8px] font-mono tracking-widest text-base-600 uppercase mb-0.5">Advertisement</div>
+    <div class="w-full max-w-[728px] h-[50px] sm:h-[60px] bg-base-900/80 rounded border border-base-800 flex items-center justify-center text-[10px] font-mono text-base-500 tracking-wide text-center px-4">
+      [Persistent 728x90 Mobile/Desktop Responsive Smart-Fluid Banner Slot]
+    </div>
+  </div>
 </body>
 </html>

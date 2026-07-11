@@ -29,7 +29,8 @@
               400: '#f97316',
               300: '#fb923c',
             },
-            coal: '#0a0a0a'
+            coal: '#0a0a0a',
+            base: { DEFAULT: '#121824', 900: '#0d121b', 850: '#121824', 800: '#1a2233', 700: '#26314a', 600: '#354262', 500: '#4a5878', 400: '#7c8aab', 300: '#aeb8d0' }
           },
           fontFamily: {
             display: ['ui-sans-serif', 'system-ui', 'Segoe UI', 'sans-serif'],
@@ -297,6 +298,17 @@
       </div>
     </section>
 
+    <div class="mt-6 rounded-xl bg-smoke-900 border border-ember-500/20 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🥩</span>
+        <div>
+          <h4 class="text-xs font-bold text-white uppercase tracking-wide">Source Premium USDA Prime Packers</h4>
+          <p class="text-[11px] text-smoke-400">Higher marbling directly reduces moisture mass-loss during lipid breakdown.</p>
+        </div>
+      </div>
+      <a href="#" target="_blank" rel="noopener noreferrer" onclick="PitmasterAnalytics.emit('affiliate_click', { destination: 'prime_meat' })" class="w-full sm:w-auto text-center bg-ember-600 hover:bg-ember-500 text-white font-bold text-[11px] uppercase tracking-wider px-4 py-2 rounded-lg transition-colors">Shop Meat Box Options →</a>
+    </div>
+
     <footer class="mt-8 text-center text-[11px] text-smoke-500">
       <p>Estimates based on empirical trim &amp; shrinkage matrix v2026.1. Actual yields vary by cut, cooker, and pitmaster.</p>
     </footer>
@@ -537,6 +549,7 @@
         state.weight = parseFloat(weight.value);
         $("weightVal").textContent = fmt(state.weight);
         setRangeFill(weight);
+        PitmasterAnalytics.debounceSlider('brisket_weight_drag', weight.value);
         render();
       });
 
@@ -556,8 +569,9 @@
       });
 
       // Grade dropdown
-      grade.addEventListener("change", () => {
+      grade.addEventListener("change", (e) => {
         state.grade = grade.value;
+        PitmasterAnalytics.emit('brisket_grade_selected', { grade: e.target.value });
         // Auto-sync price to grade's market average until user overrides
         if (!state.priceTouched) applyMarketPrice();
         render();
@@ -614,6 +628,29 @@
     }
 
     document.addEventListener("DOMContentLoaded", init);
+
+    /* ------------------------------------------------------------------ */
+    /* Global telemetry engine                                            */
+    /* ------------------------------------------------------------------ */
+    const PitmasterAnalytics = {
+      emit: function(eventName, data = {}) {
+        const timestamp = new Date().toISOString();
+        console.log(`%c[Telemetry] ${eventName}`, 'color: #f59e0b; font-weight: bold;', { timestamp, ...data });
+        if (typeof gtag === 'function') { gtag('event', eventName, data); }
+      },
+      debounceSlider: function(eventName, value) {
+        if (!this._timers) this._timers = {};
+        clearTimeout(this._timers[eventName]);
+        this._timers[eventName] = setTimeout(() => { this.emit(eventName, { value: value }); }, 600);
+      }
+    };
   </script>
+
+  <div class="sticky bottom-0 left-0 right-0 z-50 bg-[#0d121b]/95 border-t border-gray-800 backdrop-blur-md w-full min-h-[60px] sm:min-h-[90px] flex flex-col items-center justify-center p-1 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.5)]">
+    <div class="text-[8px] font-mono tracking-widest text-base-600 uppercase mb-0.5">Advertisement</div>
+    <div class="w-full max-w-[728px] h-[50px] sm:h-[60px] bg-base-900/80 rounded border border-base-800 flex items-center justify-center text-[10px] font-mono text-base-500 tracking-wide text-center px-4">
+      [Persistent 728x90 Mobile/Desktop Responsive Smart-Fluid Banner Slot]
+    </div>
+  </div>
 </body>
 </html>
