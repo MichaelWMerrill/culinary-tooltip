@@ -1,0 +1,8 @@
+# Cloudflare Workers config for the Pitmaster Command Center static site.
+# This is a static-assets-only deployment (no Worker script): Cloudflare serves
+# the HTML files in this repo directly. index.html is the default document.
+name = "pitmaster-command-center"
+compatibility_date = "2025-06-01"
+
+[assets]
+directory = "."
