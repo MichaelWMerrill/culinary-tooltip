@@ -111,6 +111,7 @@
               <option value="pellet_cooker">Pellet Cooker</option>
               <option value="offset_smoker" selected>Offset Smoker</option>
               <option value="ceramic_kamado">Ceramic Kamado</option>
+              <option value="charcoal_kettle">Charcoal Kettle</option>
             </select>
             <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </div>
@@ -230,7 +231,8 @@
       "pit_profiles": {
         "pellet_cooker": { "name": "Pellet Cooker", "convective_coefficient_hc": 1.45, "radiative_multiplier_epsilon": 0.30, "base_relative_humidity": 0.15, "description": "High forced-draft airflow accelerates mass transfer and evaporative cooling." },
         "offset_smoker": { "name": "Offset Smoker", "convective_coefficient_hc": 1.15, "radiative_multiplier_epsilon": 0.65, "base_relative_humidity": 0.25, "description": "High natural draft velocity balanced by radiant energy from heavy steel walls." },
-        "ceramic_kamado": { "name": "Ceramic Kamado", "convective_coefficient_hc": 0.65, "radiative_multiplier_epsilon": 0.90, "base_relative_humidity": 0.45, "description": "Low air exchange volume suppresses evaporation; high thermal mass maximizes radiant flux." }
+        "ceramic_kamado": { "name": "Ceramic Kamado", "convective_coefficient_hc": 0.65, "radiative_multiplier_epsilon": 0.90, "base_relative_humidity": 0.45, "description": "Low air exchange volume suppresses evaporation; high thermal mass maximizes radiant flux." },
+        "charcoal_kettle": { "name": "Charcoal Kettle", "convective_coefficient_hc": 1.25, "radiative_multiplier_epsilon": 0.40, "base_relative_humidity": 0.20, "description": "Thin-walled steel construction with strong natural convective airflow drives brisk evaporative cooling and modest radiant retention." }
       },
       "cook_temperatures": {
         "225": { "target_fahrenheit": 225, "base_hourly_climb_rate_initial": 25.0, "stall_threshold_fahrenheit": 155.0 },
