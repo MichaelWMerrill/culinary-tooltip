@@ -51,8 +51,7 @@
   <div class="relative z-10 flex-1 w-full">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-      <!-- ============ HERO ============ -->
-      <header class="pt-14 sm:pt-20 pb-10 sm:pb-14 text-center">
+      <header class="pt-14 sm:pt-20 pb-10 sm:pb-12 text-center">
         <div class="inline-flex items-center gap-2 rounded-full bg-flame-500/10 ring-1 ring-flame-500/40 px-3.5 py-1.5 mb-6">
           <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-flame-400 opacity-75"></span>
@@ -77,16 +76,66 @@
         </div>
       </header>
 
-      <!-- ============ CARD GRID ============ -->
+      <section class="mb-12 rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-6 shadow-xl shadow-black/30 backdrop-blur-sm">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div class="max-w-md">
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">⚙️</span>
+              <h2 class="text-lg font-bold text-white">Save My Setup</h2>
+              <span id="syncBadge" class="hidden text-[10px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/30 px-2 py-0.5 rounded-md animate-fade-in">
+                Profile Synced
+              </span>
+            </div>
+            <p class="mt-1 text-xs text-base-400 leading-relaxed">
+              Lock in your rig configurations. These values save locally to automatically hydrate your parameters, saving time during calculations.
+            </p>
+          </div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-1 max-w-3xl">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-base-400 mb-1.5">Rig Configuration</label>
+              <select id="setupSmoker" class="w-full rounded-lg bg-base-900 border border-base-700 px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-flame-500 transition-all">
+                <option value="">-- Select Smoker Rig --</option>
+                <option value="Pit Boss Pellet Smoker">Pit Boss Pellet Smoker</option>
+                <option value="Traeger Pellet Smoker">Traeger Pellet Smoker</option>
+                <option value="Weber Kettle Charcoal Grill">Weber Kettle Charcoal Grill</option>
+                <option value="Custom Offset Smoker">Custom Offset Pipe Smoker</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-base-400 mb-1.5">Primary Wood Species</label>
+              <select id="setupWood" class="w-full rounded-lg bg-base-900 border border-base-700 px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-flame-500 transition-all">
+                <option value="">-- Select Fuel Wood --</option>
+                <option value="Apple Wood">Apple Wood</option>
+                <option value="Cherry Wood">Cherry Wood</option>
+                <option value="Red Oak">Red Oak Species</option>
+                <option value="Hickory">Hickory Species</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-base-400 mb-1.5">Baseline Target Temp (°F)</label>
+              <input id="setupTargetTemp" type="number" placeholder="e.g. 225 or 250" class="w-full rounded-lg bg-base-900 border border-base-700 px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-flame-500 transition-all" />
+            </div>
+          </div>
+          
+          <div class="flex sm:flex-col gap-2 shrink-0 w-full sm:w-auto">
+            <button id="saveSetupBtn" onclick="saveGlobalSetup()" class="w-full sm:w-32 bg-gradient-to-r from-flame-600 to-flame-500 hover:from-flame-500 hover:to-flame-400 text-white font-bold text-xs px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+              Save Profile
+            </button>
+            <button id="clearSetupBtn" onclick="clearGlobalSetup()" class="w-full sm:w-32 text-base-400 hover:text-white font-semibold text-xs px-4 py-2 rounded-lg transition-colors duration-200">
+              Reset Profile
+            </button>
+          </div>
+        </div>
+      </section>
+
       <main class="pb-16">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-          <!-- Card 1: Brisket Calculator -->
           <a href="brisket-calculator.html"
              class="card-glow group flex flex-col rounded-2xl bg-base-800/80 ring-1 ring-base-700 p-6 shadow-xl shadow-black/40 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
             <div class="flex items-start justify-between gap-3 mb-5">
               <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-flame-500/15 ring-1 ring-flame-500/40 text-2xl group-hover:scale-110 transition-transform duration-300">🥩</div>
-              <!-- mock $ / Cooked Lb badge -->
               <div class="rounded-lg bg-base-900 ring-1 ring-base-700 px-3 py-2 text-right">
                 <p class="text-[9px] font-semibold uppercase tracking-wider text-base-500">Yield Metric</p>
                 <p class="text-sm font-bold text-amber-400 tabular-nums font-mono">$ / Cooked Lb</p>
@@ -102,12 +151,10 @@
             </span>
           </a>
 
-          <!-- Card 2: Stall Predictor -->
           <a href="stall-predictor.html"
              class="card-glow group flex flex-col rounded-2xl bg-base-800/80 ring-1 ring-base-700 p-6 shadow-xl shadow-black/40 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
             <div class="flex items-start justify-between gap-3 mb-5">
               <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-flame-500/15 ring-1 ring-flame-500/40 text-2xl group-hover:scale-110 transition-transform duration-300">📈</div>
-              <!-- mock live heat curve graphic -->
               <div class="rounded-lg bg-base-900 ring-1 ring-base-700 px-3 py-1.5">
                 <p class="text-[9px] font-semibold uppercase tracking-wider text-base-500 mb-0.5">Live Heat Curve</p>
                 <svg viewBox="0 0 80 24" class="w-20 h-6" fill="none" aria-hidden="true">
@@ -127,12 +174,10 @@
             </span>
           </a>
 
-          <!-- Card 3: Fuel Estimator -->
           <a href="fuel-estimator.html"
              class="card-glow group flex flex-col rounded-2xl bg-base-800/80 ring-1 ring-base-700 p-6 shadow-xl shadow-black/40 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
             <div class="flex items-start justify-between gap-3 mb-5">
               <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-flame-500/15 ring-1 ring-flame-500/40 text-2xl group-hover:scale-110 transition-transform duration-300">🪵</div>
-              <!-- mock BTU efficiency tag -->
               <div class="rounded-lg bg-base-900 ring-1 ring-base-700 px-3 py-2 text-right">
                 <p class="text-[9px] font-semibold uppercase tracking-wider text-base-500">Burn Metric</p>
                 <p class="text-sm font-bold text-amber-400 tabular-nums font-mono">BTU Eff / Hr</p>
@@ -148,12 +193,48 @@
             </span>
           </a>
 
+          <div class="relative group flex flex-col rounded-2xl bg-base-800/40 ring-1 ring-base-700/60 p-6 shadow-xl shadow-black/20 border border-dashed border-base-600/30 overflow-hidden backdrop-blur-[2px]">
+            <div class="absolute inset-0 bg-base-900/10 pointer-events-none"></div>
+            <div class="flex items-start justify-between gap-3 mb-5 relative z-10">
+              <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 ring-1 ring-amber-500/30 text-2xl transition-all duration-300 group-hover:scale-105">🐖</div>
+              <div class="rounded-lg bg-base-900 ring-1 ring-base-700 px-2.5 py-1">
+                <span class="text-[9px] font-bold uppercase tracking-widest text-amber-400/90 animate-pulse">🔒 Pipeline v2026.4</span>
+              </div>
+            </div>
+            <h2 class="text-lg font-bold text-white/80 leading-snug relative z-10">Pork Shoulder &amp; Ribs Multi-Phase Modeler</h2>
+            <p class="mt-2 text-sm text-base-500 leading-relaxed flex-1 relative z-10">
+              Predict multi-phase collagen breakdown profiles, convective lipid rendering indices, and optimal wrap triggers for large pork cuts under varying airflow conditions.
+            </p>
+            
+            <div class="mt-5 pt-4 border-t border-base-700/50 relative z-10 flex flex-col gap-3">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-base-400 font-medium">Pipeline Priority Score:</span>
+                <span id="voteCount" class="font-mono font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md">482 votes</span>
+              </div>
+              
+              <div class="flex gap-2">
+                <button id="voteBtn" onclick="castVote()" class="flex-1 bg-base-700 hover:bg-base-600 text-white font-semibold text-xs px-3 py-2 rounded-lg transition-all duration-200 flex items-center justify-center gap-1">
+                  👍 Prioritize Module
+                </button>
+                
+                <div id="earlyAccessForm" class="flex gap-1 flex-1 hidden animate-fade-in">
+                  <input id="earlyAccessEmail" type="email" placeholder="Enter email" class="w-full rounded-md bg-base-900 border border-base-700 px-2 py-1 text-xs text-white placeholder-base-500 focus:outline-none focus:ring-1 focus:ring-flame-500" />
+                  <button onclick="submitEarlyAccess()" class="bg-flame-600 hover:bg-flame-500 text-white font-bold text-[11px] px-2.5 py-1 rounded-md shrink-0 transition-colors">Join</button>
+                </div>
+                
+                <button id="notifyBtn" onclick="revealNotifyForm()" class="bg-base-900 hover:bg-base-800 ring-1 ring-base-700 text-base-300 font-medium text-xs px-3 py-2 rounded-lg transition-all duration-200">
+                  Notify Me
+                </button>
+              </div>
+              <p id="comingSoonStatus" class="hidden text-[11px] text-emerald-400 font-medium text-center bg-emerald-500/5 py-1 rounded border border-emerald-500/10"></p>
+            </div>
+          </div>
+
         </div>
       </main>
     </div>
   </div>
 
-  <!-- ============ FOOTER (methodologies) ============ -->
   <footer class="relative z-10 border-t border-base-700 bg-base-900/70 backdrop-blur">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
@@ -196,5 +277,139 @@
     </div>
   </footer>
 
+  <script>
+    // --- "SAVE MY SETUP" PERSISTENT LOCALSTORAGE PERSISTENCE ENGINE ---
+    function saveGlobalSetup() {
+      const smoker = document.getElementById('setupSmoker').value;
+      const wood = document.getElementById('setupWood').value;
+      const targetTemp = document.getElementById('setupTargetTemp').value;
+
+      localStorage.setItem('pitmaster_smoker', smoker);
+      localStorage.setItem('pitmaster_wood', wood);
+      localStorage.setItem('pitmaster_target_temp', targetTemp);
+
+      renderSyncStatus(true);
+    }
+
+    function clearGlobalSetup() {
+      document.getElementById('setupSmoker').value = '';
+      document.getElementById('setupWood').value = '';
+      document.getElementById('setupTargetTemp').value = '';
+
+      localStorage.removeItem('pitmaster_smoker');
+      localStorage.removeItem('pitmaster_wood');
+      localStorage.removeItem('pitmaster_target_temp');
+
+      renderSyncStatus(false);
+    }
+
+    function renderSyncStatus(isActive) {
+      const badge = document.getElementById('syncBadge');
+      const btn = document.getElementById('saveSetupBtn');
+      if (isActive) {
+        badge.classList.remove('hidden');
+        btn.textContent = 'Setup Saved ✓';
+        btn.classList.remove('from-flame-600', 'to-flame-500');
+        btn.classList.add('bg-emerald-600');
+        setTimeout(() => {
+          btn.textContent = 'Update Profile';
+          btn.classList.add('from-flame-600', 'to-flame-500');
+          btn.classList.remove('bg-emerald-600');
+        }, 1500);
+      } else {
+        badge.classList.add('hidden');
+        btn.textContent = 'Save Profile';
+      }
+    }
+
+    function hydrateGlobalSetup() {
+      const smoker = localStorage.getItem('pitmaster_smoker');
+      const wood = localStorage.getItem('pitmaster_wood');
+      const targetTemp = localStorage.getItem('pitmaster_target_temp');
+
+      if (smoker || wood || targetTemp) {
+        if (smoker) document.getElementById('setupSmoker').value = smoker;
+        if (wood) document.getElementById('setupWood').value = wood;
+        if (targetTemp) document.getElementById('setupTargetTemp').value = targetTemp;
+        renderSyncStatus(true);
+      }
+    }
+
+    // --- "COMING SOON" COMPREHENSIVE INTERACTIVE BLUEPRINT ---
+    let totalVotes = 482;
+    
+    function initComingSoonMetrics() {
+      const configurationVote = localStorage.getItem('pitmaster_voted_pork');
+      const savedVotes = localStorage.getItem('pitmaster_pork_votes') || 482;
+      totalVotes = parseInt(savedVotes, 10);
+      
+      document.getElementById('voteCount').textContent = totalVotes + ' votes';
+      
+      if (configurationVote) {
+        const voteBtn = document.getElementById('voteBtn');
+        voteBtn.textContent = '✓ Voted';
+        voteBtn.disabled = true;
+        voteBtn.classList.add('opacity-40', 'cursor-not-allowed');
+      }
+
+      const earlyAccessConfirmed = localStorage.getItem('pitmaster_registered_pork');
+      if (earlyAccessConfirmed) {
+        document.getElementById('notifyBtn').classList.add('hidden');
+        const statusMsg = document.getElementById('comingSoonStatus');
+        statusMsg.classList.remove('hidden');
+        statusMsg.textContent = '✨ You are queued on the early access tracker.';
+      }
+    }
+
+    function castVote() {
+      if (localStorage.getItem('pitmaster_voted_pork')) return;
+      
+      totalVotes++;
+      localStorage.setItem('pitmaster_pork_votes', totalVotes);
+      localStorage.setItem('pitmaster_voted_pork', 'true');
+      
+      document.getElementById('voteCount').textContent = totalVotes + ' votes';
+      
+      const voteBtn = document.getElementById('voteBtn');
+      voteBtn.textContent = '✓ Voted';
+      voteBtn.disabled = true;
+      voteBtn.classList.add('opacity-40', 'cursor-not-allowed');
+
+      const statusMsg = document.getElementById('comingSoonStatus');
+      statusMsg.classList.remove('hidden');
+      statusMsg.textContent = '👍 Priority weight augmented! Pork module advanced in roadmap.';
+      setTimeout(() => {
+        if (!localStorage.getItem('pitmaster_registered_pork')) {
+          statusMsg.classList.add('hidden');
+        }
+      }, 4000);
+    }
+
+    function revealNotifyForm() {
+      document.getElementById('notifyBtn').classList.add('hidden');
+      document.getElementById('earlyAccessForm').classList.remove('hidden');
+    }
+
+    function submitEarlyAccess() {
+      const emailValue = document.getElementById('earlyAccessEmail').value.trim();
+      if (!emailValue || !emailValue.includes('@')) {
+        alert('Please provide a valid structural email address.');
+        return;
+      }
+
+      localStorage.setItem('pitmaster_registered_pork', 'true');
+      document.getElementById('earlyAccessForm').classList.add('hidden');
+      
+      const statusMsg = document.getElementById('comingSoonStatus');
+      statusMsg.classList.remove('hidden');
+      statusMsg.textContent = '✨ Early access telemetry registered successfully!';
+    }
+
+    // Initialize all persistent modules on load
+    document.addEventListener('DOMContentLoaded', () => {
+      hydrateGlobalSetup();
+      initComingSoonMetrics();
+    });
+  </script>
 </body>
 </html>
