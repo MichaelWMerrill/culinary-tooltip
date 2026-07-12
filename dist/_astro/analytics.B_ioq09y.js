@@ -1,0 +1,1 @@
+const s={emit(t,i={}){const e=new Date().toISOString();console.log(`%c[Telemetry] ${t}`,"color: #f59e0b; font-weight: bold;",{timestamp:e,...i}),typeof gtag=="function"&&gtag("event",t,i)},debounceSlider(t,i){this._timers||(this._timers={}),clearTimeout(this._timers[t]),this._timers[t]=setTimeout(()=>{this.emit(t,{value:i})},600)}};export{s as P};
