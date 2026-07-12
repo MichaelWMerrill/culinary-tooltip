@@ -1,0 +1,13 @@
+{
+  "name": "Empirical BBQ",
+  "short_name": "Empirical BBQ",
+  "description": "Physics-based pitmaster calculators — brisket yield, the thermodynamic stall, and smoker fuel & cost.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#121824",
+  "background_color": "#121824",
+  "icons": [
+    { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
