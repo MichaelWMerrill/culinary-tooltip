@@ -12,7 +12,7 @@ export interface Props {
   title: string;
   description: string;
   ogUrl: string;
-  /** Emoji used to build the inline SVG favicon (matches the legacy per-page icons). */
+  /** @deprecated No longer used — the site now serves the hosted brand favicon. Kept so existing page props don't error. */
   favicon?: string;
   active?: 'home' | 'brisket' | 'stall' | 'fuel' | null;
   /** Classes applied to <body> so each page keeps its background/text scheme. */
@@ -25,13 +25,10 @@ const {
   title,
   description,
   ogUrl,
-  favicon = '🔥',
   active = null,
   bodyClass = 'min-h-screen bg-base-850 text-base-300 font-display antialiased',
   showBanner = true,
 } = Astro.props;
-
-const faviconHref = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>${favicon}</text></svg>`;
 ---
 
 <!DOCTYPE html>
@@ -61,7 +58,16 @@ const faviconHref = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' 
     <meta property="og:url" content={ogUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <link rel="icon" href={faviconHref} />
+    <meta property="og:image" content="https://empiricalbbq.com/android-chrome-512x512.png" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:image" content="https://empiricalbbq.com/android-chrome-512x512.png" />
+    <!-- Hosted brand favicon set (Google Search, browser tabs, iOS/Android home screens). -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#121824" />
     <slot name="head" />
   </head>
   <body class={bodyClass}>
