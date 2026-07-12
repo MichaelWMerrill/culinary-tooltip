@@ -1,12 +1,9 @@
 # dependencies
 node_modules/
 
-# Astro cache
+# Astro build output & cache
+dist/
 .astro/
-
-# NOTE: dist/ is intentionally committed so Cloudflare Workers deploys the
-# pre-built static assets directly (no build step runs in the deploy env).
-# Rebuild with `npm run build` and commit dist/ after changing anything in src/.
 
 # wrangler files
 .wrangler
