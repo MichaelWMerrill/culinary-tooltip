@@ -5,8 +5,9 @@
   "observability": {
     "enabled": true
   },
+  // Serve the Astro static build output (`dist/`) rather than the repo root.
   "assets": {
-    "directory": "."
+    "directory": "./dist"
   },
   "compatibility_flags": [
     "nodejs_compat"

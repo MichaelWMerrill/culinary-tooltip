@@ -1,0 +1,50 @@
+---
+/*
+ * AdSlot — one reusable ad placement.
+ *
+ * In non-production builds it renders a clean, dark, dashed mockup box that
+ * preserves layout spacing and labels the slot, so no external ad code loads
+ * during development. In production it renders the real Google AdSense
+ * `<ins class="adsbygoogle">` unit plus its push() runner.
+ */
+export interface Props {
+  slotId: string;
+  format?: string;
+  /** Inline style for the <ins> element (controls the reserved size). */
+  style?: string;
+  /** Extra classes for the dev mockup wrapper. */
+  class?: string;
+}
+
+const { slotId, format = 'auto', style = 'display:block', class: className = '' } = Astro.props;
+const AD_CLIENT = 'ca-pub-4455664783992058';
+const isProd = import.meta.env.PROD;
+---
+
+{
+  isProd ? (
+    <ins
+      class="adsbygoogle"
+      style={style}
+      data-ad-client={AD_CLIENT}
+      data-ad-slot={slotId}
+      data-ad-format={format}
+      data-full-width-responsive="true"
+    />
+    <script is:inline>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  ) : (
+    <div
+      class:list={[
+        'flex items-center justify-center rounded-xl border border-dashed border-base-600 bg-base-900/80 text-center text-[10px] font-mono uppercase tracking-widest text-base-500',
+        className,
+      ]}
+      style={style}
+      data-ad-slot={slotId}
+      aria-label={`Ad placeholder: ${slotId}`}
+    >
+      <span>Ad Slot &middot; {slotId}</span>
+    </div>
+  )
+}

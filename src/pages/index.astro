@@ -1,76 +1,23 @@
-<!DOCTYPE html>
-<html lang="en" class="dark">
-<head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q5WHQ3GPHC"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+---
+import Layout from '../layouts/Layout.astro';
+import AdSlot from '../components/AdSlot.astro';
+---
 
-    gtag('config', 'G-Q5WHQ3GPHC');
-  </script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4455664783992058"
-     crossorigin="anonymous"></script>
-  <meta name="google-adsense-account" content="ca-pub-4455664783992058">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name='impact-site-verification' value='89083931-5f67-460c-970d-1bda9c44e140'>
-  <meta name="google-site-verification" content="ZlHhLHpsNb7yx8Ra8AOUL6gmKYA78bkgvrBzhikuyaw" />
-  <title>Empirical BBQ | Pitmaster Fuel &amp; Yield Calculators</title>
-  <meta name="description" content="A suite of physics-based BBQ calculators — brisket trim &amp; yield, the thermodynamic stall, and smoker fuel &amp; cost — for precision low-and-slow cooking." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://empiricalbbq.com/" />
-  <meta property="og:title" content="Empirical BBQ | Pitmaster Fuel &amp; Yield Calculators" />
-  <meta property="og:description" content="A suite of physics-based BBQ calculators — brisket trim &amp; yield, the thermodynamic stall, and smoker fuel &amp; cost — for precision low-and-slow cooking." />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            base: { DEFAULT: '#121824', 900: '#0d121b', 850: '#121824', 800: '#1a2233', 700: '#26314a', 600: '#354262', 500: '#4a5878', 400: '#7c8aab', 300: '#aeb8d0' },
-            flame: { 600: '#ea580c', 500: '#f97316', 400: '#fb923c' },
-            amber: { 500: '#f59e0b', 400: '#fbbf24' }
-          },
-          fontFamily: { display: ['ui-sans-serif', 'system-ui', 'Segoe UI', 'sans-serif'] }
-        }
-      }
-    }
-  </script>
-  <style>
-    body::before {
-      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-      background:
-        radial-gradient(1200px 600px at 82% -12%, rgba(249,115,22,.14), transparent 60%),
-        radial-gradient(950px 520px at -8% 108%, rgba(245,158,11,.09), transparent 55%);
-    }
-    .card-glow:hover { box-shadow: 0 25px 50px -12px rgba(249,115,22,.22), 0 0 0 1px rgba(249,115,22,.35); }
-    /* animated mock heat curve */
-    @keyframes dash { to { stroke-dashoffset: 0; } }
-    .curve-anim { stroke-dasharray: 240; stroke-dashoffset: 240; animation: dash 2.4s ease forwards; }
-    @keyframes fade-in { from { opacity: 0; transform: translateY(-2px); } to { opacity: 1; transform: none; } }
-    .animate-fade-in { animation: fade-in .3s ease both; }
-  </style>
-</head>
-<body class="min-h-screen flex flex-col bg-base-850 text-base-300 font-display antialiased selection:bg-flame-500/30">
-
-  <nav class="relative z-10 bg-[#121824] border-b border-gray-800 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
-    <a href="index.html" aria-current="page" class="text-[#f59e0b] hover:text-[#f97316] font-bold tracking-wide flex items-center gap-2 transition-colors shrink-0">
-      <span aria-hidden="true">🔥</span><span class="hidden sm:inline">PITMASTER</span>
-    </a>
-    <div class="flex items-center gap-1 overflow-x-auto text-xs font-medium">
-      <a href="brisket-calculator.html" class="text-gray-400 hover:text-white hover:bg-white/5 rounded-md px-3 py-1.5 whitespace-nowrap transition-colors">Brisket</a>
-      <a href="stall-predictor.html" class="text-gray-400 hover:text-white hover:bg-white/5 rounded-md px-3 py-1.5 whitespace-nowrap transition-colors">Stall</a>
-      <a href="fuel-estimator.html" class="text-gray-400 hover:text-white hover:bg-white/5 rounded-md px-3 py-1.5 whitespace-nowrap transition-colors">Fuel</a>
-    </div>
-  </nav>
+<Layout
+  title="Empirical BBQ | Pitmaster Fuel & Yield Calculators"
+  description="A suite of physics-based BBQ calculators — brisket trim & yield, the thermodynamic stall, and smoker fuel & cost — for precision low-and-slow cooking."
+  ogUrl="https://empiricalbbq.com/"
+  favicon="🔥"
+  active="home"
+  bodyClass="page-home min-h-screen flex flex-col bg-base-850 text-base-300 font-display antialiased selection:bg-flame-500/30"
+>
+  <Fragment slot="head">
+    <meta name="impact-site-verification" value="89083931-5f67-460c-970d-1bda9c44e140" />
+    <meta name="google-site-verification" content="ZlHhLHpsNb7yx8Ra8AOUL6gmKYA78bkgvrBzhikuyaw" />
+  </Fragment>
 
   <div class="relative z-10 flex-1 w-full">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
       <header class="pt-14 sm:pt-20 pb-10 sm:pb-12 text-center">
         <div class="inline-flex items-center gap-2 rounded-full bg-flame-500/10 ring-1 ring-flame-500/40 px-3.5 py-1.5 mb-6">
           <span class="relative flex h-2 w-2">
@@ -110,7 +57,7 @@
               Lock in your rig configurations. These values save locally to automatically hydrate your parameters, saving time during calculations.
             </p>
           </div>
-          
+
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-1 max-w-3xl">
             <div>
               <label class="block text-[11px] font-bold uppercase tracking-wider text-base-400 mb-1.5">Rig Configuration</label>
@@ -137,12 +84,12 @@
               <input id="setupTargetTemp" type="number" placeholder="e.g. 225 or 250" class="w-full rounded-lg bg-base-900 border border-base-700 px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-flame-500 transition-all" />
             </div>
           </div>
-          
+
           <div class="flex sm:flex-col gap-2 shrink-0 w-full sm:w-auto">
-            <button id="saveSetupBtn" onclick="saveGlobalSetup()" class="w-full sm:w-32 bg-gradient-to-r from-flame-600 to-flame-500 hover:from-flame-500 hover:to-flame-400 text-white font-bold text-xs px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+            <button id="saveSetupBtn" class="w-full sm:w-32 bg-gradient-to-r from-flame-600 to-flame-500 hover:from-flame-500 hover:to-flame-400 text-white font-bold text-xs px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
               Save Profile
             </button>
-            <button id="clearSetupBtn" onclick="clearGlobalSetup()" class="w-full sm:w-32 text-base-400 hover:text-white font-semibold text-xs px-4 py-2 rounded-lg transition-colors duration-200">
+            <button id="clearSetupBtn" class="w-full sm:w-32 text-base-400 hover:text-white font-semibold text-xs px-4 py-2 rounded-lg transition-colors duration-200">
               Reset Profile
             </button>
           </div>
@@ -151,7 +98,6 @@
 
       <main class="pb-16">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
           <a href="brisket-calculator.html"
              class="card-glow group flex flex-col rounded-2xl bg-base-800/80 ring-1 ring-base-700 p-6 shadow-xl shadow-black/40 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
             <div class="flex items-start justify-between gap-3 mb-5">
@@ -216,7 +162,12 @@
           <div class="group flex flex-col rounded-2xl bg-base-800/30 ring-1 ring-base-700/40 p-6 border border-dashed border-base-700/50 min-h-[340px] overflow-hidden relative backdrop-blur-[2px]">
             <div class="absolute top-2 right-3 text-[9px] font-mono font-bold uppercase tracking-widest text-base-500">Sponsored Placement</div>
             <div class="flex-1 flex flex-col items-center justify-center text-center p-4">
-              <div class="w-[300px] h-[250px] bg-base-900/60 rounded-xl border border-base-800 flex items-center justify-center text-xs font-mono text-base-500 tracking-wider">[300x250 Medium Rectangle Ad Wrapper]</div>
+              <AdSlot
+                slotId="home-rectangle-300x250"
+                format="rectangle"
+                class="w-[300px] h-[250px]"
+                style="display:inline-block;width:300px;height:250px"
+              />
             </div>
           </div>
 
@@ -232,31 +183,30 @@
             <p class="mt-2 text-sm text-base-500 leading-relaxed flex-1 relative z-10">
               Predict multi-phase collagen breakdown profiles, convective lipid rendering indices, and optimal wrap triggers for large pork cuts under varying airflow conditions.
             </p>
-            
+
             <div class="mt-5 pt-4 border-t border-base-700/50 relative z-10 flex flex-col gap-3">
               <div class="flex items-center justify-between text-xs">
                 <span class="text-base-400 font-medium">Pipeline Priority Score:</span>
                 <span id="voteCount" class="font-mono font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md">482 votes</span>
               </div>
-              
+
               <div class="flex gap-2">
-                <button id="voteBtn" onclick="castVote()" class="flex-1 bg-base-700 hover:bg-base-600 text-white font-semibold text-xs px-3 py-2 rounded-lg transition-all duration-200 flex items-center justify-center gap-1">
+                <button id="voteBtn" class="flex-1 bg-base-700 hover:bg-base-600 text-white font-semibold text-xs px-3 py-2 rounded-lg transition-all duration-200 flex items-center justify-center gap-1">
                   👍 Prioritize Module
                 </button>
-                
+
                 <div id="earlyAccessForm" class="flex gap-1 flex-1 hidden animate-fade-in">
                   <input id="earlyAccessEmail" type="email" placeholder="Enter email" class="w-full rounded-md bg-base-900 border border-base-700 px-2 py-1 text-xs text-white placeholder-base-500 focus:outline-none focus:ring-1 focus:ring-flame-500" />
-                  <button onclick="submitEarlyAccess()" class="bg-flame-600 hover:bg-flame-500 text-white font-bold text-[11px] px-2.5 py-1 rounded-md shrink-0 transition-colors">Join</button>
+                  <button id="joinEarlyAccessBtn" class="bg-flame-600 hover:bg-flame-500 text-white font-bold text-[11px] px-2.5 py-1 rounded-md shrink-0 transition-colors">Join</button>
                 </div>
-                
-                <button id="notifyBtn" onclick="revealNotifyForm()" class="bg-base-900 hover:bg-base-800 ring-1 ring-base-700 text-base-300 font-medium text-xs px-3 py-2 rounded-lg transition-all duration-200">
+
+                <button id="notifyBtn" class="bg-base-900 hover:bg-base-800 ring-1 ring-base-700 text-base-300 font-medium text-xs px-3 py-2 rounded-lg transition-all duration-200">
                   Notify Me
                 </button>
               </div>
               <p id="comingSoonStatus" class="hidden text-[11px] text-emerald-400 font-medium text-center bg-emerald-500/5 py-1 rounded border border-emerald-500/10"></p>
             </div>
           </div>
-
         </div>
       </main>
     </div>
@@ -303,147 +253,187 @@
       </div>
     </div>
   </footer>
+</Layout>
 
-  <script>
-    // --- "SAVE MY SETUP" PERSISTENT LOCALSTORAGE PERSISTENCE ENGINE ---
-    function saveGlobalSetup() {
-      const smoker = document.getElementById('setupSmoker').value;
-      const wood = document.getElementById('setupWood').value;
-      const targetTemp = document.getElementById('setupTargetTemp').value;
+<style is:global>
+  body.page-home::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(1200px 600px at 82% -12%, rgba(249, 115, 22, 0.14), transparent 60%),
+      radial-gradient(950px 520px at -8% 108%, rgba(245, 158, 11, 0.09), transparent 55%);
+  }
+  .card-glow:hover {
+    box-shadow:
+      0 25px 50px -12px rgba(249, 115, 22, 0.22),
+      0 0 0 1px rgba(249, 115, 22, 0.35);
+  }
+  /* animated mock heat curve */
+  @keyframes dash {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  .curve-anim {
+    stroke-dasharray: 240;
+    stroke-dashoffset: 240;
+    animation: dash 2.4s ease forwards;
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(-2px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .animate-fade-in {
+    animation: fade-in 0.3s ease both;
+  }
+</style>
 
-      localStorage.setItem('pitmaster_smoker', smoker);
-      localStorage.setItem('pitmaster_wood', wood);
-      localStorage.setItem('pitmaster_target_temp', targetTemp);
+<script is:inline>
+  // --- "SAVE MY SETUP" PERSISTENT LOCALSTORAGE PERSISTENCE ENGINE ---
+  function saveGlobalSetup() {
+    const smoker = document.getElementById('setupSmoker').value;
+    const wood = document.getElementById('setupWood').value;
+    const targetTemp = document.getElementById('setupTargetTemp').value;
 
+    localStorage.setItem('pitmaster_smoker', smoker);
+    localStorage.setItem('pitmaster_wood', wood);
+    localStorage.setItem('pitmaster_target_temp', targetTemp);
+
+    renderSyncStatus(true);
+  }
+
+  function clearGlobalSetup() {
+    document.getElementById('setupSmoker').value = '';
+    document.getElementById('setupWood').value = '';
+    document.getElementById('setupTargetTemp').value = '';
+
+    localStorage.removeItem('pitmaster_smoker');
+    localStorage.removeItem('pitmaster_wood');
+    localStorage.removeItem('pitmaster_target_temp');
+
+    renderSyncStatus(false);
+  }
+
+  function renderSyncStatus(isActive) {
+    const badge = document.getElementById('syncBadge');
+    const btn = document.getElementById('saveSetupBtn');
+    if (isActive) {
+      badge.classList.remove('hidden');
+      btn.textContent = 'Setup Saved ✓';
+      btn.classList.remove('from-flame-600', 'to-flame-500');
+      btn.classList.add('bg-emerald-600');
+      setTimeout(() => {
+        btn.textContent = 'Update Profile';
+        btn.classList.add('from-flame-600', 'to-flame-500');
+        btn.classList.remove('bg-emerald-600');
+      }, 1500);
+    } else {
+      badge.classList.add('hidden');
+      btn.textContent = 'Save Profile';
+    }
+  }
+
+  function hydrateGlobalSetup() {
+    const smoker = localStorage.getItem('pitmaster_smoker');
+    const wood = localStorage.getItem('pitmaster_wood');
+    const targetTemp = localStorage.getItem('pitmaster_target_temp');
+
+    if (smoker || wood || targetTemp) {
+      if (smoker) document.getElementById('setupSmoker').value = smoker;
+      if (wood) document.getElementById('setupWood').value = wood;
+      if (targetTemp) document.getElementById('setupTargetTemp').value = targetTemp;
       renderSyncStatus(true);
     }
+  }
 
-    function clearGlobalSetup() {
-      document.getElementById('setupSmoker').value = '';
-      document.getElementById('setupWood').value = '';
-      document.getElementById('setupTargetTemp').value = '';
+  // --- "COMING SOON" COMPREHENSIVE INTERACTIVE BLUEPRINT ---
+  let totalVotes = 482;
 
-      localStorage.removeItem('pitmaster_smoker');
-      localStorage.removeItem('pitmaster_wood');
-      localStorage.removeItem('pitmaster_target_temp');
+  function initComingSoonMetrics() {
+    const configurationVote = localStorage.getItem('pitmaster_voted_pork');
+    const savedVotes = localStorage.getItem('pitmaster_pork_votes') || 482;
+    totalVotes = parseInt(savedVotes, 10);
 
-      renderSyncStatus(false);
-    }
+    document.getElementById('voteCount').textContent = totalVotes + ' votes';
 
-    function renderSyncStatus(isActive) {
-      const badge = document.getElementById('syncBadge');
-      const btn = document.getElementById('saveSetupBtn');
-      if (isActive) {
-        badge.classList.remove('hidden');
-        btn.textContent = 'Setup Saved ✓';
-        btn.classList.remove('from-flame-600', 'to-flame-500');
-        btn.classList.add('bg-emerald-600');
-        setTimeout(() => {
-          btn.textContent = 'Update Profile';
-          btn.classList.add('from-flame-600', 'to-flame-500');
-          btn.classList.remove('bg-emerald-600');
-        }, 1500);
-      } else {
-        badge.classList.add('hidden');
-        btn.textContent = 'Save Profile';
-      }
-    }
-
-    function hydrateGlobalSetup() {
-      const smoker = localStorage.getItem('pitmaster_smoker');
-      const wood = localStorage.getItem('pitmaster_wood');
-      const targetTemp = localStorage.getItem('pitmaster_target_temp');
-
-      if (smoker || wood || targetTemp) {
-        if (smoker) document.getElementById('setupSmoker').value = smoker;
-        if (wood) document.getElementById('setupWood').value = wood;
-        if (targetTemp) document.getElementById('setupTargetTemp').value = targetTemp;
-        renderSyncStatus(true);
-      }
-    }
-
-    // --- "COMING SOON" COMPREHENSIVE INTERACTIVE BLUEPRINT ---
-    let totalVotes = 482;
-    
-    function initComingSoonMetrics() {
-      const configurationVote = localStorage.getItem('pitmaster_voted_pork');
-      const savedVotes = localStorage.getItem('pitmaster_pork_votes') || 482;
-      totalVotes = parseInt(savedVotes, 10);
-      
-      document.getElementById('voteCount').textContent = totalVotes + ' votes';
-      
-      if (configurationVote) {
-        const voteBtn = document.getElementById('voteBtn');
-        voteBtn.textContent = '✓ Voted';
-        voteBtn.disabled = true;
-        voteBtn.classList.add('opacity-40', 'cursor-not-allowed');
-      }
-
-      const earlyAccessConfirmed = localStorage.getItem('pitmaster_registered_pork');
-      if (earlyAccessConfirmed) {
-        document.getElementById('notifyBtn').classList.add('hidden');
-        const statusMsg = document.getElementById('comingSoonStatus');
-        statusMsg.classList.remove('hidden');
-        statusMsg.textContent = '✨ You are queued on the early access tracker.';
-      }
-    }
-
-    function castVote() {
-      if (localStorage.getItem('pitmaster_voted_pork')) return;
-      
-      totalVotes++;
-      localStorage.setItem('pitmaster_pork_votes', totalVotes);
-      localStorage.setItem('pitmaster_voted_pork', 'true');
-      
-      document.getElementById('voteCount').textContent = totalVotes + ' votes';
-      
+    if (configurationVote) {
       const voteBtn = document.getElementById('voteBtn');
       voteBtn.textContent = '✓ Voted';
       voteBtn.disabled = true;
       voteBtn.classList.add('opacity-40', 'cursor-not-allowed');
-
-      const statusMsg = document.getElementById('comingSoonStatus');
-      statusMsg.classList.remove('hidden');
-      statusMsg.textContent = '👍 Priority weight augmented! Pork module advanced in roadmap.';
-      setTimeout(() => {
-        if (!localStorage.getItem('pitmaster_registered_pork')) {
-          statusMsg.classList.add('hidden');
-        }
-      }, 4000);
     }
 
-    function revealNotifyForm() {
+    const earlyAccessConfirmed = localStorage.getItem('pitmaster_registered_pork');
+    if (earlyAccessConfirmed) {
       document.getElementById('notifyBtn').classList.add('hidden');
-      document.getElementById('earlyAccessForm').classList.remove('hidden');
-    }
-
-    function submitEarlyAccess() {
-      const emailValue = document.getElementById('earlyAccessEmail').value.trim();
-      if (!emailValue || !emailValue.includes('@')) {
-        alert('Please provide a valid structural email address.');
-        return;
-      }
-
-      localStorage.setItem('pitmaster_registered_pork', 'true');
-      document.getElementById('earlyAccessForm').classList.add('hidden');
-      
       const statusMsg = document.getElementById('comingSoonStatus');
       statusMsg.classList.remove('hidden');
-      statusMsg.textContent = '✨ Early access telemetry registered successfully!';
+      statusMsg.textContent = '✨ You are queued on the early access tracker.';
+    }
+  }
+
+  function castVote() {
+    if (localStorage.getItem('pitmaster_voted_pork')) return;
+
+    totalVotes++;
+    localStorage.setItem('pitmaster_pork_votes', totalVotes);
+    localStorage.setItem('pitmaster_voted_pork', 'true');
+
+    document.getElementById('voteCount').textContent = totalVotes + ' votes';
+
+    const voteBtn = document.getElementById('voteBtn');
+    voteBtn.textContent = '✓ Voted';
+    voteBtn.disabled = true;
+    voteBtn.classList.add('opacity-40', 'cursor-not-allowed');
+
+    const statusMsg = document.getElementById('comingSoonStatus');
+    statusMsg.classList.remove('hidden');
+    statusMsg.textContent = '👍 Priority weight augmented! Pork module advanced in roadmap.';
+    setTimeout(() => {
+      if (!localStorage.getItem('pitmaster_registered_pork')) {
+        statusMsg.classList.add('hidden');
+      }
+    }, 4000);
+  }
+
+  function revealNotifyForm() {
+    document.getElementById('notifyBtn').classList.add('hidden');
+    document.getElementById('earlyAccessForm').classList.remove('hidden');
+  }
+
+  function submitEarlyAccess() {
+    const emailValue = document.getElementById('earlyAccessEmail').value.trim();
+    if (!emailValue || !emailValue.includes('@')) {
+      alert('Please provide a valid structural email address.');
+      return;
     }
 
-    // Initialize all persistent modules on load
-    document.addEventListener('DOMContentLoaded', () => {
-      hydrateGlobalSetup();
-      initComingSoonMetrics();
-    });
-  </script>
+    localStorage.setItem('pitmaster_registered_pork', 'true');
+    document.getElementById('earlyAccessForm').classList.add('hidden');
 
-  <div class="sticky bottom-0 left-0 right-0 z-50 bg-[#0d121b]/95 border-t border-gray-800 backdrop-blur-md w-full min-h-[60px] sm:min-h-[90px] flex flex-col items-center justify-center p-1 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.5)]">
-    <div class="text-[8px] font-mono tracking-widest text-base-600 uppercase mb-0.5">Advertisement</div>
-    <div class="w-full max-w-[728px] h-[50px] sm:h-[60px] bg-base-900/80 rounded border border-base-800 flex items-center justify-center text-[10px] font-mono text-base-500 tracking-wide text-center px-4">
-      [Persistent 728x90 Mobile/Desktop Responsive Smart-Fluid Banner Slot]
-    </div>
-  </div>
-</body>
-</html>
+    const statusMsg = document.getElementById('comingSoonStatus');
+    statusMsg.classList.remove('hidden');
+    statusMsg.textContent = '✨ Early access telemetry registered successfully!';
+  }
+
+  // Initialize all persistent modules on load
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('saveSetupBtn').addEventListener('click', saveGlobalSetup);
+    document.getElementById('clearSetupBtn').addEventListener('click', clearGlobalSetup);
+    document.getElementById('voteBtn').addEventListener('click', castVote);
+    document.getElementById('notifyBtn').addEventListener('click', revealNotifyForm);
+    document.getElementById('joinEarlyAccessBtn').addEventListener('click', submitEarlyAccess);
+
+    hydrateGlobalSetup();
+    initComingSoonMetrics();
+  });
+</script>
