@@ -1,0 +1,192 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Empirical BBQ | Contact & Pitmaster Feedback"
+  description="Tell us how the brisket, stall, and fuel calculators are working for your cooks — report inaccuracies, request features, or share anything else. Feedback from real pitmasters shapes the models."
+  ogUrl="https://empiricalbbq.com/contact.html"
+  active="contact"
+  bodyClass="page-contact min-h-screen flex flex-col bg-base-850 text-base-300 font-display antialiased selection:bg-flame-500/30"
+  showBanner={false}
+>
+  <div class="relative z-10 flex-1 w-full">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <header class="pt-14 sm:pt-16 pb-8 text-center">
+        <div class="inline-flex items-center gap-2 rounded-full bg-flame-500/10 ring-1 ring-flame-500/40 px-3.5 py-1.5 mb-6">
+          <span class="text-sm">🔥</span>
+          <span class="text-xs font-semibold tracking-wide text-flame-300 uppercase">Pitmaster Feedback</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-[1.05]">Talk to the Pit</h1>
+        <p class="mt-4 max-w-xl mx-auto text-base text-base-400 leading-relaxed">
+          These calculators live or die by real-world cooks. Tell us where the numbers matched your brisket — and
+          where they didn't — what you'd like to see next, or anything else on your mind.
+        </p>
+      </header>
+
+      <main class="pb-16 space-y-6">
+        <!-- What we're after -->
+        <section class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="rounded-xl bg-base-800/60 ring-1 ring-base-700 p-4">
+            <div class="text-xl mb-1.5">🎯</div>
+            <h2 class="text-sm font-bold text-white">Dial in the math</h2>
+            <p class="mt-1 text-[13px] text-base-400 leading-relaxed">Did the yield, stall, or fuel estimate track your actual cook? Tell us your inputs and what really happened.</p>
+          </div>
+          <div class="rounded-xl bg-base-800/60 ring-1 ring-base-700 p-4">
+            <div class="text-xl mb-1.5">🧪</div>
+            <h2 class="text-sm font-bold text-white">Request a feature</h2>
+            <p class="mt-1 text-[13px] text-base-400 leading-relaxed">A cut, cooker, or variable we're missing? Pork shoulder, ribs, wind chill, altitude — tell us what to build.</p>
+          </div>
+          <div class="rounded-xl bg-base-800/60 ring-1 ring-base-700 p-4">
+            <div class="text-xl mb-1.5">🐞</div>
+            <h2 class="text-sm font-bold text-white">Flag anything off</h2>
+            <p class="mt-1 text-[13px] text-base-400 leading-relaxed">Bugs, confusing wording, a value that looks wrong — the more specific, the faster we can fix it.</p>
+          </div>
+        </section>
+
+        <!-- Form -->
+        <section class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-6 sm:p-8 shadow-xl shadow-black/30 backdrop-blur-sm">
+          <form id="contactForm" novalidate class="space-y-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="cf-name" class="block text-[11px] font-bold uppercase tracking-wider text-base-400 mb-1.5">Name <span class="text-base-600 font-medium normal-case">(optional)</span></label>
+                <input id="cf-name" name="name" type="text" autocomplete="name" placeholder="Aaron F." class="w-full rounded-lg bg-base-900 border border-base-700 px-3 py-2.5 text-sm text-white placeholder-base-600 focus:outline-none focus:ring-1 focus:ring-flame-500 transition-all" />
+              </div>
+              <div>
+                <label for="cf-email" class="block text-[11px] font-bold uppercase tracking-wider text-base-400 mb-1.5">Email <span class="text-base-600 font-medium normal-case">(optional, for a reply)</span></label>
+                <input id="cf-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" class="w-full rounded-lg bg-base-900 border border-base-700 px-3 py-2.5 text-sm text-white placeholder-base-600 focus:outline-none focus:ring-1 focus:ring-flame-500 transition-all" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="cf-topic" class="block text-[11px] font-bold uppercase tracking-wider text-base-400 mb-1.5">Topic</label>
+                <select id="cf-topic" name="topic" class="w-full rounded-lg bg-base-900 border border-base-700 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-flame-500 transition-all">
+                  <option value="Feedback on the calculations">Feedback on the calculations</option>
+                  <option value="Feature request">Feature request — what you'd like to see</option>
+                  <option value="Bug or inaccuracy">Bug / something looks off</option>
+                  <option value="Something else">Something else</option>
+                </select>
+              </div>
+              <div>
+                <label for="cf-calc" class="block text-[11px] font-bold uppercase tracking-wider text-base-400 mb-1.5">Which calculator</label>
+                <select id="cf-calc" name="calc" class="w-full rounded-lg bg-base-900 border border-base-700 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-flame-500 transition-all">
+                  <option value="General / all">General / all</option>
+                  <option value="Brisket yield">Brisket trim &amp; yield</option>
+                  <option value="Stall predictor">Stall predictor</option>
+                  <option value="Fuel estimator">Fuel &amp; cost estimator</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label for="cf-message" class="block text-[11px] font-bold uppercase tracking-wider text-base-400 mb-1.5">Your message</label>
+              <textarea id="cf-message" name="message" rows="6" placeholder="e.g. 14 lb Choice packer, butcher paper on an offset at 250°F — your estimate said ~9h and I finished in 9h20m, spot on. But the yield read low vs. what I sliced…" class="w-full rounded-lg bg-base-900 border border-base-700 px-3 py-2.5 text-sm text-white placeholder-base-600 leading-relaxed focus:outline-none focus:ring-1 focus:ring-flame-500 transition-all resize-y"></textarea>
+              <p id="cf-error" class="hidden mt-1.5 text-xs text-red-400"></p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3 pt-1">
+              <button id="cf-submit" type="submit" class="w-full sm:w-auto bg-gradient-to-r from-flame-600 to-flame-500 hover:from-flame-500 hover:to-flame-400 text-white font-bold text-sm px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+                Compose email →
+              </button>
+              <p class="text-[12px] text-base-500 leading-snug">
+                Opens a pre-filled message in your email app. Nothing is sent to or stored by us until you hit send.
+              </p>
+            </div>
+          </form>
+
+          <p id="cf-status" class="hidden mt-4 rounded-lg bg-emerald-500/10 ring-1 ring-emerald-500/30 px-4 py-3 text-sm text-emerald-300"></p>
+        </section>
+
+        <!-- Direct fallback -->
+        <p class="text-center text-[13px] text-base-500">
+          No email app handy? Write us directly at
+          <a href="mailto:contact@empiricalbbq.com?subject=Empirical%20BBQ%20feedback" class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">contact@empiricalbbq.com</a>.
+        </p>
+      </main>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="relative z-10 border-t border-base-700 bg-base-900/70 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-medium text-base-400 mb-6">
+        <a href="index.html" class="hover:text-white transition-colors">Home</a>
+        <a href="brisket-calculator.html" class="hover:text-white transition-colors">Brisket Calculator</a>
+        <a href="stall-predictor.html" class="hover:text-white transition-colors">Stall Predictor</a>
+        <a href="fuel-estimator.html" class="hover:text-white transition-colors">Fuel Estimator</a>
+        <a href="contact.html" class="text-flame-400 hover:text-flame-300 transition-colors">Contact</a>
+        <a href="privacy.html" class="hover:text-white transition-colors">Privacy Policy</a>
+      </nav>
+      <div class="pt-6 border-t border-base-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-xs text-base-500">&copy; 2026 Empirical BBQ · Pitmaster Science &amp; Mathematics Suite</p>
+        <p class="text-[11px] text-base-600 font-mono">Estimates for planning only — always probe to temperature.</p>
+      </div>
+    </div>
+  </footer>
+</Layout>
+
+<style is:global>
+  body.page-contact::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(1200px 600px at 82% -12%, rgba(249, 115, 22, 0.14), transparent 60%),
+      radial-gradient(950px 520px at -8% 108%, rgba(245, 158, 11, 0.09), transparent 55%);
+  }
+</style>
+
+<script>
+  const CONTACT_TO = 'contact@empiricalbbq.com';
+
+  function init() {
+    const form = document.getElementById('contactForm');
+    if (!form) return;
+    const $ = (id) => document.getElementById(id);
+    const err = $('cf-error');
+    const status = $('cf-status');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const name = $('cf-name').value.trim();
+      const email = $('cf-email').value.trim();
+      const topic = $('cf-topic').value;
+      const calc = $('cf-calc').value;
+      const message = $('cf-message').value.trim();
+
+      // Message is the only required field.
+      if (!message) {
+        err.textContent = 'Please add a message before composing your email.';
+        err.classList.remove('hidden');
+        $('cf-message').focus();
+        return;
+      }
+      err.classList.add('hidden');
+
+      const subject = `[Empirical BBQ] ${topic}` + (calc && calc !== 'General / all' ? ` — ${calc}` : '');
+
+      const lines = [];
+      if (name) lines.push(`Name: ${name}`);
+      if (email) lines.push(`Reply to: ${email}`);
+      lines.push(`Topic: ${topic}`);
+      lines.push(`Calculator: ${calc}`);
+      lines.push('');
+      lines.push(message);
+      lines.push('');
+      lines.push('— Sent from the Empirical BBQ contact form');
+
+      const href = `mailto:${CONTACT_TO}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
+      window.location.href = href;
+
+      status.textContent = "Your email app should be opening with the message pre-filled. If it didn't, email us directly at " + CONTACT_TO + '.';
+      status.classList.remove('hidden');
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+</script>
