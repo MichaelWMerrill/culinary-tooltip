@@ -1,0 +1,10 @@
+# Cloudflare static-asset response headers.
+# https://developers.cloudflare.com/workers/static-assets/headers/
+#
+# RFC 8288 Link headers for agent/crawler discovery. These advertise real,
+# existing resources only — the XML sitemap and the privacy policy — using
+# registered IANA link relations (https://www.iana.org/assignments/link-relations).
+
+/*
+  Link: </sitemap.xml>; rel="sitemap"; type="application/xml"
+  Link: </privacy.html>; rel="privacy-policy"
