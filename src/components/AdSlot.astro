@@ -14,9 +14,21 @@ export interface Props {
   style?: string;
   /** Extra classes for the dev mockup wrapper. */
   class?: string;
+  /**
+   * Whether the unit may expand to a full-width responsive ad. Leave true for
+   * in-content slots; set false for the fixed-height sticky banner so AdSense
+   * doesn't serve a tall unit that dominates small screens.
+   */
+  fullWidthResponsive?: boolean;
 }
 
-const { slotId, format = 'auto', style = 'display:block', class: className = '' } = Astro.props;
+const {
+  slotId,
+  format = 'auto',
+  style = 'display:block',
+  class: className = '',
+  fullWidthResponsive = true,
+} = Astro.props;
 const AD_CLIENT = 'ca-pub-4455664783992058';
 const isProd = import.meta.env.PROD;
 ---
@@ -29,7 +41,7 @@ const isProd = import.meta.env.PROD;
       data-ad-client={AD_CLIENT}
       data-ad-slot={slotId}
       data-ad-format={format}
-      data-full-width-responsive="true"
+      data-full-width-responsive={fullWidthResponsive ? 'true' : 'false'}
     />
     <script is:inline>
       (adsbygoogle = window.adsbygoogle || []).push({});

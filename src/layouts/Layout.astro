@@ -71,15 +71,73 @@ const faviconHref = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' 
 
     {
       showBanner && (
-        <div class="sticky bottom-0 left-0 right-0 z-50 bg-[#0d121b]/95 border-t border-gray-800 backdrop-blur-md w-full min-h-[60px] sm:min-h-[90px] flex flex-col items-center justify-center p-1 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.5)]">
-          <div class="text-[8px] font-mono tracking-widest text-base-600 uppercase mb-0.5">Advertisement</div>
-          <AdSlot
-            slotId="global-banner-728x90"
-            format="horizontal"
-            class="w-full max-w-[728px] h-[50px] sm:h-[60px] px-4"
-            style="display:block;width:100%;max-width:728px;height:60px"
-          />
+        <div id="stickyAd" class="sticky bottom-0 left-0 right-0 z-50 pointer-events-none">
+          <div class="mx-auto flex w-full max-w-3xl flex-col items-center">
+            {/* Minimize / restore tab — always visible so the ad can be reclaimed on small screens */}
+            <button
+              id="stickyAdToggle"
+              type="button"
+              aria-controls="stickyAdPanel"
+              aria-expanded="true"
+              class="pointer-events-auto flex items-center gap-1 rounded-t-md border border-b-0 border-gray-800 bg-[#0d121b]/95 px-3 py-0.5 text-[9px] font-mono uppercase tracking-widest text-base-500 backdrop-blur-md transition-colors hover:text-base-300"
+            >
+              <span id="stickyAdToggleLabel">Hide ad</span>
+              <svg id="stickyAdChevron" class="h-3 w-3 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {/* Height-capped, clipped panel: an oversized ad can never dominate the viewport */}
+            <div
+              id="stickyAdPanel"
+              class="pointer-events-auto flex w-full max-h-[80px] flex-col items-center justify-center overflow-hidden border-t border-gray-800 bg-[#0d121b]/95 p-1 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.5)] backdrop-blur-md transition-[max-height] duration-300 ease-in-out sm:max-h-[96px]"
+            >
+              <div class="text-[8px] font-mono tracking-widest text-base-600 uppercase mb-0.5">Advertisement</div>
+              <AdSlot
+                slotId="global-banner-728x90"
+                format="horizontal"
+                fullWidthResponsive={false}
+                class="w-full max-w-[728px] h-[50px] sm:h-[60px] px-4"
+                style="display:block;width:100%;max-width:728px;height:60px"
+              />
+            </div>
+          </div>
         </div>
+      )
+    }
+
+    {
+      showBanner && (
+        <script is:inline>
+          (function () {
+            var KEY = 'pitmaster_ad_hidden';
+            var panel = document.getElementById('stickyAdPanel');
+            var toggle = document.getElementById('stickyAdToggle');
+            var label = document.getElementById('stickyAdToggleLabel');
+            var chevron = document.getElementById('stickyAdChevron');
+            if (!panel || !toggle) return;
+
+            function apply(hidden, animate) {
+              if (!animate) panel.style.transition = 'none';
+              panel.style.maxHeight = hidden ? '0px' : '';
+              panel.style.paddingTop = hidden ? '0px' : '';
+              panel.style.paddingBottom = hidden ? '0px' : '';
+              toggle.setAttribute('aria-expanded', hidden ? 'false' : 'true');
+              if (label) label.textContent = hidden ? 'Show ad' : 'Hide ad';
+              if (chevron) chevron.style.transform = hidden ? 'rotate(180deg)' : '';
+              if (!animate) { void panel.offsetHeight; panel.style.transition = ''; }
+            }
+
+            var start = false;
+            try { start = localStorage.getItem(KEY) === '1'; } catch (e) {}
+            apply(start, false);
+
+            toggle.addEventListener('click', function () {
+              var hidden = toggle.getAttribute('aria-expanded') === 'true';
+              apply(hidden, true);
+              try { localStorage.setItem(KEY, hidden ? '1' : '0'); } catch (e) {}
+            });
+          })();
+        </script>
       )
     }
   </body>
