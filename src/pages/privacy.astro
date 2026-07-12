@@ -1,70 +1,17 @@
-<!DOCTYPE html>
-<html lang="en" class="dark">
-<head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q5WHQ3GPHC"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-  
-    gtag('config', 'G-Q5WHQ3GPHC');
-  </script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4455664783992058"
-     crossorigin="anonymous"></script>
-  <meta name="google-adsense-account" content="ca-pub-4455664783992058">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Empirical BBQ | Privacy Policy</title>
-  <meta name="description" content="Privacy Policy for Empirical BBQ — how we use local browser storage, anonymous Cloudflare Web Analytics, Amazon Associate affiliate links, and programmatic advertising cookies." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://empiricalbbq.com/privacy.html" />
-  <meta property="og:title" content="Empirical BBQ | Privacy Policy" />
-  <meta property="og:description" content="How Empirical BBQ uses local browser storage, anonymous analytics, affiliate links, and advertising." />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            base: { DEFAULT: '#121824', 900: '#0d121b', 850: '#121824', 800: '#1a2233', 700: '#26314a', 600: '#354262', 500: '#4a5878', 400: '#7c8aab', 300: '#aeb8d0' },
-            flame: { 600: '#ea580c', 500: '#f97316', 400: '#fb923c' },
-            amber: { 500: '#f59e0b', 400: '#fbbf24' }
-          },
-          fontFamily: { display: ['ui-sans-serif', 'system-ui', 'Segoe UI', 'sans-serif'] }
-        }
-      }
-    }
-  </script>
-  <style>
-    body::before {
-      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-      background:
-        radial-gradient(1200px 600px at 82% -12%, rgba(249,115,22,.14), transparent 60%),
-        radial-gradient(950px 520px at -8% 108%, rgba(245,158,11,.09), transparent 55%);
-    }
-    .policy a { color: #fb923c; }
-    .policy a:hover { color: #f97316; }
-  </style>
-</head>
-<body class="min-h-screen flex flex-col bg-base-850 text-base-300 font-display antialiased selection:bg-flame-500/30">
+---
+import Layout from '../layouts/Layout.astro';
+---
 
-  <nav class="relative z-10 bg-[#121824] border-b border-gray-800 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
-    <a href="index.html" class="text-[#f59e0b] hover:text-[#f97316] font-bold tracking-wide flex items-center gap-2 transition-colors shrink-0">
-      <span aria-hidden="true">🔥</span><span class="hidden sm:inline">PITMASTER</span>
-    </a>
-    <div class="flex items-center gap-1 overflow-x-auto text-xs font-medium">
-      <a href="brisket-calculator.html" class="text-gray-400 hover:text-white hover:bg-white/5 rounded-md px-3 py-1.5 whitespace-nowrap transition-colors">Brisket</a>
-      <a href="stall-predictor.html" class="text-gray-400 hover:text-white hover:bg-white/5 rounded-md px-3 py-1.5 whitespace-nowrap transition-colors">Stall</a>
-      <a href="fuel-estimator.html" class="text-gray-400 hover:text-white hover:bg-white/5 rounded-md px-3 py-1.5 whitespace-nowrap transition-colors">Fuel</a>
-    </div>
-  </nav>
-
+<Layout
+  title="Empirical BBQ | Privacy Policy"
+  description="Privacy Policy for Empirical BBQ — how we use local browser storage, anonymous Cloudflare Web Analytics, Amazon Associate affiliate links, and programmatic advertising cookies."
+  ogUrl="https://empiricalbbq.com/privacy.html"
+  favicon="🔒"
+  bodyClass="page-privacy min-h-screen flex flex-col bg-base-850 text-base-300 font-display antialiased selection:bg-flame-500/30"
+  showBanner={false}
+>
   <div class="relative z-10 flex-1 w-full">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-
       <!-- Header -->
       <header class="pt-14 sm:pt-16 pb-8 text-center">
         <div class="inline-flex items-center gap-2 rounded-full bg-flame-500/10 ring-1 ring-flame-500/40 px-3.5 py-1.5 mb-6">
@@ -77,7 +24,6 @@
 
       <!-- Policy body -->
       <main class="policy pb-16 space-y-8 text-[15px] leading-relaxed text-base-300">
-
         <section class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-6 sm:p-8 shadow-xl shadow-black/30 backdrop-blur-sm">
           <p>
             This Privacy Policy explains how <strong class="text-white">Empirical BBQ</strong> ("we", "us", or "our"),
@@ -222,6 +168,23 @@
       </div>
     </div>
   </footer>
+</Layout>
 
-</body>
-</html>
+<style is:global>
+  body.page-privacy::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(1200px 600px at 82% -12%, rgba(249, 115, 22, 0.14), transparent 60%),
+      radial-gradient(950px 520px at -8% 108%, rgba(245, 158, 11, 0.09), transparent 55%);
+  }
+  .policy a {
+    color: #fb923c;
+  }
+  .policy a:hover {
+    color: #f97316;
+  }
+</style>

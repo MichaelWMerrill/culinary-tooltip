@@ -1,0 +1,86 @@
+---
+/*
+ * Base layout for every Empirical BBQ page.
+ * Owns the shared <head> (SEO + Google Analytics + AdSense loader), the global
+ * navigation header, the persistent bottom banner ad, and the page chrome that
+ * was previously copy-pasted across all the standalone HTML files.
+ */
+import Nav from '../components/Nav.astro';
+import AdSlot from '../components/AdSlot.astro';
+
+export interface Props {
+  title: string;
+  description: string;
+  ogUrl: string;
+  /** Emoji used to build the inline SVG favicon (matches the legacy per-page icons). */
+  favicon?: string;
+  active?: 'home' | 'brisket' | 'stall' | 'fuel' | null;
+  /** Classes applied to <body> so each page keeps its background/text scheme. */
+  bodyClass?: string;
+  /** Render the sticky 728x90 bottom banner (all tools; off for the privacy page). */
+  showBanner?: boolean;
+}
+
+const {
+  title,
+  description,
+  ogUrl,
+  favicon = '🔥',
+  active = null,
+  bodyClass = 'min-h-screen bg-base-850 text-base-300 font-display antialiased',
+  showBanner = true,
+} = Astro.props;
+
+const faviconHref = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>${favicon}</text></svg>`;
+---
+
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-Q5WHQ3GPHC"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', 'G-Q5WHQ3GPHC');
+    </script>
+    <script
+      is:inline
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4455664783992058"
+      crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-4455664783992058" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={ogUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <link rel="icon" href={faviconHref} />
+    <slot name="head" />
+  </head>
+  <body class={bodyClass}>
+    <Nav active={active} />
+
+    <slot />
+
+    {
+      showBanner && (
+        <div class="sticky bottom-0 left-0 right-0 z-50 bg-[#0d121b]/95 border-t border-gray-800 backdrop-blur-md w-full min-h-[60px] sm:min-h-[90px] flex flex-col items-center justify-center p-1 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.5)]">
+          <div class="text-[8px] font-mono tracking-widest text-base-600 uppercase mb-0.5">Advertisement</div>
+          <AdSlot
+            slotId="global-banner-728x90"
+            format="horizontal"
+            class="w-full max-w-[728px] h-[50px] sm:h-[60px] px-4"
+            style="display:block;width:100%;max-width:728px;height:60px"
+          />
+        </div>
+      )
+    }
+  </body>
+</html>

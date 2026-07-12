@@ -1,8 +1,9 @@
-# Cloudflare Workers config for the Pitmaster Command Center static site.
-# This is a static-assets-only deployment (no Worker script): Cloudflare serves
-# the HTML files in this repo directly. index.html is the default document.
+# Cloudflare Pages config for the Empirical BBQ static site.
+# The site is now built with Astro; Cloudflare serves the pre-rendered,
+# pre-compiled static assets from the Astro build output directory (`dist/`).
+# index.html remains the default document.
 name = "pitmaster-command-center"
 compatibility_date = "2025-06-01"
 
 [assets]
-directory = "."
+directory = "./dist"

@@ -1,3 +1,10 @@
+# dependencies
+node_modules/
+
+# Astro build output & cache
+dist/
+.astro/
+
 # wrangler files
 .wrangler
 .dev.vars*
