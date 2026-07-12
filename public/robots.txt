@@ -37,6 +37,15 @@ Allow: /
 User-agent: Perplexity-User
 Allow: /
 
+User-agent: Googlebot
+Allow: /
+
+User-agent: Google-CloudVertexBot
+Allow: /
+
+User-agent: bingbot
+Allow: /
+
 # ---------------------------------------------------------------------------
 # AI TRAINING crawlers — disallowed (ai-train=no). These collect content to
 # train models rather than to answer live user queries.
