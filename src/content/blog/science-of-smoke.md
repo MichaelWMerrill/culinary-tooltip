@@ -2,7 +2,7 @@
 title: 'The Science of Smoke: How to Get Perfect Brisket Bark Every Time'
 description: 'Learn the exact empirical steps, temperature breakdowns, and wood combustion science needed to master the ultimate backyard barbecue brisket bark.'
 pubDate: '2026-07-12'
-heroImage: 'https://www.sadlerssmokehouse.com/wp-content/uploads/2020/07/image-sadlers-product_sliced-brisket-2.jpg'
+heroImage: '/blog/science-of-smoke.jpg'
 ---
 
 Stop guessing your smoker settings. Bark isn’t just burnt meat or charred spices—it is a highly sophisticated, multi-phase chemical reaction. 

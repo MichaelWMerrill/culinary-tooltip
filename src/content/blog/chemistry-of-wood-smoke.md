@@ -2,7 +2,7 @@
 title: 'The Chemistry of Wood Smoke: Clean Blue vs. Dirty White'
 description: 'What are you actually tasting when you smoke meat? A deep dive into combustion phases, creosote, and the science of clean fire.'
 pubDate: '2026-07-13'
-heroImage: 'https://www.sadlerssmokehouse.com/wp-content/uploads/2020/07/image-sadlers-product_sliced-brisket-2.jpg'
+heroImage: '/blog/chemistry-of-wood-smoke.jpg'
 ---
 
 Barbecue is unique because smoke isn't just a cooking medium—it is an ingredient. But from a chemical standpoint, smoke is incredibly complex. It is an aerosol of solid particles, liquid droplets, and invisible gases.

@@ -2,7 +2,7 @@
 title: 'The Physics of the Stall: Why Your Smoked Meat Stops Cooking'
 description: 'Demystifying the most frustrating part of a low-and-slow cook. Learn the thermal dynamics behind the barbecue stall and how to handle it.'
 pubDate: '2026-07-13'
-heroImage: 'https://www.sadlerssmokehouse.com/wp-content/uploads/2020/07/image-sadlers-product_sliced-brisket-2.jpg'
+heroImage: '/blog/physics-of-the-stall.jpg'
 ---
 
 Every backyard pitmaster knows the panic. You are smoking a beautiful pork shoulder or brisket, the temperature is climbing beautifully, and suddenly—around 150°F to 170°F—the numbers stop moving. 
