@@ -213,4 +213,32 @@ const ogUrl = 'https://empiricalbbq.com' + (Astro.url?.pathname ?? '/blog');
     height: auto;
     border-radius: 0.75rem;
   }
+  /* Tables: scroll horizontally on narrow screens instead of overflowing the page. */
+  .post-body table {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    margin-top: 1.75rem;
+  }
+  .post-body thead th {
+    background: #1a2233;
+    color: #fff;
+    font-weight: 700;
+    text-align: left;
+  }
+  .post-body th,
+  .post-body td {
+    border: 1px solid #26314a;
+    padding: 0.6rem 0.85rem;
+    vertical-align: top;
+  }
+  .post-body tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .post-body td strong {
+    color: #fff;
+  }
 </style>
