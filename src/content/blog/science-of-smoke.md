@@ -1,5 +1,4 @@
 ---
-layout: '../../layouts/BlogPostLayout.astro'
 title: 'The Science of Smoke: How to Get Perfect Brisket Bark Every Time'
 description: 'Learn the exact empirical steps, temperature breakdowns, and wood combustion science needed to master the ultimate backyard barbecue brisket bark.'
 pubDate: '2026-07-12'

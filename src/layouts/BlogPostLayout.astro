@@ -1,11 +1,11 @@
 ---
 /*
- * BlogPostLayout — layout applied by Markdown blog posts via their
- * `layout:` frontmatter. Wraps the rendered post in the site chrome
- * (head, nav, footer, global styles) and a readable article container.
+ * BlogPostLayout — wraps a rendered blog post in the site chrome (head, nav,
+ * footer, global styles) and a readable article container.
  *
- * Markdown layouts receive their frontmatter under `Astro.props.frontmatter`;
- * we also fall back to direct props so the layout can be used standalone.
+ * Driven by the content-collection route (src/pages/blog/[...slug].astro),
+ * which passes the entry's validated data as `frontmatter`. We also fall back
+ * to direct props so the layout can be used standalone.
  */
 import Layout from './Layout.astro';
 
@@ -13,7 +13,7 @@ const { frontmatter } = Astro.props;
 const { title, description, pubDate, heroImage } = frontmatter ?? Astro.props;
 
 const formattedDate = pubDate
-  ? new Date(pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  ? new Date(pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
   : '';
 const ogUrl = 'https://empiricalbbq.com' + (Astro.url?.pathname ?? '/blog');
 ---
