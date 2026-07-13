@@ -1,0 +1,244 @@
+---
+/*
+ * BlogPostLayout — wraps a rendered blog post in the site chrome (head, nav,
+ * footer, global styles) and a readable article container.
+ *
+ * Driven by the content-collection route (src/pages/blog/[...slug].astro),
+ * which passes the entry's validated data as `frontmatter`. We also fall back
+ * to direct props so the layout can be used standalone.
+ */
+import Layout from './Layout.astro';
+
+const { frontmatter } = Astro.props;
+const { title, description, pubDate, heroImage } = frontmatter ?? Astro.props;
+
+const formattedDate = pubDate
+  ? new Date(pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
+  : '';
+const ogUrl = 'https://empiricalbbq.com' + (Astro.url?.pathname ?? '/blog');
+---
+
+<Layout
+  title={`Empirical BBQ | ${title}`}
+  description={description}
+  ogUrl={ogUrl}
+  bodyClass="page-blog min-h-screen flex flex-col bg-base-850 text-base-300 font-display antialiased selection:bg-flame-500/30"
+  showBanner={false}
+>
+  <div class="relative z-10 flex-1 w-full">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="pt-8">
+        <a
+          href="/blog"
+          class="inline-flex items-center gap-1.5 rounded-lg bg-base-800 ring-1 ring-base-700 hover:ring-flame-500/50 hover:text-white text-sm font-semibold text-base-300 px-3.5 py-2 transition-all"
+        >
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+          </svg>
+          Back to Blog
+        </a>
+      </div>
+
+      <article class="pb-16 pt-6">
+        <header class="mb-8">
+          <p class="text-xs font-semibold uppercase tracking-widest text-flame-400 mb-3">Empirical BBQ · Field Notes</p>
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.1]">{title}</h1>
+          {formattedDate && <p class="mt-4 text-sm text-base-500 font-mono">{formattedDate}</p>}
+          {description && <p class="mt-4 text-lg text-base-400 leading-relaxed">{description}</p>}
+        </header>
+
+        {
+          heroImage && (
+            <img
+              src={heroImage}
+              alt={title}
+              loading="eager"
+              class="w-full rounded-2xl ring-1 ring-base-700 shadow-xl shadow-black/40 mb-10 aspect-[16/9] object-cover"
+            />
+          )
+        }
+
+        <div class="post-body">
+          <slot />
+        </div>
+
+        <div class="mt-12 pt-8 border-t border-base-800">
+          <a
+            href="/blog"
+            class="inline-flex items-center gap-1.5 text-sm font-semibold text-flame-400 hover:text-flame-300 transition-colors"
+          >
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+            </svg>
+            Back to all posts
+          </a>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <footer class="relative z-10 border-t border-base-700 bg-base-900/70 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-medium text-base-400 mb-6">
+        <a href="/index.html" class="hover:text-white transition-colors">Home</a>
+        <a href="/brisket-calculator.html" class="hover:text-white transition-colors">Brisket Calculator</a>
+        <a href="/stall-predictor.html" class="hover:text-white transition-colors">Stall Predictor</a>
+        <a href="/fuel-estimator.html" class="hover:text-white transition-colors">Fuel Estimator</a>
+        <a href="/blog" class="hover:text-white transition-colors">Blog</a>
+        <a href="/contact.html" class="hover:text-white transition-colors">Contact</a>
+        <a href="/privacy.html" class="text-flame-400 hover:text-flame-300 transition-colors">Privacy Policy</a>
+      </nav>
+      <div class="pt-6 border-t border-base-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-xs text-base-500">&copy; 2026 Empirical BBQ · Pitmaster Science &amp; Mathematics Suite</p>
+        <p class="text-[11px] text-base-600 font-mono">Estimates for planning only — always probe to temperature.</p>
+      </div>
+    </div>
+  </footer>
+</Layout>
+
+<style is:global>
+  body.page-blog::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(1200px 600px at 82% -12%, rgba(249, 115, 22, 0.14), transparent 60%),
+      radial-gradient(950px 520px at -8% 108%, rgba(245, 158, 11, 0.09), transparent 55%);
+  }
+
+  /* Readable typography for rendered Markdown (Tailwind preflight strips defaults). */
+  .post-body {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: #aeb8d0;
+  }
+  .post-body > * + * {
+    margin-top: 1.15rem;
+  }
+  .post-body h2 {
+    color: #fff;
+    font-size: 1.6rem;
+    line-height: 1.25;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-top: 2.5rem;
+    margin-bottom: 0.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #26314a;
+  }
+  .post-body h3 {
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 1.75rem;
+  }
+  .post-body p {
+    color: #aeb8d0;
+  }
+  .post-body a {
+    color: #fb923c;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 2px;
+  }
+  .post-body a:hover {
+    color: #f97316;
+  }
+  .post-body strong {
+    color: #fff;
+    font-weight: 700;
+  }
+  .post-body em {
+    color: #cdd5e6;
+  }
+  .post-body ul,
+  .post-body ol {
+    padding-left: 1.4rem;
+  }
+  .post-body ul {
+    list-style: disc;
+  }
+  .post-body ol {
+    list-style: decimal;
+  }
+  .post-body li {
+    margin-top: 0.5rem;
+    padding-left: 0.25rem;
+  }
+  .post-body li::marker {
+    color: #f97316;
+  }
+  .post-body blockquote {
+    margin-top: 1.75rem;
+    border-left: 3px solid #f97316;
+    background: rgba(249, 115, 22, 0.08);
+    border-radius: 0 0.5rem 0.5rem 0;
+    padding: 1rem 1.25rem;
+    color: #cdd5e6;
+  }
+  .post-body blockquote p {
+    color: #cdd5e6;
+    margin-top: 0;
+  }
+  .post-body hr {
+    border: 0;
+    border-top: 1px solid #26314a;
+    margin: 2.5rem 0;
+  }
+  .post-body code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9em;
+    background: #1a2233;
+    border: 1px solid #26314a;
+    border-radius: 0.35rem;
+    padding: 0.1rem 0.35rem;
+    color: #e6ebf5;
+  }
+  .post-body pre {
+    background: #0d121b;
+    border: 1px solid #26314a;
+    border-radius: 0.6rem;
+    padding: 1rem 1.15rem;
+    overflow-x: auto;
+  }
+  .post-body pre code {
+    background: transparent;
+    border: 0;
+    padding: 0;
+  }
+  .post-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.75rem;
+  }
+  /* Tables: scroll horizontally on narrow screens instead of overflowing the page. */
+  .post-body table {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    margin-top: 1.75rem;
+  }
+  .post-body thead th {
+    background: #1a2233;
+    color: #fff;
+    font-weight: 700;
+    text-align: left;
+  }
+  .post-body th,
+  .post-body td {
+    border: 1px solid #26314a;
+    padding: 0.6rem 0.85rem;
+    vertical-align: top;
+  }
+  .post-body tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .post-body td strong {
+    color: #fff;
+  }
+</style>
