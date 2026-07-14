@@ -54,7 +54,7 @@ import AdSlot from '../components/AdSlot.astro';
               </span>
             </div>
             <p class="mt-1 text-xs text-base-400 leading-relaxed">
-              Lock in your rig configurations. These values save locally to automatically hydrate your parameters, saving time during calculations.
+              Lock in your rig configurations. Saved locally in your browser, these preselect the <strong class="text-base-300 font-semibold">Stall Predictor</strong>'s pit type and target temperature and the <strong class="text-base-300 font-semibold">Fuel Estimator</strong>'s fuel type on your first visit — anything you change inside a calculator always takes precedence. (Wood species is saved for upcoming smoke-profile features.)
             </p>
           </div>
 
@@ -305,6 +305,9 @@ import AdSlot from '../components/AdSlot.astro';
     const targetTemp = document.getElementById('setupTargetTemp').value;
 
     localStorage.setItem('pitmaster_smoker', smoker);
+    // TODO(roadmap): pitmaster_wood is saved but not yet consumed by any calculator.
+    // Wire it into wood-species smoke-profile features (see TODO.md #4 — more proteins /
+    // smoke modeling) so wood choice influences flavor/stall guidance.
     localStorage.setItem('pitmaster_wood', wood);
     localStorage.setItem('pitmaster_target_temp', targetTemp);
 

@@ -1,5 +1,58 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const pageUrl = 'https://empiricalbbq.com/fuel-estimator.html';
+const publisher = {
+  '@type': 'Organization',
+  name: 'Empirical BBQ',
+  url: 'https://empiricalbbq.com/',
+  logo: 'https://empiricalbbq.com/android-chrome-512x512.png',
+};
+const faqs = [
+  {
+    q: 'How much charcoal do I need for a 12-hour cook?',
+    a: 'As a baseline, a single-wall charcoal cooker burning about 1.5 lb/hr over 12 hours in mild weather needs roughly 18 lb of charcoal. Cold, wind, and thin insulation push that higher; the estimator adjusts for all three and tells you how many bags to buy.',
+  },
+  {
+    q: 'How many pellets does a smoker use per hour?',
+    a: 'A typical pellet cooker burns around 1.2 lb/hr at a clean 225–250°F in ideal conditions. Freezing temperatures and wind can raise effective consumption by 50% or more.',
+  },
+  {
+    q: 'How does cold weather affect fuel use?',
+    a: 'Significantly. The estimator scales burn rate from about 1.0× at 70°F up to roughly 1.75× near 20°F, because the fire has to replace heat lost through the cooker walls. Above about 110°F, ambient solar gain slightly reduces burn.',
+  },
+  {
+    q: 'Does insulation really save fuel?',
+    a: 'Yes. Moving from single-wall steel (about 45% efficiency) to an insulated blanket (about 70%) or a ceramic double-wall (about 85%) can cut fuel use by a third or more for the same cook. The what-if panel compares them side by side.',
+  },
+  {
+    q: 'How much does a long smoke cost?',
+    a: 'Multiply your effective burn rate by hours and by the cost per pound of fuel. For example, about 32 lb of pellets at roughly $0.90/lb runs near $29 for a 12-hour cook — the estimator computes total weight, bags, cost, and cost per hour.',
+  },
+];
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Smoker Fuel & Cost Estimator',
+    url: pageUrl,
+    applicationCategory: 'UtilityApplication',
+    operatingSystem: 'Any',
+    description:
+      'Estimate smoker fuel weight, bags, and cost from burn-rate thermodynamics — pit efficiency, ambient temperature, and wind convective heat load.',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
 ---
 
 <Layout
@@ -8,6 +61,7 @@ import Layout from '../layouts/Layout.astro';
   ogUrl="https://empiricalbbq.com/fuel-estimator.html"
   favicon="🪵"
   active="fuel"
+  schema={schema}
   bodyClass="page-fuel min-h-screen bg-charcoal-950 text-charcoal-300 font-display antialiased"
 >
   <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -445,6 +499,15 @@ import Layout from '../layouts/Layout.astro';
         'Custom Offset Smoker': 'hardwood_splits',
       };
       if (rig && RIG_TO_FUEL[rig]) state.fuel = RIG_TO_FUEL[rig];
+
+      // pitmaster_target_temp is intentionally NOT applied here: this tool's only
+      // temperature input is Ambient Outdoor Temp (weather), which is a different
+      // quantity from the saved pit target temperature (225/250/275). Mapping one
+      // to the other would be misleading, so we leave ambient at its own default.
+
+      // pitmaster_wood is intentionally NOT mapped to a fuel type: wood *species*
+      // (Apple, Cherry, Oak, Hickory) is ambiguous w.r.t. burn medium — any of them
+      // can be pellets, chunks, or splits — so there is no unambiguous fuel mapping.
     } catch (e) {
       /* ignore */
     }

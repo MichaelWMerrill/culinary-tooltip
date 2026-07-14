@@ -1,5 +1,58 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const pageUrl = 'https://empiricalbbq.com/brisket-calculator.html';
+const publisher = {
+  '@type': 'Organization',
+  name: 'Empirical BBQ',
+  url: 'https://empiricalbbq.com/',
+  logo: 'https://empiricalbbq.com/android-chrome-512x512.png',
+};
+const faqs = [
+  {
+    q: 'What is the yield of a whole packer brisket?',
+    a: 'A whole packer loses weight twice: to trimming (roughly 19–42% depending on USDA grade and how aggressively you trim) and again to evaporation and fat rendering during the cook (about 29–40% of the trimmed weight). A typical 14 lb Choice packer trimmed lightly and cooked in butcher paper finishes near 50% yield — around 7 lb of sliceable brisket.',
+  },
+  {
+    q: 'How much does a brisket shrink when smoked?',
+    a: 'Beyond the trim, the cook itself removes roughly 29–40% of the trimmed weight as rendered fat and evaporated moisture. Foil wraps lose the least (the Texas crutch limits evaporation) and naked cooks lose the most.',
+  },
+  {
+    q: 'How do I calculate the true cost per cooked pound?',
+    a: 'Divide the raw purchase price by the final cooked weight, not the raw weight. Because total yield is only about 50%, the true cost per cooked pound is often close to double the sticker price per pound.',
+  },
+  {
+    q: 'How much brisket should I cook per person?',
+    a: 'Plan about 0.5 lb of cooked, sliced brisket per guest. The serving estimator converts your finished weight into how many guests it covers so you can size the packer to the crowd.',
+  },
+  {
+    q: 'Does USDA grade change the yield?',
+    a: 'Yes. The calculator applies grade-specific trim and cook-loss factors — higher grades carry more fat, which changes both how much you trim and how much renders out during the cook.',
+  },
+];
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Brisket Trim, Shrinkage & Yield Calculator',
+    url: pageUrl,
+    applicationCategory: 'UtilityApplication',
+    operatingSystem: 'Any',
+    description:
+      'Model brisket trim loss and evaporative moisture shrinkage during the cook to find usable yield and true cost per cooked pound by weight and USDA grade.',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
 ---
 
 <Layout
@@ -8,6 +61,7 @@ import Layout from '../layouts/Layout.astro';
   ogUrl="https://empiricalbbq.com/brisket-calculator.html"
   favicon="🥩"
   active="brisket"
+  schema={schema}
   bodyClass="page-brisket min-h-screen bg-smoke-900 text-smoke-300 font-display antialiased"
 >
   <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
