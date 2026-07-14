@@ -1,12 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-// Cloudflare Turnstile site key. The value below is Cloudflare's public
-// "always passes" TEST key so the widget works in dev/preview.
-// TODO: set real key — replace with your production Turnstile site key
-// (Cloudflare dashboard → Turnstile), and set TURNSTILE_SECRET_KEY in the
-// deploy environment (see README "Contact endpoint").
-const TURNSTILE_SITE_KEY = '1x00000000000000000000AA';
+// Cloudflare Turnstile site key (public). The matching secret key is set in the
+// deploy environment as TURNSTILE_SECRET_KEY (see README "Contact endpoint").
+const TURNSTILE_SITE_KEY = '0x4AAAAAAD1as-yX0sKUn5Lk';
 ---
 
 <Layout
