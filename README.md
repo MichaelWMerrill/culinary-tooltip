@@ -43,10 +43,20 @@ live `<ins class="adsbygoogle">` units in production (`import.meta.env.PROD`).
 
 ## Contact endpoint
 
-The contact form (`src/pages/contact.astro`) POSTs JSON to `/api/contact`, handled by
-`functions/api/contact.ts`. The function validates the message, verifies a Cloudflare
-Turnstile token server-side, and forwards the submission to `contact@empiricalbbq.com`
-via **Resend** (if `RESEND_API_KEY` is set) or **MailChannels**.
+The contact form (`src/pages/contact.astro`) POSTs JSON to `/api/contact`. The request
+handler lives in `server/contactHandler.ts` and is wired for **both** Cloudflare
+deployment models:
+
+- **Workers static-assets (current deploy):** `worker.ts` is the Worker entry (`main`
+  in `wrangler.toml` / `wrangler.jsonc`). Static files in `dist/` are served by the
+  `ASSETS` binding; the Worker only runs for `/api/contact` and defers everything else
+  (including `404.html`) to the assets.
+- **Cloudflare Pages:** `functions/api/contact.ts` is a thin adapter over the same
+  handler, for the `functions/` convention.
+
+The handler validates the message, verifies a Cloudflare Turnstile token server-side, and
+forwards the submission to `contact@empiricalbbq.com` via **Resend** (if `RESEND_API_KEY`
+is set) or **MailChannels**.
 
 **Environment variables** (set in the deploy environment — Cloudflare dashboard →
 your project → Settings → Variables and Secrets):
@@ -62,13 +72,11 @@ so the form works in dev/preview — replace it with your production site key (m
 `// TODO: set real key` comment). Create the widget and both keys at Cloudflare dashboard →
 **Turnstile**.
 
-> **Deployment note:** `functions/api/contact.ts` uses the Cloudflare **Pages Functions**
-> convention (a top-level `functions/` directory). This project's `wrangler` config is set up
-> for **Workers static assets** (`[assets] directory = "./dist"`). To serve the endpoint,
-> either deploy the site as a **Cloudflare Pages** project (Pages auto-detects `functions/`),
-> or, if staying on the Workers static-assets model, wire this handler as a Worker route
-> (add a `main` Worker that serves `/api/*` and falls through to the assets binding). Static
-> assets and Functions coexist; `output: 'static'` in `astro.config.mjs` stays unchanged.
+> **Deployment note:** this repo deploys on the **Workers static-assets** model, and the
+> `/api/contact` route is wired via `worker.ts` (`main`) — no action needed to serve it.
+> `output: 'static'` in `astro.config.mjs` is unchanged; `npm run build` still just produces
+> `dist/`, and the Worker is bundled by `wrangler` at deploy time. The `functions/` adapter is
+> retained only for the alternative Pages deployment model.
 >
 > MailChannels now requires account setup (their free Workers integration was retired), so
 > **Resend is the recommended path** — set `RESEND_API_KEY` and verify your sending domain.
