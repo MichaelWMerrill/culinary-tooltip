@@ -1,9 +1,13 @@
-# Cloudflare Pages config for the Empirical BBQ static site.
-# The site is now built with Astro; Cloudflare serves the pre-rendered,
-# pre-compiled static assets from the Astro build output directory (`dist/`).
-# index.html remains the default document.
+# Cloudflare Workers config for the Empirical BBQ site.
+# The site is built with Astro to dist/ and served as static assets. A small
+# Worker (worker.ts) adds the dynamic /api/contact endpoint; all other requests
+# are served directly from the assets binding (with 404.html for unknown paths).
 name = "pitmaster-command-center"
 compatibility_date = "2025-06-01"
+compatibility_flags = ["nodejs_compat"]
+main = "worker.ts"
 
 [assets]
 directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "404-page"

@@ -1,5 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+// Cloudflare Turnstile site key (public). The matching secret key is set in the
+// deploy environment as TURNSTILE_SECRET_KEY (see README "Contact endpoint").
+const TURNSTILE_SITE_KEY = '0x4AAAAAAD1as-yX0sKUn5Lk';
 ---
 
 <Layout
@@ -10,6 +14,9 @@ import Layout from '../layouts/Layout.astro';
   bodyClass="page-contact min-h-screen flex flex-col bg-base-850 text-base-300 font-display antialiased selection:bg-flame-500/30"
   showBanner={false}
 >
+  <Fragment slot="head">
+    <script is:inline async defer src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
+  </Fragment>
   <div class="relative z-10 flex-1 w-full">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header -->
@@ -86,22 +93,26 @@ import Layout from '../layouts/Layout.astro';
               <p id="cf-error" class="hidden mt-1.5 text-xs text-red-400"></p>
             </div>
 
+            <!-- Cloudflare Turnstile (bot protection, verified server-side) -->
+            <div class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-theme="dark"></div>
+
             <div class="flex flex-col sm:flex-row sm:items-center gap-3 pt-1">
-              <button id="cf-submit" type="submit" class="w-full sm:w-auto bg-gradient-to-r from-flame-600 to-flame-500 hover:from-flame-500 hover:to-flame-400 text-white font-bold text-sm px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
-                Compose email →
+              <button id="cf-submit" type="submit" class="w-full sm:w-auto bg-gradient-to-r from-flame-600 to-flame-500 hover:from-flame-500 hover:to-flame-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+                Send message
               </button>
               <p class="text-[12px] text-base-500 leading-snug">
-                Opens a pre-filled message in your email app. Nothing is sent to or stored by us until you hit send.
+                Sent securely to our inbox. We only use your email to reply — see the
+                <a href="/privacy.html" class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">privacy policy</a>.
               </p>
             </div>
           </form>
 
-          <p id="cf-status" class="hidden mt-4 rounded-lg bg-emerald-500/10 ring-1 ring-emerald-500/30 px-4 py-3 text-sm text-emerald-300"></p>
+          <p id="cf-status" class="hidden mt-4 rounded-lg px-4 py-3 text-sm"></p>
         </section>
 
         <!-- Direct fallback -->
         <p class="text-center text-[13px] text-base-500">
-          No email app handy? Write us directly at
+          Prefer email? Write us directly at
           <a href="mailto:contact@empiricalbbq.com?subject=Empirical%20BBQ%20feedback" class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">contact@empiricalbbq.com</a>.
         </p>
       </main>
@@ -149,8 +160,18 @@ import Layout from '../layouts/Layout.astro';
     const $ = (id) => document.getElementById(id);
     const err = $('cf-error');
     const status = $('cf-status');
+    const btn = $('cf-submit');
 
-    form.addEventListener('submit', (e) => {
+    function showStatus(ok, text) {
+      status.textContent = text;
+      status.className =
+        'mt-4 rounded-lg px-4 py-3 text-sm ' +
+        (ok
+          ? 'bg-emerald-500/10 ring-1 ring-emerald-500/30 text-emerald-300'
+          : 'bg-red-500/10 ring-1 ring-red-500/30 text-red-300');
+    }
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const name = $('cf-name').value.trim();
@@ -161,30 +182,59 @@ import Layout from '../layouts/Layout.astro';
 
       // Message is the only required field.
       if (!message) {
-        err.textContent = 'Please add a message before composing your email.';
+        err.textContent = 'Please add a message before sending.';
         err.classList.remove('hidden');
         $('cf-message').focus();
         return;
       }
+      if (message.length > 5000) {
+        err.textContent = 'Message is too long (5,000 character max).';
+        err.classList.remove('hidden');
+        return;
+      }
       err.classList.add('hidden');
 
-      const subject = `[Empirical BBQ] ${topic}` + (calc && calc !== 'General / all' ? ` — ${calc}` : '');
+      // Turnstile injects a hidden input named cf-turnstile-response into the form.
+      const tokenEl = form.querySelector('[name="cf-turnstile-response"]');
+      const turnstileToken = tokenEl ? tokenEl.value : '';
 
-      const lines = [];
-      if (name) lines.push(`Name: ${name}`);
-      if (email) lines.push(`Reply to: ${email}`);
-      lines.push(`Topic: ${topic}`);
-      lines.push(`Calculator: ${calc}`);
-      lines.push('');
-      lines.push(message);
-      lines.push('');
-      lines.push('— Sent from the Empirical BBQ contact form');
+      const original = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      status.classList.add('hidden');
 
-      const href = `mailto:${CONTACT_TO}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
-      window.location.href = href;
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ name, email, topic, calc, message, turnstileToken }),
+        });
+        const data = await res.json().catch(() => ({}));
 
-      status.textContent = "Your email app should be opening with the message pre-filled. If it didn't, email us directly at " + CONTACT_TO + '.';
-      status.classList.remove('hidden');
+        if (res.ok && data.ok) {
+          form.reset();
+          if (window.turnstile) {
+            try { window.turnstile.reset(); } catch (e) {}
+          }
+          showStatus(true, 'Thanks — your message is on its way. We’ll get back to you if a reply is needed.');
+          status.classList.remove('hidden');
+          btn.textContent = original;
+          btn.disabled = false;
+        } else {
+          showStatus(
+            false,
+            (data && data.error ? data.error + ' ' : '') + 'You can also email us directly at ' + CONTACT_TO + '.'
+          );
+          status.classList.remove('hidden');
+          btn.textContent = original;
+          btn.disabled = false;
+        }
+      } catch (err2) {
+        showStatus(false, 'Network error — please try again, or email us directly at ' + CONTACT_TO + '.');
+        status.classList.remove('hidden');
+        btn.textContent = original;
+        btn.disabled = false;
+      }
     });
   }
 

@@ -2,14 +2,16 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "pitmaster-command-center",
   "compatibility_date": "2026-07-11",
+  "compatibility_flags": ["nodejs_compat"],
+  // Worker entry adds the dynamic /api/contact endpoint; static assets are
+  // served from the ASSETS binding, with 404.html for unknown paths.
+  "main": "worker.ts",
   "observability": {
     "enabled": true
   },
-  // Serve the Astro static build output (`dist/`) rather than the repo root.
   "assets": {
-    "directory": "./dist"
-  },
-  "compatibility_flags": [
-    "nodejs_compat"
-  ]
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page"
+  }
 }

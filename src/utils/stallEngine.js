@@ -9,7 +9,10 @@
 export const DATA = {
   simulation_metadata: {
     engine_version: '1.0.0',
-    target_proteins: ['beef_brisket', 'pork_shoulder'],
+    // TODO(roadmap): pork_shoulder support — see TODO.md #4. The model constants
+    // below are calibrated for beef brisket only; do not re-add pork here until a
+    // dedicated constants block + protein selector exist.
+    target_proteins: ['beef_brisket'],
     base_thermal_diffusivity_alpha: 0.0014,
     latent_heat_vaporization_Lv: 2260000,
   },

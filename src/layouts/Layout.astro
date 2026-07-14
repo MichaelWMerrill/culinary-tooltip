@@ -19,6 +19,10 @@ export interface Props {
   bodyClass?: string;
   /** Render the sticky 728x90 bottom banner (all tools; off for the privacy page). */
   showBanner?: boolean;
+  /** Absolute URL of the social-share image (og:image / twitter:image). */
+  ogImage?: string;
+  /** Page-specific JSON-LD structured data — a single object or an array of objects. */
+  schema?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
@@ -28,19 +32,58 @@ const {
   active = null,
   bodyClass = 'min-h-screen bg-base-850 text-base-300 font-display antialiased',
   showBanner = true,
+  ogImage = 'https://empiricalbbq.com/og-default.png',
+  schema,
 } = Astro.props;
+
+// Site-wide WebSite schema, always present; page schema (if any) is appended.
+const siteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Empirical BBQ',
+  url: 'https://empiricalbbq.com/',
+  publisher: {
+    '@type': 'Organization',
+    name: 'Empirical BBQ',
+    url: 'https://empiricalbbq.com/',
+    logo: 'https://empiricalbbq.com/android-chrome-512x512.png',
+  },
+};
+const schemaBlocks = [siteSchema, ...(schema ? (Array.isArray(schema) ? schema : [schema]) : [])];
 ---
 
 <!DOCTYPE html>
 <html lang="en" class="dark">
   <head>
-    <!-- Google tag (gtag.js) -->
+    <!-- Google tag (gtag.js) + Consent Mode v2 -->
     <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-Q5WHQ3GPHC"></script>
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
         dataLayer.push(arguments);
       }
+      // Consent Mode v2: deny ad + analytics storage by default until the user opts in.
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+      });
+      // Honor a previously stored choice before GA/AdSense initialize.
+      try {
+        if (localStorage.getItem('pitmaster_consent') === 'granted') {
+          gtag('consent', 'update', {
+            ad_storage: 'granted',
+            ad_user_data: 'granted',
+            ad_personalization: 'granted',
+            analytics_storage: 'granted',
+          });
+        }
+      } catch (e) {}
+      // NOTE: For EEA/UK AdSense monetization Google requires a certified
+      // Consent Management Platform (CMP). This lightweight self-hosted banner
+      // is an interim measure only — for production EEA/UK ad serving, adopt a
+      // certified CMP from https://support.google.com/admob/answer/13554116
       gtag('js', new Date());
       gtag('config', 'G-Q5WHQ3GPHC');
     </script>
@@ -58,9 +101,10 @@ const {
     <meta property="og:url" content={ogUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content="https://empiricalbbq.com/android-chrome-512x512.png" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:image" content="https://empiricalbbq.com/android-chrome-512x512.png" />
+    <link rel="canonical" href={ogUrl} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImage} />
     <!-- Hosted brand favicon set (Google Search, browser tabs, iOS/Android home screens). -->
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
@@ -68,6 +112,10 @@ const {
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#121824" />
+    <link rel="alternate" type="application/rss+xml" title="Empirical BBQ Blog" href="https://empiricalbbq.com/rss.xml" />
+    {schemaBlocks.map((block) => (
+      <script type="application/ld+json" set:html={JSON.stringify(block)} />
+    ))}
     <slot name="head" />
   </head>
   <body class={bodyClass}>
@@ -146,5 +194,49 @@ const {
         </script>
       )
     }
+
+    {/* Self-hosted consent banner (Consent Mode v2). Interim measure — see the NOTE in <head>. */}
+    <div id="consentBanner" class="hidden fixed inset-x-0 bottom-0 z-[60] p-3 sm:p-4 pointer-events-none">
+      <div class="pointer-events-auto mx-auto max-w-3xl rounded-xl bg-base-850 ring-1 ring-base-700 shadow-2xl shadow-black/60 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3">
+        <p class="flex-1 text-[13px] text-base-300 leading-relaxed">
+          We use cookies for analytics and to show relevant ads. You can accept or reject non-essential
+          cookies — see our <a href="/privacy.html" class="text-amber-400 hover:text-amber-300 underline">privacy policy</a>.
+        </p>
+        <div class="flex gap-2 shrink-0">
+          <button id="consentReject" type="button" class="rounded-lg bg-base-800 ring-1 ring-base-700 hover:ring-base-600 text-base-300 hover:text-white font-semibold text-xs px-4 py-2 transition-all">
+            Reject
+          </button>
+          <button id="consentAccept" type="button" class="rounded-lg bg-amber-500 hover:bg-amber-400 text-base-900 font-bold text-xs px-4 py-2 transition-colors">
+            Accept
+          </button>
+        </div>
+      </div>
+    </div>
+    <script is:inline>
+      (function () {
+        var KEY = 'pitmaster_consent';
+        var banner = document.getElementById('consentBanner');
+        if (!banner) return;
+        var stored = null;
+        try { stored = localStorage.getItem(KEY); } catch (e) {}
+        if (stored === 'granted' || stored === 'denied') return; // choice already made
+        banner.classList.remove('hidden');
+
+        function choose(value) {
+          try { localStorage.setItem(KEY, value); } catch (e) {}
+          if (value === 'granted' && typeof gtag === 'function') {
+            gtag('consent', 'update', {
+              ad_storage: 'granted',
+              ad_user_data: 'granted',
+              ad_personalization: 'granted',
+              analytics_storage: 'granted',
+            });
+          }
+          banner.classList.add('hidden');
+        }
+        document.getElementById('consentAccept').addEventListener('click', function () { choose('granted'); });
+        document.getElementById('consentReject').addEventListener('click', function () { choose('denied'); });
+      })();
+    </script>
   </body>
 </html>

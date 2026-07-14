@@ -1,5 +1,58 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const pageUrl = 'https://empiricalbbq.com/stall-predictor.html';
+const publisher = {
+  '@type': 'Organization',
+  name: 'Empirical BBQ',
+  url: 'https://empiricalbbq.com/',
+  logo: 'https://empiricalbbq.com/android-chrome-512x512.png',
+};
+const faqs = [
+  {
+    q: 'How long does the brisket stall last?',
+    a: 'The stall typically sets in between 150°F and 170°F and lasts roughly one to three hours unwrapped, depending on your pit’s airflow and humidity, the meat’s mass, and your climate. Wrapping in butcher paper shortens it, and foil can crush it almost entirely.',
+  },
+  {
+    q: 'What causes the stall?',
+    a: 'Evaporative cooling. As internal moisture migrates to the surface and evaporates, it pulls heat away about as fast as the pit adds it, so the internal temperature plateaus until the surface dries out.',
+  },
+  {
+    q: 'Should I wrap to beat the stall?',
+    a: 'Foil halts evaporation and powers through the stall fastest but softens the bark; peach butcher paper trims the stall while preserving bark; cooking naked gives the deepest bark but the longest stall. The predictor models all three wrap paths.',
+  },
+  {
+    q: 'How does pit type affect the stall?',
+    a: 'Higher-airflow pits such as offset smokers and charcoal kettles drive faster evaporation for a shorter, sharper stall, while low-airflow, higher-humidity cookers like ceramic kamados suppress evaporation and stretch the plateau out.',
+  },
+  {
+    q: 'How long does it take to smoke a brisket?',
+    a: 'For a typical 12 lb brisket at 225°F on an offset smoker, expect roughly 8 to 10 hours to reach the 203°F finish, including the stall. Higher pit temperatures and wrapping shorten the total; the predictor plots the full internal-temperature curve.',
+  },
+];
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Thermodynamic Stall Predictor',
+    url: pageUrl,
+    applicationCategory: 'UtilityApplication',
+    operatingSystem: 'Any',
+    description:
+      'Model the evaporative-cooling stall: plot internal temperature versus time and predict stall duration from pit convection, humidity, wrap method, and meat mass.',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
 ---
 
 <Layout
@@ -8,6 +61,7 @@ import Layout from '../layouts/Layout.astro';
   ogUrl="https://empiricalbbq.com/stall-predictor.html"
   favicon="📈"
   active="stall"
+  schema={schema}
   bodyClass="page-stall min-h-screen bg-slate-950 text-slate-300 font-display antialiased"
 >
   <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -489,7 +543,7 @@ import Layout from '../layouts/Layout.astro';
       const RIG_TO_PIT = {
         'Pit Boss Pellet Smoker': 'pellet_cooker',
         'Traeger Pellet Smoker': 'pellet_cooker',
-        'Weber Kettle Charcoal Grill': 'ceramic_kamado',
+        'Weber Kettle Charcoal Grill': 'charcoal_kettle',
         'Custom Offset Smoker': 'offset_smoker',
       };
       if (rig && RIG_TO_PIT[rig]) state.pit = RIG_TO_PIT[rig];

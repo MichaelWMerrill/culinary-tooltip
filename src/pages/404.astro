@@ -1,0 +1,61 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Empirical BBQ | Page Not Found (404)"
+  description="This page couldn't be found. Head back to the pitmaster calculators — brisket yield, the stall predictor, and the fuel estimator."
+  ogUrl="https://empiricalbbq.com/404.html"
+  bodyClass="page-404 min-h-screen flex flex-col bg-base-850 text-base-300 font-display antialiased selection:bg-flame-500/30"
+  showBanner={false}
+>
+  <div class="relative z-10 flex-1 w-full flex items-center">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+      <div class="inline-flex items-center gap-2 rounded-full bg-flame-500/10 ring-1 ring-flame-500/40 px-3.5 py-1.5 mb-6">
+        <span class="text-sm">🔥</span>
+        <span class="text-xs font-semibold tracking-wide text-flame-300 uppercase">404 — Off the Grate</span>
+      </div>
+      <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-[1.05]">This cook got lost</h1>
+      <p class="mt-5 max-w-lg mx-auto text-base sm:text-lg text-base-400 leading-relaxed">
+        The page you're after slipped off the smoker. Let's get you back to something useful.
+      </p>
+
+      <div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+        <a href="/brisket-calculator.html" class="group rounded-2xl bg-base-800/80 ring-1 ring-base-700 hover:ring-flame-500/40 p-5 transition-all hover:-translate-y-0.5">
+          <div class="text-2xl mb-2">🥩</div>
+          <p class="text-sm font-bold text-white group-hover:text-flame-300">Brisket Calculator</p>
+          <p class="mt-1 text-xs text-base-500">Trim, shrinkage &amp; true cost per cooked pound.</p>
+        </a>
+        <a href="/stall-predictor.html" class="group rounded-2xl bg-base-800/80 ring-1 ring-base-700 hover:ring-flame-500/40 p-5 transition-all hover:-translate-y-0.5">
+          <div class="text-2xl mb-2">📈</div>
+          <p class="text-sm font-bold text-white group-hover:text-flame-300">Stall Predictor</p>
+          <p class="mt-1 text-xs text-base-500">Plot the internal-temp curve and beat the stall.</p>
+        </a>
+        <a href="/fuel-estimator.html" class="group rounded-2xl bg-base-800/80 ring-1 ring-base-700 hover:ring-flame-500/40 p-5 transition-all hover:-translate-y-0.5">
+          <div class="text-2xl mb-2">🪵</div>
+          <p class="text-sm font-bold text-white group-hover:text-flame-300">Fuel Estimator</p>
+          <p class="mt-1 text-xs text-base-500">Fuel weight, bags &amp; the true cost of the cook.</p>
+        </a>
+      </div>
+
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-medium">
+        <a href="/" class="text-flame-400 hover:text-flame-300 transition-colors">← Home</a>
+        <a href="/blog" class="text-base-400 hover:text-white transition-colors">Read the blog</a>
+        <a href="/contact.html" class="text-base-400 hover:text-white transition-colors">Contact</a>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style is:global>
+  body.page-404::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(1200px 600px at 82% -12%, rgba(249, 115, 22, 0.14), transparent 60%),
+      radial-gradient(950px 520px at -8% 108%, rgba(245, 158, 11, 0.09), transparent 55%);
+  }
+</style>
