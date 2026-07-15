@@ -11,3 +11,13 @@
   X-Frame-Options: SAMEORIGIN
   Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()
   Cross-Origin-Opener-Policy: same-origin
+  # Content-Security-Policy. Shipped in REPORT-ONLY mode: browsers report
+  # violations to the console but block nothing, so live AdSense/Analytics ad
+  # revenue is never at risk while the allowlist is validated in production.
+  # To ENFORCE once verified: rename the header below to `Content-Security-Policy`
+  # (drop `-Report-Only`). The allowlist covers Google Tag/Analytics, the AdSense
+  # ad ecosystem (googlesyndication / doubleclick / adtrafficquality), and
+  # Cloudflare Turnstile. `script-src` needs 'unsafe-inline' because GA/Consent
+  # Mode + AdSense inject inline scripts (nonces can't cover ad-injected code);
+  # `img-src https:` allows ad-creative images from arbitrary advertiser hosts.
+  Content-Security-Policy-Report-Only: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://partner.googleadservices.com https://tpc.googlesyndication.com https://www.google-analytics.com https://adservice.google.com https://*.adtrafficquality.google https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com https://*.adtrafficquality.google https://challenges.cloudflare.com; connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.g.doubleclick.net https://*.adtrafficquality.google https://challenges.cloudflare.com; worker-src 'self' blob:

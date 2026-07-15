@@ -113,9 +113,18 @@ via `node scripts/gen-golden.mjs` (then commit the updated specs).
   caps on subject fields (email-header-injection defense), and reply-to email validation.
 - **JSON-LD** is emitted with `<`, `>`, `&`, and JS line-terminators escaped to unicode, so a
   schema string can never break out of its `<script>` element.
-- **No Content-Security-Policy** is set yet: the site relies on inline scripts (GA/Consent
-  Mode, the ad toggle) plus third-party origins (Google Analytics, AdSense, Cloudflare
-  Turnstile). A CSP would need to allowlist those exactly; it's a recommended follow-up.
+- **Content-Security-Policy** (`public/_headers`, site-wide) ships in **report-only** mode
+  (`Content-Security-Policy-Report-Only`): browsers report violations to the console but
+  block nothing, so live AdSense/Analytics revenue is never at risk while the allowlist is
+  validated in production. The policy allowlists Google Tag/Analytics, the AdSense ad
+  ecosystem (`googlesyndication` / `doubleclick` / `adtrafficquality`), and Cloudflare
+  Turnstile, and locks down `object-src 'none'`, `base-uri 'self'`, `frame-ancestors 'self'`,
+  and `form-action 'self'`. `script-src` includes `'unsafe-inline'` because GA/Consent Mode
+  and AdSense inject inline scripts (nonces can't cover ad-injected code), and `img-src https:`
+  allows ad-creative images from arbitrary advertiser hosts. **To enforce** once you've
+  confirmed no legitimate violations in production, rename the header to
+  `Content-Security-Policy` (drop `-Report-Only`) — `upgrade-insecure-requests` (inert and
+  warned-about under report-only) then takes effect automatically.
 - **`npm audit`** reports advisories in Astro/esbuild, but they apply to features this site
   does not use (`define:vars`, server islands, spread props with user data, SSR error pages)
   or to the local dev server only — none are exploitable in the static production build. The
