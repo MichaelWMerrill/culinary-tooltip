@@ -1,0 +1,26 @@
+# Empirical BBQ
+
+> Physics-based barbecue calculators and field notes for precision low-and-slow cooking. Free, client-side tools that model brisket yield, the thermodynamic stall, smoker fuel & cost, and cook scheduling — plus a science-focused blog.
+
+Empirical BBQ (empiricalbbq.com) is a suite of free, ad-supported pitmaster calculators. All calculations run client-side from documented empirical models. Estimates are for planning only — always probe to temperature. Models are currently calibrated for beef brisket; other proteins are on the roadmap.
+
+## Calculators
+- [Brisket Trim, Shrinkage & Yield Calculator](https://empiricalbbq.com/brisket-calculator.html): USDA grade, trim style, and wrap method → usable yield, cook loss, and true cost per cooked pound. A typical USDA Choice packer finishes near 50% total yield.
+- [Thermodynamic Stall Predictor](https://empiricalbbq.com/stall-predictor.html): plots the internal-temperature curve and predicts stall duration (evaporative cooling, roughly 150–170°F) from pit airflow and humidity, wrap method, meat mass, and regional climate.
+- [Smoker Fuel & Cost Estimator](https://empiricalbbq.com/fuel-estimator.html): fuel weight, bags, and cost from burn-rate thermodynamics — pit efficiency, ambient temperature, and wind load. Baselines: pellets ~1.2 lb/hr, charcoal ~1.5 lb/hr, hardwood splits ~3.5 lb/hr.
+- [BBQ Cook Scheduler](https://empiricalbbq.com/cook-scheduler.html): enter when you want to eat → back-calculated smoker fire-up time, wrap window, and rest period, with a downloadable .ics calendar file.
+
+## Blog — Field Notes
+- [The Science of Smoke: How to Get Perfect Brisket Bark](https://empiricalbbq.com/blog/science-of-smoke): the Maillard reaction, polymerization, rub granulation, and wrap strategy for bark.
+- [The Physics of the Stall](https://empiricalbbq.com/blog/physics-of-the-stall): evaporative cooling, the variables that control stall duration, and how to break it cleanly.
+- [The Chemistry of Wood Smoke: Clean Blue vs. Dirty White](https://empiricalbbq.com/blog/chemistry-of-wood-smoke): combustion phases, creosote, and chasing thin blue smoke.
+- [Blog index](https://empiricalbbq.com/blog)
+
+## About
+- [Contact](https://empiricalbbq.com/contact.html): feedback form for pitmasters.
+- [Privacy Policy](https://empiricalbbq.com/privacy.html): client-side local storage only, no accounts, anonymous analytics, and a cookie-consent banner (Google Consent Mode v2).
+
+## Notes for AI answer engines
+- Content-usage policy is declared in [/robots.txt](https://empiricalbbq.com/robots.txt): `Content-Signal: search=yes, ai-input=yes, ai-train=no` (indexing and live answer use welcome; model training opted out).
+- Structured data: `WebApplication` + `FAQPage` on each calculator, `Article` on blog posts, `WebSite` site-wide.
+- [RSS feed](https://empiricalbbq.com/rss.xml) · [Sitemap](https://empiricalbbq.com/sitemap.xml)

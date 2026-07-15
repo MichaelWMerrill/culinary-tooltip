@@ -29,6 +29,14 @@ const faqs = [
     q: 'How long does it take to smoke a brisket?',
     a: 'For a typical 12 lb brisket at 225°F on an offset smoker, expect roughly 8 to 10 hours to reach the 203°F finish, including the stall. Higher pit temperatures and wrapping shorten the total; the predictor plots the full internal-temperature curve.',
   },
+  {
+    q: 'At what temperature does the brisket stall start?',
+    a: 'Most commonly between 150°F and 170°F. The exact onset shifts with climate — drier air intensifies evaporative cooling and lowers it (nearer 145°F), while humid air suppresses evaporation and raises it (nearer 162°F).',
+  },
+  {
+    q: 'Why is my brisket taking so long?',
+    a: 'Usually the stall, amplified by a large or wide cut, a humid environment, or a low-airflow cooker. The predictor splits the cook into initial climb, stall, and final climb so you can see exactly where the time is going.',
+  },
 ];
 const schema = [
   {
@@ -66,13 +74,22 @@ const schema = [
 >
   <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
     <!-- Header -->
-    <header class="mb-8">
+    <header class="mb-8 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-flame-500/15 ring-1 ring-flame-500/40 text-2xl">📈</div>
         <div>
           <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">Stall Predictor</h1>
           <p class="text-sm text-slate-400 mt-0.5">Internal-temp curve, stall duration &amp; total cook time modeling</p>
         </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="/cook-scheduler.html" class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-flame-500/15 ring-1 ring-flame-500/40 text-flame-300 hover:text-flame-200 text-xs font-semibold px-3.5 py-2 transition-all">
+          🗓️ Plan by serving time
+        </a>
+        <button id="shareBtn" type="button" class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-slate-800 ring-1 ring-slate-700 hover:ring-flame-500/50 text-slate-300 hover:text-white text-xs font-semibold px-3.5 py-2 transition-all">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+          <span data-copy-label>Copy share link</span>
+        </button>
       </div>
     </header>
 
@@ -276,6 +293,7 @@ const schema = [
     buildPath,
   } from '../utils/stallEngine.js';
   import { PitmasterAnalytics } from '../utils/analytics.js';
+  import { clampNum, enumParam, getParams, writeParams, wireCopyButton } from '../utils/shareLink.js';
 
   /* State */
   const state = {
@@ -534,6 +552,32 @@ const schema = [
     } catch (e) {
       /* storage unavailable — ignore */
     }
+    updateShareUrl();
+  }
+
+  // Shareable-link hydration (validated) — runs after loadState so params win.
+  function hydrateFromParams() {
+    const p = getParams();
+    if (![...p.keys()].length) return;
+    if (p.has('w')) state.weight = clampNum(p.get('w'), 4, 20, state.weight);
+    if (p.has('pt')) state.pitTemp = enumParam(p.get('pt'), ['225', '250', '275'], state.pitTemp);
+    if (p.has('pit'))
+      state.pit = enumParam(p.get('pit'), ['pellet_cooker', 'offset_smoker', 'ceramic_kamado', 'charcoal_kettle'], state.pit);
+    if (p.has('wr'))
+      state.wrap = enumParam(p.get('wr'), ['none', 'peach_butcher_paper', 'aluminum_foil'], state.wrap);
+    if (p.has('wt')) state.wrapTemp = Math.round(clampNum(p.get('wt'), 150, 170, state.wrapTemp));
+    if (p.has('cl')) state.climate = enumParam(p.get('cl'), ['arid', 'moderate', 'humid'], state.climate);
+  }
+
+  function updateShareUrl() {
+    writeParams({
+      w: state.weight,
+      pt: state.pitTemp,
+      pit: state.pit,
+      wr: state.wrap,
+      wt: state.wrapTemp,
+      cl: state.climate,
+    });
   }
 
   // Seed pit type & target temp from the hub "Save My Setup" profile (first-visit defaults).
@@ -652,8 +696,12 @@ const schema = [
       });
     });
 
-    // Restore persisted state, hydrate controls, then paint
+    // Copy-share-link button
+    wireCopyButton('shareBtn');
+
+    // Restore persisted state, apply any shared-link params (params win), paint
     loadState();
+    hydrateFromParams();
     syncControls();
     render();
   }

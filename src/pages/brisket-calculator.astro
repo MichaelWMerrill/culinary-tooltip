@@ -29,6 +29,14 @@ const faqs = [
     q: 'Does USDA grade change the yield?',
     a: 'Yes. The calculator applies grade-specific trim and cook-loss factors — higher grades carry more fat, which changes both how much you trim and how much renders out during the cook.',
   },
+  {
+    q: 'How much fat should I trim off a brisket?',
+    a: 'A light commercial/retail trim removes roughly 19–28% of the raw weight depending on grade; an aggressive competition trim (squared and defatted) removes about 30–42%. The calculator applies your chosen trim style to the raw packer weight.',
+  },
+  {
+    q: 'Does wrapping in foil vs. butcher paper change the yield?',
+    a: 'Slightly. Foil (the Texas crutch) limits evaporation and loses the least during the cook (~29–31% of trimmed weight), butcher paper is in the middle (~33–35%), and cooking naked loses the most (~38–40%).',
+  },
 ];
 const schema = [
   {
@@ -66,7 +74,7 @@ const schema = [
 >
   <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
     <!-- Header -->
-    <header class="mb-8 sm:mb-10">
+    <header class="mb-8 sm:mb-10 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-ember-500/15 ring-1 ring-ember-500/40 text-2xl">🔥</div>
         <div>
@@ -78,6 +86,10 @@ const schema = [
           </p>
         </div>
       </div>
+      <button id="shareBtn" type="button" class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-smoke-800 ring-1 ring-smoke-700 hover:ring-ember-500/50 text-smoke-300 hover:text-white text-xs font-semibold px-3.5 py-2 transition-all">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+        <span data-copy-label>Copy share link</span>
+      </button>
     </header>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -337,6 +349,7 @@ const schema = [
 <script>
   import { DATA, THRESHOLD_PER_GUEST, TRIM_COPY, WRAP_COPY, calcBrisket } from '../utils/brisketEngine.js';
   import { PitmasterAnalytics } from '../utils/analytics.js';
+  import { clampNum, enumParam, getParams, writeParams, wireCopyButton } from '../utils/shareLink.js';
 
   /* ------------------------------------------------------------------ */
   /* State                                                              */
@@ -492,6 +505,7 @@ const schema = [
     } catch (e) {
       /* storage unavailable — ignore */
     }
+    updateShareUrl();
   }
 
   function loadState() {
@@ -503,6 +517,34 @@ const schema = [
     } catch (e) {
       /* ignore */
     }
+  }
+
+  // Shareable-link hydration. Runs after loadState so URL params win over
+  // localStorage. Every value is validated (clamped / whitelisted).
+  function hydrateFromParams() {
+    const p = getParams();
+    if (![...p.keys()].length) return;
+    if (p.has('w')) state.weight = clampNum(p.get('w'), 4, 22, state.weight);
+    if (p.has('p')) {
+      state.price = clampNum(p.get('p'), 1.5, 9, state.price);
+      state.priceTouched = true; // an explicit shared price should stick
+    }
+    if (p.has('g')) state.grade = enumParam(p.get('g'), ['PRIME', 'CHOICE', 'SELECT'], state.grade);
+    if (p.has('t')) state.trim = enumParam(p.get('t'), ['commercial', 'competition'], state.trim);
+    if (p.has('wr')) state.wrap = enumParam(p.get('wr'), ['naked', 'paper', 'foil'], state.wrap);
+    if (p.has('gu')) state.guests = Math.round(clampNum(p.get('gu'), 1, 60, state.guests));
+  }
+
+  // Keep the URL in sync so it's always shareable.
+  function updateShareUrl() {
+    writeParams({
+      w: state.weight,
+      p: Number(state.price).toFixed(2),
+      g: state.grade,
+      t: state.trim,
+      wr: state.wrap,
+      gu: state.guests,
+    });
   }
 
   function syncControls() {
@@ -606,8 +648,12 @@ const schema = [
       });
     });
 
-    // Restore persisted state, hydrate controls, then paint
+    // Copy-share-link button
+    wireCopyButton('shareBtn');
+
+    // Restore persisted state, apply any shared-link params (params win), paint
     loadState();
+    hydrateFromParams();
     syncControls();
     render();
   }

@@ -34,7 +34,10 @@ src/
     stallEngine.js           Mass-scaling, pit, climate model + curve sampler
     fuelEngine.js            Combustion/wind/insulation/ambient model
     analytics.js             Shared PitmasterAnalytics telemetry object
-public/                      Static assets copied verbatim (favicon, ads.txt, sitemap.xml)
+    shareLink.js             Validated URL-param (shareable-link) helpers
+  pages/cook-scheduler.astro Inverts the stall model: serve time -> fire-up + .ics
+server/contactHandler.ts     Shared contact-form handler (Workers + Pages)
+public/                      Static assets copied verbatim (favicon, ads.txt, llms.txt, _headers)
 ```
 
 The site builds to `dist/`, which is what Cloudflare serves (see `wrangler.toml` /
@@ -95,3 +98,26 @@ for brisket; six representative states plus curve monotonicity for the stall; ev
 midpoint, and fuel × insulation × wind combo for fuel). Any accidental change to an engine
 constant fails the tests. The specs are regenerated only on an **intentional** engine change
 via `node scripts/gen-golden.mjs` (then commit the updated specs).
+
+## Security
+
+- **Response headers** (`public/_headers`, applied site-wide): `X-Content-Type-Options: nosniff`,
+  `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: SAMEORIGIN`,
+  `Cross-Origin-Opener-Policy: same-origin`, and a restrictive `Permissions-Policy`. The
+  `/api/contact` JSON responses set `nosniff` directly (they bypass `_headers`).
+- **Shareable links** hydrate calculator state from URL query params, but every value is
+  validated — numbers are clamped to their slider range and enums are whitelisted
+  (`src/utils/shareLink.js`) — so a hostile URL cannot inject unexpected state or markup.
+- **Contact endpoint** (`server/contactHandler.ts`): same-origin check, server-side Turnstile
+  verification (single-use tokens), message length cap, control-character stripping and length
+  caps on subject fields (email-header-injection defense), and reply-to email validation.
+- **JSON-LD** is emitted with `<`, `>`, `&`, and JS line-terminators escaped to unicode, so a
+  schema string can never break out of its `<script>` element.
+- **No Content-Security-Policy** is set yet: the site relies on inline scripts (GA/Consent
+  Mode, the ad toggle) plus third-party origins (Google Analytics, AdSense, Cloudflare
+  Turnstile). A CSP would need to allowlist those exactly; it's a recommended follow-up.
+- **`npm audit`** reports advisories in Astro/esbuild, but they apply to features this site
+  does not use (`define:vars`, server islands, spread props with user data, SSR error pages)
+  or to the local dev server only — none are exploitable in the static production build. The
+  only offered fix is a breaking `astro@7` upgrade, which should be done as a planned,
+  separately-tested change rather than `npm audit fix --force`.

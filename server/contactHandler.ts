@@ -20,11 +20,29 @@ const CONTACT_TO = 'contact@empiricalbbq.com';
 const CONTACT_FROM = 'Empirical BBQ <contact@empiricalbbq.com>';
 const ALLOWED_HOSTS = ['empiricalbbq.com', 'www.empiricalbbq.com'];
 const MAX_MESSAGE = 5000;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Single-line field for headers/subject: strip ALL control chars, cap length. */
+const cleanLine = (s: unknown, max: number): string =>
+  String(s ?? '')
+    .replace(/[\u0000-\u001F\u007F]/g, ' ')
+    .trim()
+    .slice(0, max);
+
+/** Multi-line body: keep tab/newline, strip other control chars (incl. NUL). */
+const cleanBody = (s: unknown): string =>
+  String(s ?? '')
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+    .trim();
 
 const json = (body: unknown, status = 200): Response =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { 'content-type': 'application/json; charset=utf-8' },
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'x-content-type-options': 'nosniff',
+      'referrer-policy': 'strict-origin-when-cross-origin',
+    },
   });
 
 function isSameOrigin(request: Request): boolean {
@@ -115,11 +133,12 @@ export async function handleContact(request: Request, env: ContactEnv): Promise<
     return json({ ok: false, error: 'Invalid JSON body.' }, 400);
   }
 
-  const name = String(body.name ?? '').trim();
-  const email = String(body.email ?? '').trim();
-  const topic = String(body.topic ?? '').trim();
-  const calc = String(body.calc ?? '').trim();
-  const message = String(body.message ?? '').trim();
+  // Single-line fields feed the subject/headers → strip control chars + cap.
+  const name = cleanLine(body.name, 200);
+  const email = cleanLine(body.email, 254);
+  const topic = cleanLine(body.topic, 100);
+  const calc = cleanLine(body.calc, 100);
+  const message = cleanBody(body.message);
   const token = String(body.turnstileToken ?? body['cf-turnstile-response'] ?? '').trim();
 
   if (!message) return json({ ok: false, error: 'Message is required.' }, 400);
@@ -140,7 +159,7 @@ export async function handleContact(request: Request, env: ContactEnv): Promise<
   }
 
   const { subject, text } = buildEmail({ name, email, topic, calc, message });
-  const replyTo = email && email.includes('@') ? email : undefined;
+  const replyTo = EMAIL_RE.test(email) ? email : undefined;
 
   try {
     const sendRes = env.RESEND_API_KEY

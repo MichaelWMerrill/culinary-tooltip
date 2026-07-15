@@ -14,7 +14,7 @@ export interface Props {
   ogUrl: string;
   /** @deprecated No longer used — the site now serves the hosted brand favicon. Kept so existing page props don't error. */
   favicon?: string;
-  active?: 'home' | 'brisket' | 'stall' | 'fuel' | 'blog' | 'contact' | null;
+  active?: 'home' | 'brisket' | 'stall' | 'fuel' | 'scheduler' | 'blog' | 'contact' | null;
   /** Classes applied to <body> so each page keeps its background/text scheme. */
   bodyClass?: string;
   /** Render the sticky 728x90 bottom banner (all tools; off for the privacy page). */
@@ -50,6 +50,13 @@ const siteSchema = {
   },
 };
 const schemaBlocks = [siteSchema, ...(schema ? (Array.isArray(schema) ? schema : [schema]) : [])];
+
+// Serialize JSON-LD safely: escape characters that could break out of the
+// <script> element or act as JS line terminators (defense-in-depth; schema is
+// author-defined, not user input). Unicode escapes stay valid inside JSON.
+const JSONLD_UNSAFE = /[<>&\u2028\u2029]/g;
+const jsonLd = (block) =>
+  JSON.stringify(block).replace(JSONLD_UNSAFE, (c) => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
 ---
 
 <!DOCTYPE html>
@@ -114,7 +121,7 @@ const schemaBlocks = [siteSchema, ...(schema ? (Array.isArray(schema) ? schema :
     <meta name="theme-color" content="#121824" />
     <link rel="alternate" type="application/rss+xml" title="Empirical BBQ Blog" href="https://empiricalbbq.com/rss.xml" />
     {schemaBlocks.map((block) => (
-      <script type="application/ld+json" set:html={JSON.stringify(block)} />
+      <script type="application/ld+json" set:html={jsonLd(block)} />
     ))}
     <slot name="head" />
   </head>

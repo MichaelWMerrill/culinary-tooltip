@@ -1,10 +1,10 @@
 ---
 /*
  * Shared responsive navigation header.
- * `active` highlights the current page: 'home' | 'brisket' | 'stall' | 'fuel' | 'blog' | 'contact'.
+ * `active` highlights the current page: 'home' | 'brisket' | 'stall' | 'fuel' | 'scheduler' | 'blog' | 'contact'.
  */
 export interface Props {
-  active?: 'home' | 'brisket' | 'stall' | 'fuel' | 'blog' | 'contact' | null;
+  active?: 'home' | 'brisket' | 'stall' | 'fuel' | 'scheduler' | 'blog' | 'contact' | null;
 }
 const { active = null } = Astro.props;
 
@@ -14,6 +14,7 @@ const links = [
   { key: 'brisket', href: '/brisket-calculator.html', label: 'Brisket' },
   { key: 'stall', href: '/stall-predictor.html', label: 'Stall' },
   { key: 'fuel', href: '/fuel-estimator.html', label: 'Fuel' },
+  { key: 'scheduler', href: '/cook-scheduler.html', label: 'Scheduler' },
   { key: 'blog', href: '/blog', label: 'Blog' },
   { key: 'contact', href: '/contact.html', label: 'Contact' },
 ];

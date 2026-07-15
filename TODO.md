@@ -4,13 +4,13 @@ Effort: S (a day or less) / M (a weekend) / L (multi-week)
 Leverage: how much it compounds traffic, list, or data assets
 
 ## Quick wins — high leverage
-- [ ] 1. Shareable cook links (S) — encode calculator state in URL query params;
+- [x] 1. Shareable cook links (S) — encode calculator state in URL query params;
       hydrate state from params on load (params > localStorage). Every forum
       share becomes a pre-configured backlink.
-- [ ] 2. Cook scheduler (M) — invert the stall predictor: user enters "eat at
+- [x] 2. Cook scheduler (M) — invert the stall predictor: user enters "eat at
       6 PM Saturday" → back-calculate fire-up time, wrap window, rest period.
       Downloadable .ics calendar file. Highest-search-volume BBQ question.
-- [ ] 3. AI answer-engine optimization (S) — llms.txt at site root; expand
+- [x] 3. AI answer-engine optimization (S) — llms.txt at site root; expand
       FAQPage schema per tool; keep Content-Signals policy in robots.txt.
 
 ## Medium-term
