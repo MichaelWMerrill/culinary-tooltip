@@ -4,7 +4,7 @@
 /*
   # RFC 8288 Link headers for agent/crawler discovery (real, existing resources only).
   Link: </sitemap.xml>; rel="sitemap"; type="application/xml"
-  Link: </privacy.html>; rel="privacy-policy"
+  Link: </privacy>; rel="privacy-policy"
   # Security headers.
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
