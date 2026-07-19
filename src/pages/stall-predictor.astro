@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-const pageUrl = 'https://empiricalbbq.com/stall-predictor.html';
+const pageUrl = 'https://empiricalbbq.com/stall-predictor';
 const publisher = {
   '@type': 'Organization',
   name: 'Empirical BBQ',
@@ -66,7 +66,7 @@ const schema = [
 <Layout
   title="Empirical BBQ | Brisket Stall Predictor & Cook-Time Curve"
   description="Model the evaporative-cooling stall: plot internal temperature versus time and predict stall duration from pit convection, humidity, wrap method, and meat mass."
-  ogUrl="https://empiricalbbq.com/stall-predictor.html"
+  ogUrl="https://empiricalbbq.com/stall-predictor"
   favicon="📈"
   active="stall"
   schema={schema}
@@ -83,7 +83,7 @@ const schema = [
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <a href="/cook-scheduler.html" class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-flame-500/15 ring-1 ring-flame-500/40 text-flame-300 hover:text-flame-200 text-xs font-semibold px-3.5 py-2 transition-all">
+        <a href="/cook-scheduler" class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-flame-500/15 ring-1 ring-flame-500/40 text-flame-300 hover:text-flame-200 text-xs font-semibold px-3.5 py-2 transition-all">
           🗓️ Plan by serving time
         </a>
         <button id="shareBtn" type="button" class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-slate-800 ring-1 ring-slate-700 hover:ring-flame-500/50 text-slate-300 hover:text-white text-xs font-semibold px-3.5 py-2 transition-all">
@@ -229,7 +229,7 @@ const schema = [
 
     <footer class="mt-8 text-center text-[11px] text-slate-500">
       <p>Phenomenological model (engine v1.0.0) using convective, radiative &amp; evaporative boundary conditions. Real cooks vary &mdash; probe your meat.</p>
-      <p class="mt-2"><a href="privacy.html" class="text-amber-400 hover:text-amber-300 underline decoration-dotted underline-offset-2">Privacy Policy</a></p>
+      <p class="mt-2"><a href="/privacy" class="text-amber-400 hover:text-amber-300 underline decoration-dotted underline-offset-2">Privacy Policy</a></p>
     </footer>
   </div>
 </Layout>

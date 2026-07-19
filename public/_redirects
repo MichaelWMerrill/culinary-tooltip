@@ -1,0 +1,15 @@
+# Cloudflare static-asset redirects.
+# https://developers.cloudflare.com/workers/static-assets/redirects/
+#
+# Legacy .html paths → extensionless canonicals (301, permanent). These are
+# evaluated before asset serving, so they win over the platform's default
+# `auto-trailing-slash` 307 (307 → the same extensionless target, but a 301
+# passes a stronger canonicalization signal to search engines). Blog URLs are
+# already extensionless and need no rule; /404.html has no canonical form.
+/index.html / 301
+/brisket-calculator.html /brisket-calculator 301
+/stall-predictor.html /stall-predictor 301
+/fuel-estimator.html /fuel-estimator 301
+/cook-scheduler.html /cook-scheduler 301
+/contact.html /contact 301
+/privacy.html /privacy 301

@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-const pageUrl = 'https://empiricalbbq.com/cook-scheduler.html';
+const pageUrl = 'https://empiricalbbq.com/cook-scheduler';
 const publisher = {
   '@type': 'Organization',
   name: 'Empirical BBQ',
@@ -58,7 +58,7 @@ const schema = [
 <Layout
   title="Empirical BBQ | BBQ Cook Scheduler — Back-Calculate Your Fire-Up Time"
   description="Enter when you want to eat and get your smoker fire-up time, wrap window, and rest period — back-calculated from the thermodynamic stall model. Download it as a calendar file."
-  ogUrl="https://empiricalbbq.com/cook-scheduler.html"
+  ogUrl="https://empiricalbbq.com/cook-scheduler"
   active="scheduler"
   schema={schema}
   bodyClass="page-scheduler min-h-screen flex flex-col bg-base-850 text-base-300 font-display antialiased selection:bg-flame-500/30"
@@ -183,7 +183,7 @@ const schema = [
       </div>
 
       <footer class="mt-8 text-center text-[11px] text-base-500">
-        <p>Schedule derives from the same phenomenological stall model as the <a href="/stall-predictor.html" class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">Stall Predictor</a>. Real cooks vary &mdash; build in a buffer and probe your meat.</p>
+        <p>Schedule derives from the same phenomenological stall model as the <a href="/stall-predictor" class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">Stall Predictor</a>. Real cooks vary &mdash; build in a buffer and probe your meat.</p>
       </footer>
     </div>
   </div>
@@ -192,14 +192,14 @@ const schema = [
   <footer class="relative z-10 border-t border-base-700 bg-base-900/70 backdrop-blur">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-medium text-base-400 mb-6">
-        <a href="/index.html" class="hover:text-white transition-colors">Home</a>
-        <a href="/brisket-calculator.html" class="hover:text-white transition-colors">Brisket Calculator</a>
-        <a href="/stall-predictor.html" class="hover:text-white transition-colors">Stall Predictor</a>
-        <a href="/fuel-estimator.html" class="hover:text-white transition-colors">Fuel Estimator</a>
-        <a href="/cook-scheduler.html" class="text-flame-400 hover:text-flame-300 transition-colors">Cook Scheduler</a>
+        <a href="/" class="hover:text-white transition-colors">Home</a>
+        <a href="/brisket-calculator" class="hover:text-white transition-colors">Brisket Calculator</a>
+        <a href="/stall-predictor" class="hover:text-white transition-colors">Stall Predictor</a>
+        <a href="/fuel-estimator" class="hover:text-white transition-colors">Fuel Estimator</a>
+        <a href="/cook-scheduler" class="text-flame-400 hover:text-flame-300 transition-colors">Cook Scheduler</a>
         <a href="/blog" class="hover:text-white transition-colors">Blog</a>
-        <a href="/contact.html" class="hover:text-white transition-colors">Contact</a>
-        <a href="/privacy.html" class="hover:text-white transition-colors">Privacy Policy</a>
+        <a href="/contact" class="hover:text-white transition-colors">Contact</a>
+        <a href="/privacy" class="hover:text-white transition-colors">Privacy Policy</a>
       </nav>
       <div class="pt-6 border-t border-base-800 flex flex-col sm:flex-row items-center justify-between gap-3">
         <p class="text-xs text-base-500">&copy; 2026 Empirical BBQ · Pitmaster Science &amp; Mathematics Suite</p>
@@ -437,7 +437,7 @@ const schema = [
         `DTSTART:${icsDate(start)}`,
         `DTEND:${icsDate(end)}`,
         `SUMMARY:${icsEscape(ms.icon + ' ' + ms.title)}`,
-        `DESCRIPTION:${icsEscape(ms.sub + '  — planned with Empirical BBQ (empiricalbbq.com/cook-scheduler.html)')}`,
+        `DESCRIPTION:${icsEscape(ms.sub + '  — planned with Empirical BBQ (empiricalbbq.com/cook-scheduler)')}`,
         'BEGIN:VALARM',
         'ACTION:DISPLAY',
         `DESCRIPTION:${icsEscape(ms.title)}`,

@@ -25,6 +25,14 @@ Leverage: how much it compounds traffic, list, or data assets
       stall doesn't. Altitude affects evaporative cooling; no competitor
       models it.
 
+## Post-deploy — extensionless URL migration (manual, one-time)
+After the extensionless-canonical migration deploys, do these by hand:
+- [ ] Resubmit `sitemap.xml` in Google Search Console and request re-indexing of the
+      four tool pages (`/brisket-calculator`, `/stall-predictor`, `/fuel-estimator`,
+      `/cook-scheduler`).
+- [ ] Spot-check live: `curl -I https://empiricalbbq.com/brisket-calculator.html`
+      returns `301` → `/brisket-calculator`, and the extensionless URL returns `200`.
+
 ## Ambitious
 - [ ] 8. Live Cook Mode / PWA (L) — log actual probe temps against the
       predicted curve mid-cook; recalibrate finish estimate in real time.

@@ -2,14 +2,17 @@
  * Postbuild sitemap generator.
  *
  * Walks dist/ for built .html pages and emits dist/sitemap.xml using the site's
- * canonical URL forms (which match the <link rel="canonical"> tags and nav links):
+ * canonical URL forms (which match the <link rel="canonical"> tags and nav links).
+ * All canonicals are EXTENSIONLESS — Cloudflare's default auto-trailing-slash
+ * html_handling serves dist/<name>.html at /<name>, and public/_redirects 301s
+ * the legacy /<name>.html paths to these forms:
  *   - homepage        -> https://empiricalbbq.com/
- *   - tool/util pages -> https://empiricalbbq.com/<name>.html
+ *   - tool/util pages -> https://empiricalbbq.com/<name>
  *   - blog index      -> https://empiricalbbq.com/blog
  *   - blog posts      -> https://empiricalbbq.com/blog/<slug>
  *
- * @astrojs/sitemap is not used because, with build.format: 'file', it emits
- * extensionless URLs that don't match these canonical `.html` forms.
+ * @astrojs/sitemap is not used because it produces sitemap-index.xml rather than
+ * the single /sitemap.xml that robots.txt references.
  */
 import { readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -39,21 +42,17 @@ function walk(dir) {
 function toUrl(relPath) {
   if (EXCLUDE.has(relPath)) return null;
   if (relPath === 'index.html') return `${SITE}/`;
-  if (relPath === 'blog.html') return `${SITE}/blog`; // blog index uses the extensionless nav form
-  if (relPath.startsWith('blog/')) {
-    // blog posts: extensionless, matching the links from the blog index
-    return `${SITE}/${relPath.replace(/\.html$/, '')}`;
-  }
-  // tool/util pages keep the .html canonical form
-  return `${SITE}/${relPath}`;
+  // Every other page is extensionless: strip the trailing .html.
+  //   blog.html -> /blog · blog/<slug>.html -> /blog/<slug> · foo.html -> /foo
+  return `${SITE}/${relPath.replace(/\.html$/, '')}`;
 }
 
-/** Rough priority/changefreq by section. */
+/** Rough priority/changefreq by section (paths are extensionless). */
 function meta(url) {
   if (url === `${SITE}/`) return { priority: '1.0', changefreq: 'weekly' };
-  if (url.endsWith('.html')) return { priority: '0.8', changefreq: 'weekly' };
   if (url === `${SITE}/blog`) return { priority: '0.7', changefreq: 'weekly' };
-  return { priority: '0.6', changefreq: 'monthly' }; // blog posts
+  if (url.startsWith(`${SITE}/blog/`)) return { priority: '0.6', changefreq: 'monthly' }; // blog posts
+  return { priority: '0.8', changefreq: 'weekly' }; // tool/util pages
 }
 
 const urls = walk(DIST)

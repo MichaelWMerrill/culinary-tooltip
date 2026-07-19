@@ -8,15 +8,15 @@ export interface Props {
 }
 const { active = null } = Astro.props;
 
-// Absolute (root-relative) hrefs so the nav resolves correctly from nested
-// routes too — e.g. blog posts served under /blog/<slug>.html.
+// Absolute (root-relative), extensionless canonical hrefs so the nav resolves
+// correctly from nested routes too — e.g. blog posts served under /blog/<slug>.
 const links = [
-  { key: 'brisket', href: '/brisket-calculator.html', label: 'Brisket' },
-  { key: 'stall', href: '/stall-predictor.html', label: 'Stall' },
-  { key: 'fuel', href: '/fuel-estimator.html', label: 'Fuel' },
-  { key: 'scheduler', href: '/cook-scheduler.html', label: 'Scheduler' },
+  { key: 'brisket', href: '/brisket-calculator', label: 'Brisket' },
+  { key: 'stall', href: '/stall-predictor', label: 'Stall' },
+  { key: 'fuel', href: '/fuel-estimator', label: 'Fuel' },
+  { key: 'scheduler', href: '/cook-scheduler', label: 'Scheduler' },
   { key: 'blog', href: '/blog', label: 'Blog' },
-  { key: 'contact', href: '/contact.html', label: 'Contact' },
+  { key: 'contact', href: '/contact', label: 'Contact' },
 ];
 
 const inactiveCls =
@@ -27,7 +27,7 @@ const activeCls =
 
 <nav class="relative z-10 bg-[#121824] border-b border-gray-800 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
   <a
-    href="/index.html"
+    href="/"
     aria-current={active === 'home' ? 'page' : undefined}
     class="text-[#f59e0b] hover:text-[#f97316] font-bold tracking-wide flex items-center gap-2 transition-colors shrink-0"
   >
