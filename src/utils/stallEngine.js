@@ -3,18 +3,24 @@
  * Geometric mass-scaling formulas (W^(-1/3) rule), pit thermal modifiers, and
  * climate relative-humidity coefficient arrays — plus the phase model and
  * curve sampler — extracted verbatim from the legacy inline predictor.
+ *
+ * Protein-specific thermal constants (diffusivity, per-cook-temp stall
+ * thresholds, mass geometry, start/finish temps) now live in the shared
+ * protein registry (src/utils/proteinRegistry.js) and are spread in below.
+ * The equipment/environment profiles (pit, wrap, climate) stay here because
+ * they are not protein-specific.
  */
+import { PROTEINS } from './proteinRegistry.js';
+
+const brisketThermal = PROTEINS.beef_brisket.thermal;
 
 /* Empirical physics data matrix */
 export const DATA = {
   simulation_metadata: {
     engine_version: '1.0.0',
-    // TODO(roadmap): pork_shoulder support — see TODO.md #4. The model constants
-    // below are calibrated for beef brisket only; do not re-add pork here until a
-    // dedicated constants block + protein selector exist.
     target_proteins: ['beef_brisket'],
-    base_thermal_diffusivity_alpha: 0.0014,
-    latent_heat_vaporization_Lv: 2260000,
+    base_thermal_diffusivity_alpha: brisketThermal.base_thermal_diffusivity_alpha,
+    latent_heat_vaporization_Lv: brisketThermal.latent_heat_vaporization_Lv,
   },
   pit_profiles: {
     pellet_cooker: { name: 'Pellet Cooker', convective_coefficient_hc: 1.45, radiative_multiplier_epsilon: 0.3, base_relative_humidity: 0.15, description: 'High forced-draft airflow accelerates mass transfer and evaporative cooling.' },
@@ -22,15 +28,11 @@ export const DATA = {
     ceramic_kamado: { name: 'Ceramic Kamado', convective_coefficient_hc: 0.65, radiative_multiplier_epsilon: 0.9, base_relative_humidity: 0.45, description: 'Low air exchange volume suppresses evaporation; high thermal mass maximizes radiant flux.' },
     charcoal_kettle: { name: 'Charcoal Kettle', convective_coefficient_hc: 1.25, radiative_multiplier_epsilon: 0.4, base_relative_humidity: 0.2, description: 'Thin-walled steel construction with strong natural convective airflow drives brisk evaporative cooling and modest radiant retention.' },
   },
-  cook_temperatures: {
-    225: { target_fahrenheit: 225, base_hourly_climb_rate_initial: 25.0, stall_threshold_fahrenheit: 155.0 },
-    250: { target_fahrenheit: 250, base_hourly_climb_rate_initial: 32.0, stall_threshold_fahrenheit: 162.0 },
-    275: { target_fahrenheit: 275, base_hourly_climb_rate_initial: 40.0, stall_threshold_fahrenheit: 170.0 },
-  },
+  cook_temperatures: brisketThermal.cook_temperatures,
   mass_geometry_scaling: {
-    geometric_constant_beta: 0.42,
-    exponent: -0.333,
-    weight_bounds_lbs: { min: 4.0, max: 18.0 },
+    geometric_constant_beta: brisketThermal.geometry.beta,
+    exponent: brisketThermal.geometry.exponent,
+    weight_bounds_lbs: brisketThermal.geometry.weight_bounds,
   },
   wrapping_boundary_conditions: {
     none: { name: 'Naked / No Wrap', permeability_psi: 1.0, stall_duration_multiplier: 1.0, post_stall_climb_modifier: 0.85 },
@@ -39,8 +41,8 @@ export const DATA = {
   },
 };
 
-export const START_TEMP = 40; // °F, fridge-cold meat
-export const FINISH_TEMP = 203; // °F, probe-tender target
+export const START_TEMP = brisketThermal.start_temp; // °F, fridge-cold meat
+export const FINISH_TEMP = brisketThermal.finish_temp; // °F, probe-tender target
 export const REF_WEIGHT = 10; // lb, normalization reference
 export const REF_PIT_POWER = 1.13; // offset smoker baseline
 
