@@ -9,6 +9,7 @@ Empirical BBQ (empiricalbbq.com) is a suite of free, ad-supported pitmaster calc
 - [Thermodynamic Stall Predictor](https://empiricalbbq.com/stall-predictor): plots the internal-temperature curve and predicts stall duration (evaporative cooling, roughly 150–170°F) from pit airflow and humidity, wrap method, meat mass, and regional climate.
 - [Smoker Fuel & Cost Estimator](https://empiricalbbq.com/fuel-estimator): fuel weight, bags, and cost from burn-rate thermodynamics — pit efficiency, ambient temperature, and wind load. Baselines: pellets ~1.2 lb/hr, charcoal ~1.5 lb/hr, hardwood splits ~3.5 lb/hr.
 - [BBQ Cook Scheduler](https://empiricalbbq.com/cook-scheduler): enter when you want to eat → back-calculated smoker fire-up time, wrap window, and rest period, with a downloadable .ics calendar file.
+- [Brisket Size Calculator — How Much Brisket Per Person](https://empiricalbbq.com/brisket-size-calculator): enter a guest count → the raw packer weight to buy and total budget, back-solved from the same trim and cook-shrinkage yield as the yield calculator. Standard serving ~0.5 lb cooked per guest.
 
 ## Blog — Field Notes
 - [The Science of Smoke: How to Get Perfect Brisket Bark](https://empiricalbbq.com/blog/science-of-smoke): the Maillard reaction, polymerization, rub granulation, and wrap strategy for bark.

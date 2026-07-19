@@ -292,6 +292,37 @@ const schema = [
             </div>
           </div>
         </div>
+
+        <!-- Fuel Type Comparison: how much of each fuel this exact cook would burn -->
+        <div class="rounded-2xl bg-charcoal-900 ring-1 ring-charcoal-800 shadow-xl shadow-black/40 p-5 sm:p-6">
+          <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+            <span class="text-lg">⚖️</span> Fuel Type Comparison
+          </h3>
+          <p class="text-[11px] text-charcoal-500 mt-1 leading-snug max-w-md">
+            How much of each fuel this exact cook would burn &mdash; same duration, insulation &amp; weather. Weight is price-independent; cost depends on your local $/lb.
+          </p>
+          <div class="mt-5 space-y-2.5">
+            <div class="flex items-center gap-3">
+              <span id="lblFuelP" class="w-24 shrink-0 text-[11px] text-charcoal-400 truncate">Pellets</span>
+              <div class="flex-1 h-7 rounded-md bg-charcoal-800 overflow-hidden">
+                <div id="barFuelP" class="bar-fill h-full rounded-md bg-charcoal-500 flex items-center justify-end pr-2" style="width:0%"><span id="valFuelP" class="text-[10px] font-mono text-white"></span></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span id="lblFuelC" class="w-24 shrink-0 text-[11px] text-charcoal-400 truncate">Charcoal</span>
+              <div class="flex-1 h-7 rounded-md bg-charcoal-800 overflow-hidden">
+                <div id="barFuelC" class="bar-fill h-full rounded-md bg-charcoal-500 flex items-center justify-end pr-2" style="width:0%"><span id="valFuelC" class="text-[10px] font-mono text-white"></span></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span id="lblFuelS" class="w-24 shrink-0 text-[11px] text-charcoal-400 truncate">Wood Splits</span>
+              <div class="flex-1 h-7 rounded-md bg-charcoal-800 overflow-hidden">
+                <div id="barFuelS" class="bar-fill h-full rounded-md bg-charcoal-500 flex items-center justify-end pr-2" style="width:0%"><span id="valFuelS" class="text-[10px] font-mono text-white"></span></div>
+              </div>
+            </div>
+          </div>
+          <p class="text-[11px] text-charcoal-500 mt-3 font-mono">Lightest burn: <span id="fuelWinner" class="text-emerald-400">&mdash;</span> &middot; your pick highlighted.</p>
+        </div>
       </section>
     </div>
 
@@ -399,7 +430,41 @@ const schema = [
     $('affCharcoal').classList.toggle('hidden', isPellet);
 
     renderWhatIf(r);
+    renderFuelComparison();
     persist();
+  }
+
+  // Compare how much of each fuel this exact cook burns (same insulation, weather,
+  // and duration). Only base_burn_ideal differs across fuels, so this contextualizes
+  // the fuel choice in real pounds for the current setup. Pure — reuses estimate().
+  function renderFuelComparison() {
+    const fuels = [
+      { key: 'wood_pellets', bar: 'barFuelP', val: 'valFuelP', lbl: 'lblFuelP', name: 'Pellets' },
+      { key: 'charcoal_briquettes', bar: 'barFuelC', val: 'valFuelC', lbl: 'lblFuelC', name: 'Charcoal' },
+      { key: 'hardwood_splits', bar: 'barFuelS', val: 'valFuelS', lbl: 'lblFuelS', name: 'Wood Splits' },
+    ];
+    const rows = fuels.map((f) => ({ ...f, lbs: estimate({ ...state, fuel: f.key }, state.insulation).lbs }));
+    const maxLbs = Math.max(...rows.map((r) => r.lbs), 0.0001);
+    const minLbs = Math.min(...rows.map((r) => r.lbs));
+
+    rows.forEach((r) => {
+      const bar = $(r.bar),
+        val = $(r.val),
+        lbl = $(r.lbl);
+      const active = r.key === state.fuel;
+      bar.style.width = (r.lbs / maxLbs) * 100 + '%';
+      val.textContent = r.lbs.toFixed(1) + ' lb';
+      bar.classList.toggle('bg-flame-500', active);
+      bar.classList.toggle('bg-charcoal-500', !active);
+      val.classList.toggle('text-charcoal-950', active);
+      val.classList.toggle('text-white', !active);
+      lbl.classList.toggle('text-white', active);
+      lbl.classList.toggle('font-semibold', active);
+      lbl.classList.toggle('text-charcoal-400', !active);
+    });
+
+    const winner = rows.find((r) => r.lbs === minLbs);
+    $('fuelWinner').textContent = winner ? `${winner.name} (${winner.lbs.toFixed(1)} lb)` : '—';
   }
 
   function renderWhatIf(current) {

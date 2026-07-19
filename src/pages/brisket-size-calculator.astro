@@ -1,0 +1,576 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const pageUrl = 'https://empiricalbbq.com/brisket-size-calculator';
+const publisher = {
+  '@type': 'Organization',
+  name: 'Empirical BBQ',
+  url: 'https://empiricalbbq.com/',
+  logo: 'https://empiricalbbq.com/android-chrome-512x512.png',
+};
+const faqs = [
+  {
+    q: 'How much brisket do I need per person?',
+    a: 'Plan about 0.5 lb of cooked, sliced brisket per adult as a standard serving — roughly 0.33 lb for lighter eaters with plenty of sides, and up to 0.67 lb for big eaters or a brisket-forward menu. Because a whole packer only yields around 50% after trimming and the cook, you have to buy close to double the cooked weight in raw brisket.',
+  },
+  {
+    q: 'What size brisket should I buy for 10 people?',
+    a: 'For 10 guests at a standard 0.5 lb cooked serving you need about 5 lb of finished brisket. At a typical ~50% yield for a Choice packer, that means buying roughly a 10 lb raw packer. Prime trims and foil wraps yield a little more; Select and naked cooks a little less.',
+  },
+  {
+    q: 'How big a brisket do I need for 20 guests?',
+    a: 'About 10 lb of cooked brisket, which is roughly a 19–20 lb raw packer at standard yield — at the top of a single packer. Many pitmasters split that across two smaller briskets for more even cooking and bark. This calculator flags when your target exceeds a single packer and suggests how to split it.',
+  },
+  {
+    q: 'Why do I have to buy so much more brisket than I serve?',
+    a: 'A packer loses weight twice: to trimming (about 19–42% of raw weight depending on grade and how aggressively you trim) and again to rendered fat and evaporated moisture during the cook (about 29–40% of the trimmed weight). Total yield lands near 50%, so 5 lb served needs roughly a 10 lb raw packer.',
+  },
+  {
+    q: 'How do I budget for a brisket cook?',
+    a: 'Multiply the recommended raw weight by your price per pound. This tool estimates both the raw packer weight to buy and the total spend, and breaks it down to a cost-per-guest so you can plan the cook against a headcount.',
+  },
+  {
+    q: 'Does grade and wrap change how big a brisket to buy?',
+    a: 'Yes. Higher USDA grades and foil (Texas crutch) wraps retain a bit more weight, so you can buy slightly smaller; Select grade and naked cooks lose more, so buy a little larger. The calculator applies grade-specific trim and cook-loss factors to size the packer to your exact setup.',
+  },
+];
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Brisket Size Calculator — How Much Brisket Per Person',
+    url: pageUrl,
+    applicationCategory: 'UtilityApplication',
+    operatingSystem: 'Any',
+    description:
+      'Work out how much brisket to buy per person: enter your guest count and the calculator back-solves the raw packer weight and budget from trim and cook-shrinkage yield.',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout
+  title="Empirical BBQ | Brisket Size Calculator — How Much Brisket Per Person"
+  description="How much brisket per person? Enter your guest count and this calculator back-solves the raw packer weight to buy and your budget, using real trim and cook-shrinkage yield."
+  ogUrl="https://empiricalbbq.com/brisket-size-calculator"
+  favicon="🥩"
+  active="brisket"
+  schema={schema}
+  bodyClass="page-brisket-size min-h-screen bg-smoke-900 text-smoke-300 font-display antialiased"
+>
+  <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- Header -->
+    <header class="mb-8 sm:mb-10 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-ember-500/15 ring-1 ring-ember-500/40 text-2xl">🥩</div>
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            How Much Brisket Per Person?
+          </h1>
+          <p class="text-sm text-smoke-400 mt-0.5">
+            Guest count &rarr; raw packer weight to buy &amp; budget
+          </p>
+        </div>
+      </div>
+      <button id="shareBtn" type="button" class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-smoke-800 ring-1 ring-smoke-700 hover:ring-ember-500/50 text-smoke-300 hover:text-white text-xs font-semibold px-3.5 py-2 transition-all">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+        <span data-copy-label>Copy share link</span>
+      </button>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- ============ INPUT PANEL ============ -->
+      <section class="lg:col-span-5 rounded-2xl bg-smoke-850 ring-1 ring-smoke-700/70 shadow-xl shadow-black/40 p-5 sm:p-6">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-ember-400 mb-5">The Crowd</h2>
+
+        <!-- Guest Count -->
+        <div class="mb-6">
+          <div class="flex items-baseline justify-between mb-2">
+            <label for="guests" class="text-sm font-medium text-smoke-300">Guest Count</label>
+            <span class="text-sm font-mono"><span id="guestVal" class="text-white font-semibold">12</span> <span class="text-smoke-400">guests</span></span>
+          </div>
+          <input id="guests" type="range" min="1" max="60" step="1" value="12" class="w-full" />
+          <div class="flex justify-between text-[10px] text-smoke-500 mt-1 font-mono">
+            <span>1</span><span>60</span>
+          </div>
+        </div>
+
+        <!-- Appetite -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-smoke-300 mb-2">Appetite / Menu</label>
+          <div id="appetiteToggle" aria-label="Appetite level" class="grid grid-cols-3 gap-1 rounded-lg bg-smoke-800 ring-1 ring-smoke-600 p-1" role="group">
+            <button data-appetite="light" class="appetite-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="false">Light</button>
+            <button data-appetite="standard" class="appetite-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="true">Standard</button>
+            <button data-appetite="hearty" class="appetite-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="false">Hearty</button>
+          </div>
+          <p class="text-[11px] text-smoke-500 mt-1.5" id="appetiteDesc">Standard &mdash; ~0.50 lb cooked brisket per guest.</p>
+        </div>
+
+        <!-- Price Per Pound -->
+        <div class="mb-6">
+          <div class="flex items-baseline justify-between mb-2">
+            <label for="price" class="text-sm font-medium text-smoke-300">Price Per Pound (raw)</label>
+            <span class="text-sm font-mono">$<span id="priceVal" class="text-white font-semibold">4.29</span></span>
+          </div>
+          <input id="price" type="range" min="1.5" max="9" step="0.05" value="4.29" class="w-full" />
+          <div class="flex justify-between items-center text-[10px] mt-1 font-mono">
+            <span class="text-smoke-500">$1.50</span>
+            <button id="useMarket" type="button" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">
+              use market avg (<span id="marketHint">$4.29</span>)
+            </button>
+            <span class="text-smoke-500">$9.00</span>
+          </div>
+        </div>
+
+        <!-- USDA Grade -->
+        <div class="mb-6">
+          <label for="grade" class="block text-sm font-medium text-smoke-300 mb-2">USDA Grade</label>
+          <div class="relative">
+            <select id="grade" class="w-full appearance-none rounded-lg bg-smoke-800 ring-1 ring-smoke-600 text-white text-sm font-medium px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-ember-500 cursor-pointer">
+              <option value="PRIME">USDA Prime</option>
+              <option value="CHOICE" selected>USDA Choice</option>
+              <option value="SELECT">USDA Select</option>
+            </select>
+            <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-smoke-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+        </div>
+
+        <!-- Trim Style Toggle -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-smoke-300 mb-2">Trim Style</label>
+          <div id="trimToggle" aria-label="Trim style" class="grid grid-cols-2 gap-1 rounded-lg bg-smoke-800 ring-1 ring-smoke-600 p-1" role="group">
+            <button data-trim="commercial" class="trim-opt rounded-md px-3 py-2 text-sm font-medium transition-colors" aria-pressed="true">
+              Commercial
+            </button>
+            <button data-trim="competition" class="trim-opt rounded-md px-3 py-2 text-sm font-medium transition-colors" aria-pressed="false">
+              Aggressive
+            </button>
+          </div>
+          <p class="text-[11px] text-smoke-500 mt-1.5" id="trimDesc">Light retail trim &mdash; more fat cap left on.</p>
+        </div>
+
+        <!-- Cook Wrap Method -->
+        <div>
+          <label class="block text-sm font-medium text-smoke-300 mb-2">Cook Wrap Method</label>
+          <div id="wrapToggle" aria-label="Wrap method" class="grid grid-cols-3 gap-1 rounded-lg bg-smoke-800 ring-1 ring-smoke-600 p-1" role="group">
+            <button data-wrap="naked" class="wrap-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="false">Naked</button>
+            <button data-wrap="paper" class="wrap-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="true">Butcher Paper</button>
+            <button data-wrap="foil" class="wrap-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="false">Foil</button>
+          </div>
+          <p class="text-[11px] text-smoke-500 mt-1.5" id="wrapDesc">Balanced bark and moisture retention.</p>
+        </div>
+      </section>
+
+      <!-- ============ OUTPUT PANEL ============ -->
+      <section class="lg:col-span-7 space-y-6">
+        <!-- Hero: Raw packer weight to buy -->
+        <div class="rounded-2xl bg-gradient-to-br from-ember-600/20 via-smoke-850 to-smoke-850 ring-1 ring-ember-500/40 shadow-xl shadow-black/40 p-6 sm:p-7">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-widest text-ember-300/90">Raw Packer to Buy</p>
+              <div class="mt-2 flex items-end gap-2">
+                <span class="text-5xl sm:text-6xl font-extrabold text-white tabular-nums leading-none"><span id="rawNeeded">0.0</span></span>
+                <span class="text-smoke-400 text-sm mb-1.5 font-mono">lb raw</span>
+              </div>
+              <p class="text-xs text-smoke-400 mt-2">
+                Budget <span id="budget" class="text-ember-300 font-mono font-semibold">$0.00</span>
+                &middot; <span id="costPerGuest" class="text-smoke-300 font-mono">$0.00</span>/guest
+              </p>
+            </div>
+            <div class="hidden sm:flex h-14 w-14 items-center justify-center rounded-xl bg-ember-500/15 ring-1 ring-ember-500/40 text-3xl">🥩</div>
+          </div>
+        </div>
+
+        <!-- Packer sizing guidance -->
+        <div class="rounded-2xl bg-smoke-850 ring-1 ring-smoke-700/70 shadow-xl shadow-black/40 p-6">
+          <h3 class="text-sm font-semibold text-white flex items-center gap-2 mb-3">
+            <span>🧮</span> Sizing Guidance
+          </h3>
+          <div id="sizingAdvice" class="rounded-xl p-4 text-sm leading-relaxed ring-1 flex gap-3">
+            <span id="sizingIcon" class="text-lg leading-none mt-0.5">🥩</span>
+            <p id="sizingText" class="flex-1">&mdash;</p>
+          </div>
+        </div>
+
+        <!-- Breakdown cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="rounded-xl bg-smoke-850 ring-1 ring-smoke-700/70 p-4">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-smoke-400">Cooked Needed</p>
+            <p class="mt-1.5 text-xl font-bold text-white tabular-nums"><span id="cookedNeeded">0.0</span><span class="text-xs text-smoke-400 font-normal ml-0.5">lb</span></p>
+            <p class="text-[10px] text-smoke-500 mt-0.5">sliced, on the plate</p>
+          </div>
+          <div class="rounded-xl bg-smoke-850 ring-1 ring-smoke-700/70 p-4">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-smoke-400">Expected Yield</p>
+            <p class="mt-1.5 text-xl font-bold text-white tabular-nums"><span id="yieldPct">0</span><span class="text-xs text-smoke-400 font-normal ml-0.5">%</span></p>
+            <p class="text-[10px] text-smoke-500 mt-0.5">cooked ÷ raw</p>
+          </div>
+          <div class="rounded-xl bg-smoke-850 ring-1 ring-smoke-700/70 p-4">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-smoke-400">Per Guest</p>
+            <p class="mt-1.5 text-xl font-bold text-white tabular-nums"><span id="perGuestLb">0.00</span><span class="text-xs text-smoke-400 font-normal ml-0.5">lb</span></p>
+            <p class="text-[10px] text-smoke-500 mt-0.5">cooked serving</p>
+          </div>
+          <div class="rounded-xl bg-ember-500/10 ring-1 ring-ember-500/40 p-4">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-ember-300">Briskets</p>
+            <p class="mt-1.5 text-xl font-bold text-white tabular-nums"><span id="numBriskets">1</span></p>
+            <p class="text-[10px] text-ember-300/70 mt-0.5" id="perBrisket">whole packer</p>
+          </div>
+        </div>
+
+        <!-- Cross-link to the forward yield calculator -->
+        <a href="/brisket-calculator" class="group flex items-center justify-between gap-4 rounded-2xl bg-smoke-850 ring-1 ring-smoke-700/70 hover:ring-ember-500/50 shadow-xl shadow-black/40 p-5 transition-all">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">🔥</span>
+            <div>
+              <p class="text-sm font-semibold text-white group-hover:text-ember-300">Already have a brisket?</p>
+              <p class="text-[11px] text-smoke-400 mt-0.5">Flip it around — get yield, cook loss &amp; true cost per cooked pound from a raw weight.</p>
+            </div>
+          </div>
+          <svg class="h-5 w-5 shrink-0 text-ember-400 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </a>
+      </section>
+    </div>
+
+    <div class="mt-6 rounded-xl bg-smoke-900 border border-ember-500/20 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🥩</span>
+        <div>
+          <h4 class="text-xs font-bold text-white uppercase tracking-wide">Source a Better Packer</h4>
+          <p class="text-[11px] text-smoke-400">Buy the right grade and size the first time — mail-order Prime &amp; Wagyu packers delivered to your door.</p>
+        </div>
+      </div>
+      <div class="w-full sm:w-auto flex flex-col items-center sm:items-end">
+        <span class="block text-[9px] text-slate-500 italic mb-1">As an Amazon Associate I earn from qualifying purchases.</span>
+        <a href="https://amzn.to/4eY9t7J" target="_blank" rel="noopener noreferrer" data-affiliate="prime_meat" class="w-full sm:w-auto text-center bg-ember-600 hover:bg-ember-500 text-white font-bold text-[11px] uppercase tracking-wider px-4 py-2 rounded-lg transition-colors">Shop Meat Box Options →</a>
+      </div>
+    </div>
+
+    <footer class="mt-8 text-center text-[11px] text-smoke-500">
+      <p>Sizing back-solves the same empirical trim &amp; shrinkage matrix (v2026.1) as the yield calculator. Actual yields vary by cut, cooker, and pitmaster — buy a little long for a crowd.</p>
+      <p class="mt-2"><a href="/privacy" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">Privacy Policy</a></p>
+    </footer>
+  </div>
+</Layout>
+
+<style is:global>
+  body.page-brisket-size input[type='range'] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    border-radius: 9999px;
+    background: linear-gradient(to right, #ea580c var(--fill, 50%), #292524 var(--fill, 50%));
+    outline: none;
+  }
+  body.page-brisket-size input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #fb923c;
+    border: 3px solid #0c0a09;
+    box-shadow: 0 0 0 1px #ea580c, 0 2px 6px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+  body.page-brisket-size input[type='range']::-webkit-slider-thumb:active {
+    transform: scale(1.15);
+  }
+  body.page-brisket-size input[type='range']::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #fb923c;
+    border: 3px solid #0c0a09;
+    box-shadow: 0 0 0 1px #ea580c, 0 2px 6px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+  }
+  body.page-brisket-size::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(234, 88, 12, 0.1), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(234, 88, 12, 0.06), transparent 55%);
+    z-index: 0;
+  }
+</style>
+
+<script>
+  import { DATA, THRESHOLD_PER_GUEST, TRIM_COPY, WRAP_COPY, calcBrisket } from '../utils/brisketEngine.js';
+  import { PitmasterAnalytics } from '../utils/analytics.js';
+  import { clampNum, enumParam, getParams, writeParams, wireCopyButton } from '../utils/shareLink.js';
+
+  // Cooked lb per guest by appetite. "standard" is tied to the engine's serving
+  // threshold so this tool and the yield calculator agree on the same baseline.
+  const APPETITE = { light: 0.33, standard: THRESHOLD_PER_GUEST, hearty: 0.67 };
+  // Representative whole-packer weight used only to suggest how many briskets to
+  // buy when the target exceeds a single packer. Not an engine constant.
+  const PACKER_MAX_LB = 18;
+
+  const state = {
+    guests: 12,
+    appetite: 'standard',
+    price: 4.29,
+    grade: 'CHOICE',
+    trim: 'commercial',
+    wrap: 'paper',
+    priceTouched: false,
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n, d = 1) => Number(n).toFixed(d);
+  const money = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  function setRangeFill(el) {
+    const min = parseFloat(el.min),
+      max = parseFloat(el.max),
+      val = parseFloat(el.value);
+    el.style.setProperty('--fill', ((val - min) / (max - min)) * 100 + '%');
+  }
+
+  // Per-lb yield is weight-independent (all factors are multiplicative), so we
+  // read it straight from the shared engine with a unit weight. This guarantees
+  // the sizing tool and the forward yield calculator never disagree.
+  function yieldFraction() {
+    return calcBrisket({ grade: state.grade, trim: state.trim, wrap: state.wrap, weight: 1, price: 1 }).totalYield;
+  }
+
+  function render() {
+    const perGuest = APPETITE[state.appetite];
+    const cookedNeeded = state.guests * perGuest;
+    const y = yieldFraction();
+    const rawNeeded = y > 0 ? cookedNeeded / y : 0;
+    const budget = rawNeeded * state.price;
+
+    $('rawNeeded').textContent = fmt(rawNeeded);
+    $('budget').textContent = '$' + money(budget);
+    $('costPerGuest').textContent = '$' + money(state.guests > 0 ? budget / state.guests : 0);
+
+    $('cookedNeeded').textContent = fmt(cookedNeeded);
+    $('yieldPct').textContent = Math.round(y * 100);
+    $('perGuestLb').textContent = perGuest.toFixed(2);
+
+    renderPackerCard(rawNeeded);
+    renderSizing(rawNeeded, y);
+
+    // Descriptions + market hint (mirrors the forward calculator's copy).
+    $('trimDesc').innerHTML = TRIM_COPY[state.trim];
+    $('wrapDesc').innerHTML = WRAP_COPY[state.wrap];
+    $('appetiteDesc').innerHTML =
+      state.appetite === 'light'
+        ? 'Light &mdash; ~0.33 lb per guest (sliders, lots of sides).'
+        : state.appetite === 'hearty'
+        ? 'Hearty &mdash; ~0.67 lb per guest (big eaters, brisket-forward).'
+        : 'Standard &mdash; ~0.50 lb cooked brisket per guest.';
+    $('marketHint').textContent = '$' + money(DATA.defaults.market_prices[state.grade]);
+
+    persist();
+  }
+
+  function renderPackerCard(rawNeeded) {
+    const n = Math.max(1, Math.ceil(rawNeeded / PACKER_MAX_LB));
+    $('numBriskets').textContent = n;
+    if (n === 1) {
+      $('perBrisket').textContent = rawNeeded < 8 ? 'a small packer / flat' : 'one whole packer';
+    } else {
+      $('perBrisket').textContent = '~' + fmt(rawNeeded / n) + ' lb each';
+    }
+  }
+
+  function renderSizing(rawNeeded, y) {
+    const box = $('sizingAdvice');
+    const icon = $('sizingIcon');
+    const text = $('sizingText');
+    box.className = 'rounded-xl p-4 text-sm leading-relaxed ring-1 flex gap-3 transition-colors';
+
+    if (rawNeeded > PACKER_MAX_LB) {
+      const n = Math.ceil(rawNeeded / PACKER_MAX_LB);
+      box.classList.add('bg-ember-500/10', 'ring-ember-500/40');
+      icon.textContent = '⚠️';
+      text.className = 'flex-1 text-ember-200';
+      text.textContent =
+        `That's more than one packer can cover. Buy about ${n} briskets (~${fmt(rawNeeded / n)} lb each) — ` +
+        'splitting the load also cooks more evenly and gives you more bark. Stagger them or run a second rack.';
+    } else if (rawNeeded < 8) {
+      box.classList.add('bg-smoke-800/60', 'ring-smoke-700');
+      icon.textContent = '🥩';
+      text.className = 'flex-1 text-smoke-300';
+      text.textContent =
+        `A ~${fmt(rawNeeded)} lb raw brisket suits this crowd. That's a small whole packer or a trimmed flat; ` +
+        `at ~${Math.round(y * 100)}% yield it finishes near ${fmt(rawNeeded * y)} lb sliced. Buy a little long if guests run hungry.`;
+    } else {
+      box.classList.add('bg-smoke-800/60', 'ring-smoke-700');
+      icon.textContent = '✅';
+      text.className = 'flex-1 text-smoke-300';
+      text.textContent =
+        `A single ~${fmt(rawNeeded)} lb raw packer covers this cook, finishing near ${fmt(rawNeeded * y)} lb sliced ` +
+        `at ~${Math.round(y * 100)}% yield. Butchers vary ±1–2 lb, so round up rather than down for a crowd.`;
+    }
+  }
+
+  const ACTIVE = ['bg-ember-500', 'text-white', 'shadow'];
+  const INACTIVE = ['text-smoke-400', 'hover:text-smoke-300'];
+
+  function paintGroup(selector, dataAttr, current) {
+    document.querySelectorAll(selector).forEach((btn) => {
+      const on = btn.dataset[dataAttr] === current;
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      ACTIVE.forEach((c) => btn.classList.toggle(c, on));
+      INACTIVE.forEach((c) => btn.classList.toggle(c, !on));
+    });
+  }
+
+  const STORE_KEY = 'pitmaster.brisketSize';
+  function persist() {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    } catch (e) {
+      /* ignore */
+    }
+    updateShareUrl();
+  }
+
+  function loadState() {
+    try {
+      Object.assign(state, JSON.parse(localStorage.getItem(STORE_KEY) || '{}'));
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  // Shareable-link hydration — runs after loadState so URL params win. Validated.
+  function hydrateFromParams() {
+    const p = getParams();
+    if (![...p.keys()].length) return;
+    if (p.has('gu')) state.guests = Math.round(clampNum(p.get('gu'), 1, 60, state.guests));
+    if (p.has('ap')) state.appetite = enumParam(p.get('ap'), ['light', 'standard', 'hearty'], state.appetite);
+    if (p.has('p')) {
+      state.price = clampNum(p.get('p'), 1.5, 9, state.price);
+      state.priceTouched = true;
+    }
+    if (p.has('g')) state.grade = enumParam(p.get('g'), ['PRIME', 'CHOICE', 'SELECT'], state.grade);
+    if (p.has('t')) state.trim = enumParam(p.get('t'), ['commercial', 'competition'], state.trim);
+    if (p.has('wr')) state.wrap = enumParam(p.get('wr'), ['naked', 'paper', 'foil'], state.wrap);
+  }
+
+  function updateShareUrl() {
+    writeParams({
+      gu: state.guests,
+      ap: state.appetite,
+      p: Number(state.price).toFixed(2),
+      g: state.grade,
+      t: state.trim,
+      wr: state.wrap,
+    });
+  }
+
+  function syncControls() {
+    const guests = $('guests'),
+      price = $('price'),
+      grade = $('grade');
+    guests.value = state.guests;
+    $('guestVal').textContent = state.guests;
+    price.value = state.price;
+    $('priceVal').textContent = money(state.price);
+    grade.value = state.grade;
+    paintGroup('.appetite-opt', 'appetite', state.appetite);
+    paintGroup('.trim-opt', 'trim', state.trim);
+    paintGroup('.wrap-opt', 'wrap', state.wrap);
+    setRangeFill(guests);
+    setRangeFill(price);
+  }
+
+  function applyMarketPrice() {
+    const mp = DATA.defaults.market_prices[state.grade];
+    state.price = mp;
+    const price = $('price');
+    price.value = mp;
+    $('priceVal').textContent = money(mp);
+    setRangeFill(price);
+    render();
+  }
+
+  function init() {
+    const guests = $('guests'),
+      price = $('price'),
+      grade = $('grade');
+
+    guests.addEventListener('input', () => {
+      state.guests = parseInt(guests.value, 10);
+      $('guestVal').textContent = state.guests;
+      setRangeFill(guests);
+      PitmasterAnalytics.debounceSlider('brisket_size_guests_drag', guests.value);
+      render();
+    });
+
+    price.addEventListener('input', () => {
+      state.price = parseFloat(price.value);
+      state.priceTouched = true;
+      $('priceVal').textContent = money(state.price);
+      setRangeFill(price);
+      render();
+    });
+
+    $('useMarket').addEventListener('click', () => {
+      applyMarketPrice();
+      state.priceTouched = false;
+    });
+
+    grade.addEventListener('change', (e) => {
+      state.grade = grade.value;
+      PitmasterAnalytics.emit('brisket_size_grade_selected', { grade: e.target.value });
+      if (!state.priceTouched) applyMarketPrice();
+      render();
+    });
+
+    $('appetiteToggle').addEventListener('click', (e) => {
+      const btn = e.target.closest('.appetite-opt');
+      if (!btn) return;
+      state.appetite = btn.dataset.appetite;
+      paintGroup('.appetite-opt', 'appetite', state.appetite);
+      render();
+    });
+
+    $('trimToggle').addEventListener('click', (e) => {
+      const btn = e.target.closest('.trim-opt');
+      if (!btn) return;
+      state.trim = btn.dataset.trim;
+      paintGroup('.trim-opt', 'trim', state.trim);
+      render();
+    });
+
+    $('wrapToggle').addEventListener('click', (e) => {
+      const btn = e.target.closest('.wrap-opt');
+      if (!btn) return;
+      state.wrap = btn.dataset.wrap;
+      paintGroup('.wrap-opt', 'wrap', state.wrap);
+      render();
+    });
+
+    document.querySelectorAll('[data-affiliate]').forEach((a) => {
+      a.addEventListener('click', () => {
+        PitmasterAnalytics.emit('affiliate_click', { destination: a.dataset.affiliate });
+      });
+    });
+
+    wireCopyButton('shareBtn');
+
+    loadState();
+    hydrateFromParams();
+    syncControls();
+    render();
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+</script>
