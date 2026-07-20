@@ -1,0 +1,334 @@
+---
+/*
+ * FuelEstimator — the smoker fuel & cost tool as a reusable component. Takes a
+ * `protein` prop (default beef_brisket) for API consistency with the other
+ * calculators; this tool has no protein-specific inputs (all inputs are
+ * equipment/environment), so nothing is registry-driven here. Client wiring
+ * lives in ./fuelEstimator.controller.js.
+ */
+import { PROTEINS } from '../../utils/proteinRegistry.js';
+
+export interface Props {
+  protein?: (typeof PROTEINS)[keyof typeof PROTEINS];
+}
+
+const { protein = PROTEINS.beef_brisket } = Astro.props;
+---
+
+  <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <header class="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-flame-500/15 ring-1 ring-flame-500/40 text-2xl">🪵</div>
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">Fuel &amp; Cost Estimator</h1>
+          <p class="text-sm text-charcoal-400 mt-0.5">Plan your burn &mdash; fuel weight, bags, and the true cost of the cook</p>
+        </div>
+      </div>
+      <button id="shareBtn" type="button" class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-charcoal-800 ring-1 ring-charcoal-700 hover:ring-flame-500/50 text-charcoal-300 hover:text-white text-xs font-semibold px-3.5 py-2 transition-all">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+        <span data-copy-label>Copy share link</span>
+      </button>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <section class="lg:col-span-5 rounded-2xl bg-charcoal-900 ring-1 ring-charcoal-800 shadow-xl shadow-black/40 p-5 sm:p-6 space-y-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400">Cook Setup</h2>
+          <span class="text-[10px] bg-charcoal-800 text-charcoal-400 px-2 py-0.5 rounded border border-charcoal-700 font-mono">v1.1</span>
+        </div>
+
+        <div class="border-b border-charcoal-800 pb-4">
+          <label class="block text-xs font-medium text-charcoal-400 uppercase tracking-wider mb-2">Smoker Presets Quick-Fill</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" id="presetPellet" class="rounded-xl bg-charcoal-800 hover:bg-charcoal-700/80 ring-1 ring-charcoal-700 hover:ring-charcoal-600 p-2.5 text-left text-xs transition-all">
+              <p class="font-semibold text-white flex items-center gap-1">🪵 Pellet Smoker</p>
+              <p class="text-[10px] text-charcoal-400 mt-0.5 font-mono">Traeger/Pit Boss (20lb)</p>
+            </button>
+            <button type="button" id="presetCharcoal" class="rounded-xl bg-charcoal-800 hover:bg-charcoal-700/80 ring-1 ring-charcoal-700 hover:ring-charcoal-600 p-2.5 text-left text-xs transition-all">
+              <p class="font-semibold text-white flex items-center gap-1">🧱 Charcoal Kettle</p>
+              <p class="text-[10px] text-charcoal-400 mt-0.5 font-mono">Weber Kettle (16lb)</p>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-charcoal-300 mb-2">Fuel Type</label>
+          <div id="fuelToggle" aria-label="Fuel type" class="grid grid-cols-3 gap-1 rounded-lg bg-charcoal-800 ring-1 ring-charcoal-700 p-1" role="group">
+            <button data-fuel="wood_pellets" class="fuel-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-pressed="true">Pellets</button>
+            <button data-fuel="charcoal_briquettes" class="fuel-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-pressed="false">Charcoal</button>
+            <button data-fuel="hardwood_splits" class="fuel-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-pressed="false">Wood Splits</button>
+          </div>
+          <p id="fuelDesc" class="text-[11px] text-charcoal-500 mt-1.5 font-mono">8,000 BTU/lb &middot; ~1.2 lb/hr ideal burn</p>
+        </div>
+
+        <div>
+          <div class="flex items-baseline justify-between mb-2">
+            <label for="duration" class="text-sm font-medium text-charcoal-300">Planned Cook Duration</label>
+            <span class="text-sm font-mono"><span id="durationVal" class="text-white font-semibold">12</span> <span class="text-charcoal-400">hr</span></span>
+          </div>
+          <input id="duration" type="range" min="1" max="24" step="1" value="12" class="w-full" />
+          <div class="flex justify-between text-[10px] text-charcoal-500 mt-1 font-mono"><span>1 hr</span><span>24 hr</span></div>
+        </div>
+
+        <div>
+          <label for="insulation" class="block text-sm font-medium text-charcoal-300 mb-2">Cooker Insulation</label>
+          <div class="relative">
+            <select id="insulation" class="w-full appearance-none rounded-lg bg-charcoal-800 ring-1 ring-charcoal-700 text-white text-sm font-medium px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-flame-500 cursor-pointer">
+              <option value="single_wall_steel" selected>Single-Wall Steel</option>
+              <option value="insulated_blanket">Insulated Blanket</option>
+              <option value="ceramic_double_wall">Ceramic Double-Wall</option>
+            </select>
+            <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <p id="insDesc" class="text-[11px] text-charcoal-500 mt-1.5 font-mono">η 45% efficiency &middot; high heat loss</p>
+        </div>
+
+        <div>
+          <div class="flex items-baseline justify-between mb-2">
+            <label for="ambient" class="text-sm font-medium text-charcoal-300">Ambient Outdoor Temp</label>
+            <span class="text-sm font-mono"><span id="ambientVal" class="text-white font-semibold">70</span><span class="text-charcoal-400">&deg;F</span></span>
+          </div>
+          <input id="ambient" type="range" min="20" max="125" step="1" value="70" class="w-full" />
+          <div class="flex justify-between text-[10px] text-charcoal-500 mt-1 font-mono"><span>20&deg;F</span><span>125&deg;F</span></div>
+          <div id="heatBadge" class="hidden mt-2 rounded-lg bg-amber-500/10 ring-1 ring-amber-500/40 px-3 py-2">
+            <p class="text-[11px] font-medium text-amber-300 leading-snug">☀️ Extreme Heat: Ambient Solar Assist Active (Fuel Burn Reduced by 35%)</p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-charcoal-300 mb-2">Wind Speed</label>
+          <div id="windToggle" aria-label="Wind speed" class="grid grid-cols-3 gap-1 rounded-lg bg-charcoal-800 ring-1 ring-charcoal-700 p-1" role="group">
+            <button data-wind="calm_0_5mph" class="wind-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-pressed="true">Calm</button>
+            <button data-wind="breezy_5_15mph" class="wind-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-pressed="false">Breezy</button>
+            <button data-wind="high_wind_15mph" class="wind-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-pressed="false">High Wind</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="bagCost" class="block text-sm font-medium text-charcoal-300 mb-2">Bag Cost</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-charcoal-400 text-sm">$</span>
+              <input id="bagCost" type="number" min="1" step="0.5" value="18" class="w-full rounded-lg bg-charcoal-800 ring-1 ring-charcoal-700 text-white text-sm font-medium pl-7 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-flame-500" />
+            </div>
+          </div>
+          <div>
+            <label for="bagWeight" class="block text-sm font-medium text-charcoal-300 mb-2">Bag Weight</label>
+            <div class="relative">
+              <input id="bagWeight" type="number" min="1" step="1" value="20" class="w-full rounded-lg bg-charcoal-800 ring-1 ring-charcoal-700 text-white text-sm font-medium pl-3 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-flame-500" />
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-charcoal-400 text-sm">lb</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="lg:col-span-7 space-y-6">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="rounded-2xl bg-charcoal-900 ring-1 ring-charcoal-800 shadow-xl shadow-black/40 p-5">
+            <p class="text-[11px] font-semibold uppercase tracking-widest text-charcoal-400">Fuel Required</p>
+            <p class="mt-2 text-3xl font-extrabold text-white tabular-nums leading-none"><span id="fuelLbs">0</span><span class="text-base text-charcoal-400 font-bold ml-1">lb</span></p>
+            <p class="text-[11px] text-charcoal-500 mt-1.5" id="burnRate">&mdash; lb/hr effective</p>
+          </div>
+          <div class="rounded-2xl bg-charcoal-900 ring-1 ring-charcoal-800 shadow-xl shadow-black/40 p-5">
+            <p class="text-[11px] font-semibold uppercase tracking-widest text-charcoal-400">Bags Needed</p>
+            <p class="mt-2 text-3xl font-extrabold text-white tabular-nums leading-none" id="bags">0.0</p>
+            <p class="text-[11px] text-charcoal-500 mt-1.5"><span id="wholeBags">0</span> whole bag(s) to buy</p>
+          </div>
+          <div class="rounded-2xl bg-gradient-to-br from-amber-500/20 via-charcoal-900 to-charcoal-900 ring-1 ring-amber-500/40 shadow-xl shadow-black/40 p-5">
+            <p class="text-[11px] font-semibold uppercase tracking-widest text-amber-300/90">Cost of Cook</p>
+            <p class="mt-2 text-3xl font-extrabold text-white tabular-nums leading-none">$<span id="cost">0.00</span></p>
+            <p class="text-[11px] text-amber-300/70 mt-1.5"><span id="costPerHr">$0.00</span>/hr of cook</p>
+          </div>
+        </div>
+
+        <!-- Affiliate banner: Wood Pellets (shown when fuel type is pellets) -->
+        <div id="affPellet" class="mt-6 rounded-xl bg-gradient-to-r from-charcoal-900 to-charcoal-800 ring-1 ring-emerald-500/20 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">🪵</span>
+            <div>
+              <h4 class="text-xs font-bold text-white uppercase tracking-wide">Optimize Thermal Efficiency</h4>
+              <p class="text-[11px] text-charcoal-400">Burn cleaner hardwood pellets engineered specifically for high heat-retention.</p>
+            </div>
+          </div>
+          <div class="w-full sm:w-auto flex flex-col items-center sm:items-end">
+            <span class="block text-[9px] text-slate-500 italic mb-1">As an Amazon Associate I earn from qualifying purchases.</span>
+            <a href="https://amzn.to/4wuM3N2" target="_blank" rel="noopener noreferrer" data-affiliate="wood_pellets" class="w-full sm:w-auto text-center bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] uppercase tracking-wider px-4 py-2 rounded-lg transition-colors">View Rated Fuel Brands →</a>
+          </div>
+        </div>
+
+        <!-- Affiliate banner: Smoker Charcoal (shown for charcoal / hardwood splits) -->
+        <div id="affCharcoal" class="hidden mt-6 rounded-xl bg-gradient-to-r from-charcoal-900 to-charcoal-800 ring-1 ring-emerald-500/20 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">🧱</span>
+            <div>
+              <h4 class="text-xs font-bold text-white uppercase tracking-wide">Optimize Thermal Efficiency</h4>
+              <p class="text-[11px] text-charcoal-400">Dense lump charcoal, briquettes &amp; seasoned splits for steady, long-burn heat retention.</p>
+            </div>
+          </div>
+          <div class="w-full sm:w-auto flex flex-col items-center sm:items-end">
+            <span class="block text-[9px] text-slate-500 italic mb-1">As an Amazon Associate I earn from qualifying purchases.</span>
+            <a href="https://amzn.to/4vuiMBs" target="_blank" rel="noopener noreferrer" data-affiliate="smoker_charcoal" class="w-full sm:w-auto text-center bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] uppercase tracking-wider px-4 py-2 rounded-lg transition-colors">View Rated Charcoal →</a>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-charcoal-900 ring-1 ring-charcoal-800 shadow-xl shadow-black/40 p-5 sm:p-6">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+                <span class="text-lg">🧥</span> <span id="whatifTitle">Insulation Efficiency Dashboard</span>
+              </h3>
+              <p class="text-[11px] text-charcoal-500 mt-1 leading-snug max-w-md">
+                Compare uninsulated baseline performance against modified thermal structures for this exact setup.
+              </p>
+            </div>
+            <button id="whatifSwitch" role="switch" aria-checked="false" class="switch shrink-0 mt-0.5 relative inline-flex h-7 w-12 items-center rounded-full bg-charcoal-700 ring-1 ring-charcoal-600">
+              <span class="switch-knob inline-block h-5 w-5 translate-x-1 rounded-full bg-white shadow"></span>
+            </button>
+          </div>
+
+          <div id="whatifBody" class="hidden mt-5 pt-5 border-t border-charcoal-800">
+            <div id="whatifCompare">
+              <div class="grid grid-cols-2 gap-4 mb-5">
+                <div class="rounded-xl bg-emerald-500/10 ring-1 ring-emerald-500/40 p-4 text-center">
+                  <p id="lbsSavedTitle" class="text-[10px] font-semibold uppercase tracking-wider text-emerald-300">Fuel Saved</p>
+                  <p class="mt-1 text-2xl font-extrabold text-emerald-400 tabular-nums"><span id="lbsSaved">0</span> <span class="text-sm">lb</span></p>
+                  <p class="text-[10px] text-emerald-300/70 mt-0.5"><span id="pctLbsSaved">0</span>% less burn</p>
+                </div>
+                <div class="rounded-xl bg-emerald-500/10 ring-1 ring-emerald-500/40 p-4 text-center">
+                  <p id="costSavedTitle" class="text-[10px] font-semibold uppercase tracking-wider text-emerald-300">Money Saved</p>
+                  <p class="mt-1 text-2xl font-extrabold text-emerald-400 tabular-nums">$<span id="costSaved">0.00</span></p>
+                  <p id="savingsSubtext" class="text-[10px] text-emerald-300/70 mt-0.5">on this cook</p>
+                </div>
+              </div>
+
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-charcoal-400 mb-2">Fuel Weight (lb)</p>
+              <div class="space-y-2 mb-5">
+                <div class="flex items-center gap-3">
+                  <span id="lblFuelCur" class="w-28 shrink-0 text-[11px] text-charcoal-400 truncate">Baseline</span>
+                  <div class="flex-1 h-6 rounded-md bg-charcoal-800 overflow-hidden">
+                    <div id="barFuelCur" class="bar-fill h-full rounded-md bg-charcoal-500 flex items-center justify-end pr-2" style="width:0%"><span id="barFuelCurLbl" class="text-[10px] font-mono text-white"></span></div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span id="lblFuelNew" class="w-28 shrink-0 text-[11px] text-emerald-300 truncate">Insulated</span>
+                  <div class="flex-1 h-6 rounded-md bg-charcoal-800 overflow-hidden">
+                    <div id="barFuelNew" class="bar-fill h-full rounded-md bg-emerald-500 flex items-center justify-end pr-2" style="width:0%"><span id="barFuelNewLbl" class="text-[10px] font-mono text-charcoal-950"></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-charcoal-400 mb-2">Cost of Cook ($)</p>
+              <div class="space-y-2">
+                <div class="flex items-center gap-3">
+                  <span id="lblCostCur" class="w-28 shrink-0 text-[11px] text-charcoal-400 truncate">Baseline</span>
+                  <div class="flex-1 h-6 rounded-md bg-charcoal-800 overflow-hidden">
+                    <div id="barCostCur" class="bar-fill h-full rounded-md bg-charcoal-500 flex items-center justify-end pr-2" style="width:0%"><span id="barCostCurLbl" class="text-[10px] font-mono text-white"></span></div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span id="lblCostNew" class="w-28 shrink-0 text-[11px] text-emerald-300 truncate">Insulated</span>
+                  <div class="flex-1 h-6 rounded-md bg-charcoal-800 overflow-hidden">
+                    <div id="barCostNew" class="bar-fill h-full rounded-md bg-emerald-500 flex items-center justify-end pr-2" style="width:0%"><span id="barCostNewLbl" class="text-[10px] font-mono text-charcoal-950"></span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fuel Type Comparison: how much of each fuel this exact cook would burn -->
+        <div class="rounded-2xl bg-charcoal-900 ring-1 ring-charcoal-800 shadow-xl shadow-black/40 p-5 sm:p-6">
+          <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+            <span class="text-lg">⚖️</span> Fuel Type Comparison
+          </h3>
+          <p class="text-[11px] text-charcoal-500 mt-1 leading-snug max-w-md">
+            How much of each fuel this exact cook would burn &mdash; same duration, insulation &amp; weather. Weight is price-independent; cost depends on your local $/lb.
+          </p>
+          <div class="mt-5 space-y-2.5">
+            <div class="flex items-center gap-3">
+              <span id="lblFuelP" class="w-24 shrink-0 text-[11px] text-charcoal-400 truncate">Pellets</span>
+              <div class="flex-1 h-7 rounded-md bg-charcoal-800 overflow-hidden">
+                <div id="barFuelP" class="bar-fill h-full rounded-md bg-charcoal-500 flex items-center justify-end pr-2" style="width:0%"><span id="valFuelP" class="text-[10px] font-mono text-white"></span></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span id="lblFuelC" class="w-24 shrink-0 text-[11px] text-charcoal-400 truncate">Charcoal</span>
+              <div class="flex-1 h-7 rounded-md bg-charcoal-800 overflow-hidden">
+                <div id="barFuelC" class="bar-fill h-full rounded-md bg-charcoal-500 flex items-center justify-end pr-2" style="width:0%"><span id="valFuelC" class="text-[10px] font-mono text-white"></span></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span id="lblFuelS" class="w-24 shrink-0 text-[11px] text-charcoal-400 truncate">Wood Splits</span>
+              <div class="flex-1 h-7 rounded-md bg-charcoal-800 overflow-hidden">
+                <div id="barFuelS" class="bar-fill h-full rounded-md bg-charcoal-500 flex items-center justify-end pr-2" style="width:0%"><span id="valFuelS" class="text-[10px] font-mono text-white"></span></div>
+              </div>
+            </div>
+          </div>
+          <p class="text-[11px] text-charcoal-500 mt-3 font-mono">Lightest burn: <span id="fuelWinner" class="text-emerald-400">&mdash;</span> &middot; your pick highlighted.</p>
+        </div>
+      </section>
+    </div>
+
+    <footer class="mt-8 text-center text-[11px] text-charcoal-500">
+      <p>Estimates model fuel burn as base rate &times; duration &times; ambient &times; wind &divide; insulation efficiency. Real consumption varies with door-opens, fire management &amp; fuel moisture.</p>
+      <p class="mt-2"><a href="/privacy" class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">Privacy Policy</a></p>
+    </footer>
+  </div>
+<style is:global>
+  body.page-fuel input[type='range'] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    border-radius: 9999px;
+    background: linear-gradient(to right, #f97316 var(--fill, 50%), #2a2c30 var(--fill, 50%));
+    outline: none;
+  }
+  body.page-fuel input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #fb923c;
+    border: 3px solid #0b0b0c;
+    box-shadow: 0 0 0 1px #f97316, 0 2px 8px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+  body.page-fuel input[type='range']::-webkit-slider-thumb:active {
+    transform: scale(1.15);
+  }
+  body.page-fuel input[type='range']::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #fb923c;
+    border: 3px solid #0b0b0c;
+    box-shadow: 0 0 0 1px #f97316, 0 2px 8px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+  }
+  .bar-fill {
+    transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .switch {
+    transition: background-color 0.2s ease;
+  }
+  .switch-knob {
+    transition: transform 0.2s ease;
+  }
+  body.page-fuel::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(1100px 550px at 82% -10%, rgba(249, 115, 22, 0.12), transparent 60%),
+      radial-gradient(800px 500px at -5% 110%, rgba(245, 158, 11, 0.07), transparent 55%);
+  }
+</style>
+
+<script>
+  import { initFuelEstimator } from './fuelEstimator.controller.js';
+  document.addEventListener('DOMContentLoaded', () => initFuelEstimator());
+</script>

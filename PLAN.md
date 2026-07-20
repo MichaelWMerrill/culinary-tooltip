@@ -59,7 +59,7 @@ Create `src/utils/proteinRegistry.js`:
   - `yield`: the loss matrices AND an `axes` array describing its inputs.
     Each axis: `{ id, label, type: 'enum'|'slider'|'toggle', options|range,
     copy }`. Brisket's axes: grade (enum), trim (enum), wrap (enum),
-    weight (slider 4–18), price (slider).
+    weight (slider 4–30), price (slider).
   - `thermal`: stall-engine constants (thermal diffusivity, stall thresholds
     per cook temp, geometry: `{ shape: 'cylinder'|'slab', beta, exponent,
     weight_bounds }`, finish temp, start temp, `stalls: true|false`).

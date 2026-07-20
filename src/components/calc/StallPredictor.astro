@@ -1,0 +1,233 @@
+---
+/*
+ * StallPredictor — the thermodynamic stall/cook-time tool as a reusable
+ * component. Takes a `protein` prop (default beef_brisket); the meat-weight
+ * input is rendered from that protein's `thermal.axes`. Pit / wrap / climate
+ * controls are equipment/environment and stay component-local. Client wiring
+ * lives in ./stallPredictor.controller.js.
+ */
+import { PROTEINS } from '../../utils/proteinRegistry.js';
+
+export interface Props {
+  protein?: (typeof PROTEINS)[keyof typeof PROTEINS];
+}
+
+const { protein = PROTEINS.beef_brisket } = Astro.props;
+const wAxis = protein.thermal.axes.find((a) => a.id === 'weight');
+const wR = wAxis.range;
+const initWeight = 12;
+---
+
+<div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+  <!-- Header -->
+  <header class="mb-8 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-flame-500/15 ring-1 ring-flame-500/40 text-2xl">📈</div>
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">Stall Predictor</h1>
+        <p class="text-sm text-slate-400 mt-0.5">Internal-temp curve, stall duration &amp; total cook time modeling</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="/cook-scheduler" class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-flame-500/15 ring-1 ring-flame-500/40 text-flame-300 hover:text-flame-200 text-xs font-semibold px-3.5 py-2 transition-all">
+        🗓️ Plan by serving time
+      </a>
+      <button id="shareBtn" type="button" class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-slate-800 ring-1 ring-slate-700 hover:ring-flame-500/50 text-slate-300 hover:text-white text-xs font-semibold px-3.5 py-2 transition-all">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+        <span data-copy-label>Copy share link</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- ============ CONTROLS ============ -->
+    <section class="lg:col-span-4 rounded-2xl bg-slate-900 ring-1 ring-slate-800 shadow-xl shadow-black/40 p-5 sm:p-6 space-y-6">
+      <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400">Cook Parameters</h2>
+
+      <!-- Weight (rendered from protein.thermal.axes) -->
+      <div>
+        <div class="flex items-baseline justify-between mb-2">
+          <label for="weight" class="text-sm font-medium text-slate-300">{wAxis.label}</label>
+          <span class="text-sm font-mono"><span id="weightVal" class="text-white font-semibold">{initWeight.toFixed(1)}</span> <span class="text-slate-400">{wR.unit}</span></span>
+        </div>
+        <input id="weight" type="range" min={wR.min} max={wR.max} step={wR.step} value={initWeight} class="w-full" />
+        <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-mono"><span>{wR.min} {wR.unit}</span><span>{wR.max} {wR.unit}</span></div>
+      </div>
+
+      <!-- Target Pit Temp -->
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-2">Target Pit Temp</label>
+        <div id="pitTempToggle" aria-label="Target pit temperature" class="grid grid-cols-3 gap-1 rounded-lg bg-slate-800 ring-1 ring-slate-700 p-1" role="group">
+          <button data-temp="225" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="true">225&deg;F</button>
+          <button data-temp="250" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="false">250&deg;F</button>
+          <button data-temp="275" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="false">275&deg;F</button>
+        </div>
+      </div>
+
+      <!-- Pit Type -->
+      <div>
+        <label for="pit" class="block text-sm font-medium text-slate-300 mb-2">Pit Type</label>
+        <div class="relative">
+          <select id="pit" class="w-full appearance-none rounded-lg bg-slate-800 ring-1 ring-slate-700 text-white text-sm font-medium px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-flame-500 cursor-pointer">
+            <option value="pellet_cooker">Pellet Cooker</option>
+            <option value="offset_smoker" selected>Offset Smoker</option>
+            <option value="ceramic_kamado">Ceramic Kamado</option>
+            <option value="charcoal_kettle">Charcoal Kettle</option>
+          </select>
+          <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+        <p id="pitDesc" class="text-[11px] text-slate-500 mt-1.5 leading-snug">High natural draft velocity balanced by radiant energy from heavy steel walls.</p>
+      </div>
+
+      <!-- Wrap Type -->
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-2">Wrap Type</label>
+        <div id="wrapToggle" aria-label="Wrap type" class="grid grid-cols-3 gap-1 rounded-lg bg-slate-800 ring-1 ring-slate-700 p-1" role="group">
+          <button data-wrap="none" class="wrap-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-pressed="false">No Wrap</button>
+          <button data-wrap="peach_butcher_paper" class="wrap-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-pressed="true">Butcher Paper</button>
+          <button data-wrap="aluminum_foil" class="wrap-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-pressed="false">Foil</button>
+        </div>
+        <p id="wrapDesc" class="text-[11px] text-slate-500 mt-1.5 leading-snug">Semi-permeable: trims the stall while preserving bark.</p>
+      </div>
+
+      <!-- Wrap Target Temp -->
+      <div id="wrapTempWrap">
+        <div class="flex items-baseline justify-between mb-2">
+          <label for="wrapTemp" class="text-sm font-medium text-slate-300">Wrap at Internal Temp</label>
+          <span class="text-sm font-mono"><span id="wrapTempVal" class="text-white font-semibold">160</span><span class="text-slate-400">&deg;F</span></span>
+        </div>
+        <input id="wrapTemp" type="range" min="150" max="170" step="1" value="160" class="w-full" />
+        <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-mono"><span>150&deg;F</span><span>170&deg;F</span></div>
+        <p class="text-[11px] text-slate-500 mt-1.5 leading-snug">Internal temp at which you'll wrap. Wrapping earlier cuts the stall short.</p>
+      </div>
+
+      <!-- Regional Climate Profile -->
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-2">Regional Climate Profile</label>
+        <div id="climateToggle" aria-label="Regional climate profile" class="grid grid-cols-3 gap-1 rounded-lg bg-slate-800 ring-1 ring-slate-700 p-1" role="group">
+          <button data-climate="arid" class="climate-opt rounded-md px-1 py-2 text-[11px] leading-tight font-medium transition-colors" aria-pressed="false">Arid / Desert<br /><span class="text-[9px] opacity-70">&lt;20% RH</span></button>
+          <button data-climate="moderate" class="climate-opt rounded-md px-1 py-2 text-[11px] leading-tight font-medium transition-colors" aria-pressed="true">Moderate<br /><span class="text-[9px] opacity-70">20&ndash;60% RH</span></button>
+          <button data-climate="humid" class="climate-opt rounded-md px-1 py-2 text-[11px] leading-tight font-medium transition-colors" aria-pressed="false">Humid / Coastal<br /><span class="text-[9px] opacity-70">&gt;60% RH</span></button>
+        </div>
+        <p id="climateDesc" class="text-[11px] text-slate-500 mt-1.5 leading-snug">Standard baseline stall behavior.</p>
+      </div>
+    </section>
+
+    <!-- ============ OUTPUT ============ -->
+    <section class="lg:col-span-8 space-y-6">
+      <!-- Big indicators -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="rounded-2xl bg-gradient-to-br from-flame-600/25 via-slate-900 to-slate-900 ring-1 ring-flame-500/40 shadow-xl shadow-black/40 p-5 sm:p-6">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-flame-300/90">Estimated Total Cook</p>
+          <p class="mt-2 text-4xl sm:text-5xl font-extrabold text-white tabular-nums leading-none" id="totalTime">—</p>
+          <p class="text-xs text-slate-400 mt-1.5" id="totalTimeSub">to 203&deg;F finish</p>
+        </div>
+        <div class="rounded-2xl bg-gradient-to-br from-amber-500/20 via-slate-900 to-slate-900 ring-1 ring-amber-500/40 shadow-xl shadow-black/40 p-5 sm:p-6">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-amber-300/90">Projected Stall</p>
+          <p class="mt-2 text-4xl sm:text-5xl font-extrabold text-white tabular-nums leading-none" id="stallTime">—</p>
+          <p class="text-xs text-slate-400 mt-1.5" id="stallSub">plateau duration</p>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="rounded-2xl bg-slate-900 ring-1 ring-slate-800 shadow-xl shadow-black/40 p-4 sm:p-5">
+        <div class="flex items-center justify-between mb-2 px-1">
+          <h3 class="text-sm font-semibold text-white">Internal Temperature Curve</h3>
+          <div class="flex items-center gap-3 text-[10px] text-slate-400">
+            <span class="flex items-center gap-1.5"><span class="inline-block h-2 w-3 rounded-sm bg-flame-500"></span>Temp</span>
+            <span class="flex items-center gap-1.5"><span class="inline-block h-2 w-3 rounded-sm bg-amber-400/40"></span>Stall</span>
+          </div>
+        </div>
+        <div class="w-full overflow-x-auto">
+          <svg id="chart" viewBox="0 0 900 470" preserveAspectRatio="xMidYMid meet" class="w-full h-auto" role="img" aria-label="Internal meat temperature over cook time"></svg>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mt-3 px-1">
+          <div class="text-center">
+            <p class="text-[10px] uppercase tracking-wider text-slate-500">Initial Climb</p>
+            <p class="text-sm font-semibold text-white tabular-nums" id="phase1">—</p>
+          </div>
+          <div class="text-center">
+            <p class="text-[10px] uppercase tracking-wider text-slate-500">Stall Phase</p>
+            <p class="text-sm font-semibold text-white tabular-nums" id="phase2">—</p>
+          </div>
+          <div class="text-center">
+            <p class="text-[10px] uppercase tracking-wider text-slate-500">Final Climb</p>
+            <p class="text-sm font-semibold text-white tabular-nums" id="phase3">—</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 rounded-xl bg-slate-900 border border-amber-500/20 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">🌡️</span>
+          <div>
+            <h4 class="text-xs font-bold text-white uppercase tracking-wide">Track Ambient + Internal Core, Live</h4>
+            <p class="text-[11px] text-slate-400">Active multi-sensor probes monitor pit ambient and internal core temps simultaneously so you catch the evaporative plateau the moment it forms.</p>
+          </div>
+        </div>
+        <div class="w-full sm:w-auto flex flex-col items-center sm:items-end">
+          <span class="block text-[9px] text-slate-500 italic mb-1">As an Amazon Associate I earn from qualifying purchases.</span>
+          <a href="https://amzn.to/4eY9t7J" target="_blank" rel="noopener noreferrer" data-affiliate="meat_probes" class="w-full sm:w-auto text-center bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] uppercase tracking-wider px-4 py-2 rounded-lg transition-colors">View Wireless Probes →</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="mt-8 text-center text-[11px] text-slate-500">
+    <p>Phenomenological model (engine v1.0.0) using convective, radiative &amp; evaporative boundary conditions. Real cooks vary &mdash; probe your meat.</p>
+    <p class="mt-2"><a href="/privacy" class="text-amber-400 hover:text-amber-300 underline decoration-dotted underline-offset-2">Privacy Policy</a></p>
+  </footer>
+</div>
+
+<style is:global>
+  body.page-stall input[type='range'] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    border-radius: 9999px;
+    background: linear-gradient(to right, #f97316 var(--fill, 50%), #1e293b var(--fill, 50%));
+    outline: none;
+  }
+  body.page-stall input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #fbbf24;
+    border: 3px solid #020617;
+    box-shadow: 0 0 0 1px #f59e0b, 0 2px 8px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+  body.page-stall input[type='range']::-webkit-slider-thumb:active {
+    transform: scale(1.15);
+  }
+  body.page-stall input[type='range']::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #fbbf24;
+    border: 3px solid #020617;
+    box-shadow: 0 0 0 1px #f59e0b, 0 2px 8px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+  }
+  .curve-path {
+    transition: stroke-dashoffset 0.1s linear;
+  }
+  body.page-stall::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(1100px 550px at 85% -10%, rgba(249, 115, 22, 0.12), transparent 60%),
+      radial-gradient(800px 500px at -5% 105%, rgba(245, 158, 11, 0.07), transparent 55%);
+  }
+</style>
+
+<script>
+  import { initStallPredictor } from './stallPredictor.controller.js';
+  document.addEventListener('DOMContentLoaded', () => initStallPredictor());
+</script>

@@ -55,51 +55,59 @@ export const PROTEINS = {
         },
       },
 
-      // Input axes for the yield calculator. Phase 2 renders the input panel
-      // straight from this array; the engine keys off these ids.
+      // Input axes for the yield calculator, in panel order. Phase 2 renders
+      // the input panel straight from this array and the script keys its wiring
+      // (element ids, enum whitelists, slider clamps) off these descriptors, so
+      // the UI and engine cannot drift.
       axes: [
+        {
+          id: 'weight',
+          label: 'Raw Brisket Weight',
+          type: 'slider',
+          range: { min: 4, max: 30, step: 0.5, unit: 'lb' },
+        },
+        {
+          id: 'price',
+          label: 'Price Per Pound',
+          type: 'slider',
+          control: 'price-market', // adds the "use market avg" affordance
+          range: { min: 1.5, max: 9, step: 0.05, unit: 'USD' },
+        },
         {
           id: 'grade',
           label: 'USDA Grade',
           type: 'enum',
+          control: 'select',
           options: [
-            { value: 'PRIME', label: 'Prime' },
-            { value: 'CHOICE', label: 'Choice' },
-            { value: 'SELECT', label: 'Select' },
+            { value: 'PRIME', label: 'USDA Prime' },
+            { value: 'CHOICE', label: 'USDA Choice' },
+            { value: 'SELECT', label: 'USDA Select' },
           ],
         },
         {
           id: 'trim',
           label: 'Trim Style',
           type: 'enum',
+          control: 'segmented',
+          cols: 2,
+          copy: 'trim',
           options: [
             { value: 'commercial', label: 'Commercial' },
-            { value: 'competition', label: 'Competition' },
+            { value: 'competition', label: 'Aggressive' },
           ],
-          copy: 'trim',
         },
         {
           id: 'wrap',
-          label: 'Wrap Method',
+          label: 'Cook Wrap Method',
           type: 'enum',
+          control: 'segmented',
+          cols: 3,
+          copy: 'wrap',
           options: [
             { value: 'naked', label: 'Naked' },
             { value: 'paper', label: 'Butcher Paper' },
             { value: 'foil', label: 'Foil' },
           ],
-          copy: 'wrap',
-        },
-        {
-          id: 'weight',
-          label: 'Raw Weight',
-          type: 'slider',
-          range: { min: 4, max: 18, step: 0.5, unit: 'lb' },
-        },
-        {
-          id: 'price',
-          label: 'Price / lb',
-          type: 'slider',
-          range: { min: 1, max: 12, step: 0.1, unit: 'USD' },
         },
       ],
     },
@@ -127,6 +135,19 @@ export const PROTEINS = {
         exponent: -0.333, // W^(-1/3) heat-transfer scaling
         weight_bounds: { min: 4.0, max: 18.0 },
       },
+
+      // Protein-specific input axis for the stall/scheduler tools. Only weight is
+      // protein-driven here; wrap/pit/climate are equipment/environment and stay
+      // component-local. The slider UI range is wider than the physics
+      // weight_bounds above (which only clamps the mass-scaling term).
+      axes: [
+        {
+          id: 'weight',
+          label: 'Meat Weight',
+          type: 'slider',
+          range: { min: 4, max: 20, step: 0.5, unit: 'lb' },
+        },
+      ],
     },
 
     serving: {

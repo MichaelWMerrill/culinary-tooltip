@@ -1,0 +1,209 @@
+---
+/*
+ * CookScheduler — the back-calculating cook scheduler as a reusable component.
+ * Takes a `protein` prop (default beef_brisket); the meat-weight input is
+ * rendered from that protein's `thermal.axes`. Pit / wrap / climate / rest are
+ * equipment/environment and stay component-local. Client wiring lives in
+ * ./cookScheduler.controller.js.
+ */
+import { PROTEINS } from '../../utils/proteinRegistry.js';
+
+export interface Props {
+  protein?: (typeof PROTEINS)[keyof typeof PROTEINS];
+}
+
+const { protein = PROTEINS.beef_brisket } = Astro.props;
+const wAxis = protein.thermal.axes.find((a) => a.id === 'weight');
+const wR = wAxis.range;
+const initWeight = 12;
+---
+
+  <div class="relative z-10 flex-1 w-full">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <header class="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-flame-500/15 ring-1 ring-flame-500/40 text-2xl">🗓️</div>
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">Cook Scheduler</h1>
+            <p class="text-sm text-base-400 mt-0.5">Tell it when you want to eat — it back-calculates when to light the fire</p>
+          </div>
+        </div>
+        <button id="shareBtn" type="button" class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-base-800 ring-1 ring-base-700 hover:ring-flame-500/50 text-base-300 hover:text-white text-xs font-semibold px-3.5 py-2 transition-all">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+          <span data-copy-label>Copy share link</span>
+        </button>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- ============ INPUTS ============ -->
+        <section class="lg:col-span-5 rounded-2xl bg-base-800/70 ring-1 ring-base-700 shadow-xl shadow-black/40 p-5 sm:p-6 space-y-6">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400">The Plan</h2>
+
+          <div>
+            <label for="serveAt" class="block text-sm font-medium text-base-300 mb-2">When do you want to eat?</label>
+            <input id="serveAt" type="datetime-local" class="w-full rounded-lg bg-base-900 border border-base-700 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-flame-500 transition-all" />
+          </div>
+
+          <!-- Weight (rendered from protein.thermal.axes) -->
+          <div>
+            <div class="flex items-baseline justify-between mb-2">
+              <label for="weight" class="text-sm font-medium text-base-300">{wAxis.label}</label>
+              <span class="text-sm font-mono"><span id="weightVal" class="text-white font-semibold">{initWeight.toFixed(1)}</span> <span class="text-base-400">{wR.unit}</span></span>
+            </div>
+            <input id="weight" type="range" min={wR.min} max={wR.max} step={wR.step} value={initWeight} class="w-full" />
+            <div class="flex justify-between text-[10px] text-base-500 mt-1 font-mono"><span>{wR.min} {wR.unit}</span><span>{wR.max} {wR.unit}</span></div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-base-300 mb-2">Target Pit Temp</label>
+            <div id="pitTempToggle" class="grid grid-cols-3 gap-1 rounded-lg bg-base-900 ring-1 ring-base-700 p-1" role="group">
+              <button data-temp="225" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="true">225&deg;F</button>
+              <button data-temp="250" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="false">250&deg;F</button>
+              <button data-temp="275" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="false">275&deg;F</button>
+            </div>
+          </div>
+
+          <div>
+            <label for="pit" class="block text-sm font-medium text-base-300 mb-2">Pit Type</label>
+            <select id="pit" class="w-full rounded-lg bg-base-900 border border-base-700 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-flame-500">
+              <option value="pellet_cooker">Pellet Cooker</option>
+              <option value="offset_smoker" selected>Offset Smoker</option>
+              <option value="ceramic_kamado">Ceramic Kamado</option>
+              <option value="charcoal_kettle">Charcoal Kettle</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-base-300 mb-2">Wrap Type</label>
+            <div id="wrapToggle" class="grid grid-cols-3 gap-1 rounded-lg bg-base-900 ring-1 ring-base-700 p-1" role="group">
+              <button data-wrap="none" class="wrap-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-pressed="false">No Wrap</button>
+              <button data-wrap="peach_butcher_paper" class="wrap-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-pressed="true">Butcher Paper</button>
+              <button data-wrap="aluminum_foil" class="wrap-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-pressed="false">Foil</button>
+            </div>
+          </div>
+
+          <div id="wrapTempWrap">
+            <div class="flex items-baseline justify-between mb-2">
+              <label for="wrapTemp" class="text-sm font-medium text-base-300">Wrap at Internal Temp</label>
+              <span class="text-sm font-mono"><span id="wrapTempVal" class="text-white font-semibold">160</span><span class="text-base-400">&deg;F</span></span>
+            </div>
+            <input id="wrapTemp" type="range" min="150" max="170" step="1" value="160" class="w-full" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-base-300 mb-2">Regional Climate</label>
+            <div id="climateToggle" class="grid grid-cols-3 gap-1 rounded-lg bg-base-900 ring-1 ring-base-700 p-1" role="group">
+              <button data-climate="arid" class="climate-opt rounded-md px-1 py-2 text-[11px] font-medium transition-colors" aria-pressed="false">Arid</button>
+              <button data-climate="moderate" class="climate-opt rounded-md px-1 py-2 text-[11px] font-medium transition-colors" aria-pressed="true">Moderate</button>
+              <button data-climate="humid" class="climate-opt rounded-md px-1 py-2 text-[11px] font-medium transition-colors" aria-pressed="false">Humid</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-baseline justify-between mb-2">
+              <label for="rest" class="text-sm font-medium text-base-300">Rest Before Serving</label>
+              <span class="text-sm font-mono"><span id="restVal" class="text-white font-semibold">1.0</span> <span class="text-base-400">hr</span></span>
+            </div>
+            <input id="rest" type="range" min="0.5" max="4" step="0.25" value="1" class="w-full" />
+            <div class="flex justify-between text-[10px] text-base-500 mt-1 font-mono"><span>0.5 hr</span><span>4 hr</span></div>
+            <p class="text-[11px] text-base-500 mt-1.5 leading-snug">Held in a faux-cambro (foil + towels in a cooler), a rest of an hour or more keeps the brisket safely above 140°F.</p>
+          </div>
+        </section>
+
+        <!-- ============ SCHEDULE ============ -->
+        <section class="lg:col-span-7 space-y-6">
+          <div class="rounded-2xl bg-gradient-to-br from-flame-600/20 via-base-800 to-base-800 ring-1 ring-flame-500/40 shadow-xl shadow-black/40 p-6">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-widest text-flame-300/90">Light the fire at</p>
+                <p id="fireUpBig" class="mt-2 text-3xl sm:text-4xl font-extrabold text-white leading-none">—</p>
+                <p id="totalSub" class="text-xs text-base-400 mt-2">—</p>
+              </div>
+              <div class="hidden sm:flex h-14 w-14 items-center justify-center rounded-xl bg-flame-500/15 ring-1 ring-flame-500/40 text-3xl">🔥</div>
+            </div>
+            <p id="warnBox" class="hidden mt-4 rounded-lg bg-amber-500/10 ring-1 ring-amber-500/40 px-3 py-2 text-[13px] text-amber-200"></p>
+          </div>
+
+          <div class="rounded-2xl bg-base-800/70 ring-1 ring-base-700 shadow-xl shadow-black/40 p-5 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-semibold text-white">Cook Timeline</h3>
+              <button id="icsBtn" type="button" class="inline-flex items-center gap-1.5 rounded-lg bg-flame-600 hover:bg-flame-500 text-white font-bold text-xs px-3.5 py-2 transition-colors">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                Add to calendar (.ics)
+              </button>
+            </div>
+            <ol id="timeline" class="relative border-l border-base-700 ml-2 space-y-6"></ol>
+          </div>
+        </section>
+      </div>
+
+      <footer class="mt-8 text-center text-[11px] text-base-500">
+        <p>Schedule derives from the same phenomenological stall model as the <a href="/stall-predictor" class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">Stall Predictor</a>. Real cooks vary &mdash; build in a buffer and probe your meat.</p>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="relative z-10 border-t border-base-700 bg-base-900/70 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-medium text-base-400 mb-6">
+        <a href="/" class="hover:text-white transition-colors">Home</a>
+        <a href="/brisket-calculator" class="hover:text-white transition-colors">Brisket Calculator</a>
+        <a href="/stall-predictor" class="hover:text-white transition-colors">Stall Predictor</a>
+        <a href="/fuel-estimator" class="hover:text-white transition-colors">Fuel Estimator</a>
+        <a href="/cook-scheduler" class="text-flame-400 hover:text-flame-300 transition-colors">Cook Scheduler</a>
+        <a href="/blog" class="hover:text-white transition-colors">Blog</a>
+        <a href="/contact" class="hover:text-white transition-colors">Contact</a>
+        <a href="/privacy" class="hover:text-white transition-colors">Privacy Policy</a>
+      </nav>
+      <div class="pt-6 border-t border-base-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-xs text-base-500">&copy; 2026 Empirical BBQ · Pitmaster Science &amp; Mathematics Suite</p>
+        <p class="text-[11px] text-base-600 font-mono">Estimates for planning only — always probe to temperature.</p>
+      </div>
+    </div>
+  </footer>
+<style is:global>
+  body.page-scheduler::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(1200px 600px at 82% -12%, rgba(249, 115, 22, 0.14), transparent 60%),
+      radial-gradient(950px 520px at -8% 108%, rgba(245, 158, 11, 0.09), transparent 55%);
+  }
+  body.page-scheduler input[type='range'] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    border-radius: 9999px;
+    background: linear-gradient(to right, #f97316 var(--fill, 50%), #26314a var(--fill, 50%));
+    outline: none;
+  }
+  body.page-scheduler input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #fb923c;
+    border: 3px solid #0d121b;
+    box-shadow: 0 0 0 1px #f97316, 0 2px 8px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+  }
+  body.page-scheduler input[type='range']::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #fb923c;
+    border: 3px solid #0d121b;
+    box-shadow: 0 0 0 1px #f97316, 0 2px 8px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  import { initCookScheduler } from './cookScheduler.controller.js';
+  document.addEventListener('DOMContentLoaded', () => initCookScheduler());
+</script>

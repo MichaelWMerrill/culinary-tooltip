@@ -1,0 +1,313 @@
+---
+/*
+ * YieldCalculator — the brisket trim/shrinkage/yield tool as a reusable
+ * component. Takes a `protein` prop (default beef_brisket); the input panel is
+ * rendered from that protein's `yield.axes` (labels, ranges, options, copy all
+ * come from the registry), and the client wiring lives in
+ * ./yieldCalculator.controller.js. Output panel, serving estimator, and ad/
+ * affiliate placements are preserved from the original page verbatim.
+ */
+import { PROTEINS } from '../../utils/proteinRegistry.js';
+
+export interface Props {
+  protein?: (typeof PROTEINS)[keyof typeof PROTEINS];
+}
+
+const { protein = PROTEINS.beef_brisket } = Astro.props;
+const ax = Object.fromEntries(protein.yield.axes.map((a) => [a.id, a]));
+const copy = protein.yield.copy;
+const market = protein.yield.defaults.market_prices;
+
+// Initial control values (the component's seed state; the controller re-reads
+// them from localStorage / share params on the client).
+const init = { weight: 14, price: 4.29, grade: 'CHOICE', trim: 'commercial', wrap: 'paper' };
+const money2 = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+const wR = ax.weight.range;
+const pR = ax.price.range;
+---
+
+<div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+  <!-- Header -->
+  <header class="mb-8 sm:mb-10 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-ember-500/15 ring-1 ring-ember-500/40 text-2xl">🔥</div>
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+          Brisket Yield &amp; Cost Calculator
+        </h1>
+        <p class="text-sm text-smoke-400 mt-0.5">
+          Trim &middot; Shrinkage &middot; True Cost per Cooked Pound
+        </p>
+      </div>
+    </div>
+    <button id="shareBtn" type="button" class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-smoke-800 ring-1 ring-smoke-700 hover:ring-ember-500/50 text-smoke-300 hover:text-white text-xs font-semibold px-3.5 py-2 transition-all">
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+      <span data-copy-label>Copy share link</span>
+    </button>
+  </header>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- ============ INPUT PANEL (rendered from protein.yield.axes) ============ -->
+    <section class="lg:col-span-5 rounded-2xl bg-smoke-850 ring-1 ring-smoke-700/70 shadow-xl shadow-black/40 p-5 sm:p-6">
+      <h2 class="text-xs font-semibold uppercase tracking-widest text-ember-400 mb-5">The Cut</h2>
+
+      <!-- Raw Weight -->
+      <div class="mb-6">
+        <div class="flex items-baseline justify-between mb-2">
+          <label for="weight" class="text-sm font-medium text-smoke-300">{ax.weight.label}</label>
+          <span class="text-sm font-mono"><span id="weightVal" class="text-white font-semibold">{init.weight.toFixed(1)}</span> <span class="text-smoke-400">{wR.unit}</span></span>
+        </div>
+        <input id="weight" type="range" min={wR.min} max={wR.max} step={wR.step} value={init.weight} class="w-full" />
+        <div class="flex justify-between text-[10px] text-smoke-500 mt-1 font-mono">
+          <span>{wR.min} {wR.unit}</span><span>{wR.max} {wR.unit}</span>
+        </div>
+      </div>
+
+      <!-- Price Per Pound -->
+      <div class="mb-6">
+        <div class="flex items-baseline justify-between mb-2">
+          <label for="price" class="text-sm font-medium text-smoke-300">{ax.price.label}</label>
+          <span class="text-sm font-mono">$<span id="priceVal" class="text-white font-semibold">{money2(init.price)}</span></span>
+        </div>
+        <input id="price" type="range" min={pR.min} max={pR.max} step={pR.step} value={init.price} class="w-full" />
+        <div class="flex justify-between items-center text-[10px] mt-1 font-mono">
+          <span class="text-smoke-500">${money2(pR.min)}</span>
+          <button id="useMarket" type="button" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">
+            use market avg (<span id="marketHint">${money2(market[init.grade])}</span>)
+          </button>
+          <span class="text-smoke-500">${money2(pR.max)}</span>
+        </div>
+      </div>
+
+      <!-- USDA Grade -->
+      <div class="mb-6">
+        <label for="grade" class="block text-sm font-medium text-smoke-300 mb-2">{ax.grade.label}</label>
+        <div class="relative">
+          <select id="grade" class="w-full appearance-none rounded-lg bg-smoke-800 ring-1 ring-smoke-600 text-white text-sm font-medium px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-ember-500 cursor-pointer">
+            {ax.grade.options.map((o) => <option value={o.value} selected={o.value === init.grade}>{o.label}</option>)}
+          </select>
+          <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-smoke-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+      </div>
+
+      <!-- Trim Style Toggle -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-smoke-300 mb-2">{ax.trim.label}</label>
+        <div id="trimToggle" aria-label={ax.trim.label} class="grid grid-cols-2 gap-1 rounded-lg bg-smoke-800 ring-1 ring-smoke-600 p-1" role="group">
+          {ax.trim.options.map((o) => (
+            <button data-trim={o.value} class="trim-opt rounded-md px-3 py-2 text-sm font-medium transition-colors" aria-pressed={o.value === init.trim ? 'true' : 'false'}>{o.label}</button>
+          ))}
+        </div>
+        <p class="text-[11px] text-smoke-500 mt-1.5" id="trimDesc" set:html={copy.trim[init.trim]} />
+      </div>
+
+      <!-- Cook Wrap Method -->
+      <div>
+        <label class="block text-sm font-medium text-smoke-300 mb-2">{ax.wrap.label}</label>
+        <div id="wrapToggle" aria-label={ax.wrap.label} class="grid grid-cols-3 gap-1 rounded-lg bg-smoke-800 ring-1 ring-smoke-600 p-1" role="group">
+          {ax.wrap.options.map((o) => (
+            <button data-wrap={o.value} class="wrap-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed={o.value === init.wrap ? 'true' : 'false'}>{o.label}</button>
+          ))}
+        </div>
+        <p class="text-[11px] text-smoke-500 mt-1.5" id="wrapDesc" set:html={copy.wrap[init.wrap]} />
+      </div>
+    </section>
+
+    <!-- ============ OUTPUT PANEL ============ -->
+    <section class="lg:col-span-7 space-y-6">
+      <!-- Hero: True Cost per Cooked Pound -->
+      <div class="rounded-2xl bg-gradient-to-br from-ember-600/20 via-smoke-850 to-smoke-850 ring-1 ring-ember-500/40 shadow-xl shadow-black/40 p-6 sm:p-7">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-ember-300/90">True Cost / Cooked Pound</p>
+            <div class="mt-2 flex items-end gap-2">
+              <span class="text-5xl sm:text-6xl font-extrabold text-white tabular-nums leading-none">$<span id="trueCost">0.00</span></span>
+              <span class="text-smoke-400 text-sm mb-1.5 font-mono">/ lb cooked</span>
+            </div>
+            <p class="text-xs text-smoke-400 mt-2">
+              Raw cost <span id="rawCost" class="text-smoke-300 font-mono">$0.00</span>
+              &middot; markup vs raw <span id="markup" class="text-ember-300 font-mono font-semibold">0%</span>
+            </p>
+          </div>
+          <div class="hidden sm:flex h-14 w-14 items-center justify-center rounded-xl bg-ember-500/15 ring-1 ring-ember-500/40 text-3xl">💵</div>
+        </div>
+      </div>
+
+      <!-- Total Yield progress -->
+      <div class="rounded-2xl bg-smoke-850 ring-1 ring-smoke-700/70 shadow-xl shadow-black/40 p-6">
+        <div class="flex items-baseline justify-between mb-3">
+          <h3 class="text-sm font-semibold text-white">Total Yield</h3>
+          <span class="font-mono text-2xl font-bold text-ember-400 tabular-nums"><span id="yieldPct">0</span>%</span>
+        </div>
+        <div class="relative h-4 w-full rounded-full bg-smoke-800 ring-1 ring-smoke-700 overflow-hidden" role="progressbar" aria-label="Total yield percentage" aria-valuemin="0" aria-valuemax="100">
+          <div id="yieldBar" class="yield-bar-fill h-full rounded-full bg-gradient-to-r from-ember-600 to-ember-400" style="width:0%"></div>
+        </div>
+        <p class="text-[11px] text-smoke-500 mt-2 font-mono">
+          Cooked yield as a share of raw purchased weight.
+        </p>
+      </div>
+
+      <!-- Weight breakdown cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="rounded-xl bg-smoke-850 ring-1 ring-smoke-700/70 p-4">
+          <p class="text-[10px] font-semibold uppercase tracking-wider text-smoke-400">Trimmed Wt</p>
+          <p class="mt-1.5 text-xl font-bold text-white tabular-nums"><span id="trimmedWt">0.0</span><span class="text-xs text-smoke-400 font-normal ml-0.5">lb</span></p>
+          <p class="text-[10px] text-smoke-500 mt-0.5">post-trim, pre-cook</p>
+        </div>
+        <div class="rounded-xl bg-smoke-850 ring-1 ring-smoke-700/70 p-4">
+          <p class="text-[10px] font-semibold uppercase tracking-wider text-smoke-400">Trim Removed</p>
+          <p class="mt-1.5 text-xl font-bold text-white tabular-nums"><span id="trimWt">0.0</span><span class="text-xs text-smoke-400 font-normal ml-0.5">lb</span></p>
+          <p class="text-[10px] text-smoke-500 mt-0.5">fat &amp; meat trim</p>
+        </div>
+        <div class="rounded-xl bg-smoke-850 ring-1 ring-smoke-700/70 p-4">
+          <p class="text-[10px] font-semibold uppercase tracking-wider text-smoke-400">Cook Loss</p>
+          <p class="mt-1.5 text-xl font-bold text-white tabular-nums"><span id="cookLoss">0.0</span><span class="text-xs text-smoke-400 font-normal ml-0.5">lb</span></p>
+          <p class="text-[10px] text-smoke-500 mt-0.5">rendered &amp; evaporated</p>
+        </div>
+        <div class="rounded-xl bg-ember-500/10 ring-1 ring-ember-500/40 p-4">
+          <p class="text-[10px] font-semibold uppercase tracking-wider text-ember-300">Sliced Cooked</p>
+          <p class="mt-1.5 text-xl font-bold text-white tabular-nums"><span id="cookedWt">0.0</span><span class="text-xs text-smoke-400 font-normal ml-0.5">lb</span></p>
+          <p class="text-[10px] text-ember-300/70 mt-0.5">final served weight</p>
+        </div>
+      </div>
+
+      <!-- Holding & Resting Advisor -->
+      <div class="rounded-2xl bg-smoke-850 ring-1 ring-smoke-700/70 shadow-xl shadow-black/40 p-6">
+        <h3 class="text-sm font-semibold text-white flex items-center gap-2 mb-3">
+          <span>📋</span> Pitmaster Holding &amp; Resting Advisor
+        </h3>
+        <div id="holdingAdvice" class="rounded-xl p-4 text-sm leading-relaxed ring-1 flex gap-3">
+          <span id="holdingIcon" class="text-lg leading-none mt-0.5">🌡️</span>
+          <p id="holdingText" class="flex-1">&mdash;</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ SERVING ESTIMATOR ============ -->
+  <section class="mt-6 rounded-2xl bg-smoke-850 ring-1 ring-smoke-700/70 shadow-xl shadow-black/40 overflow-hidden">
+    <button id="servingHeader" type="button" class="w-full flex items-center justify-between px-5 sm:px-6 py-4 hover:bg-smoke-800/40 transition-colors" aria-expanded="false" aria-controls="servingBody">
+      <span class="flex items-center gap-2.5">
+        <span class="text-xl">🍽️</span>
+        <span class="text-sm font-semibold text-white">Serving Estimator</span>
+        <span class="text-[11px] text-smoke-500 hidden sm:inline">&mdash; 0.5 lb per guest threshold</span>
+      </span>
+      <svg id="servingChevron" class="h-5 w-5 text-smoke-400 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+    </button>
+
+    <div id="servingBody" class="hidden px-5 sm:px-6 pb-6 pt-1 border-t border-smoke-700/60">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+        <div>
+          <div class="flex items-baseline justify-between mb-2">
+            <label for="guests" class="text-sm font-medium text-smoke-300">Guest Count</label>
+            <span class="text-sm font-mono"><span id="guestVal" class="text-white font-semibold">12</span> <span class="text-smoke-400">guests</span></span>
+          </div>
+          <input id="guests" type="range" min="1" max="60" step="1" value="12" class="w-full" />
+          <div class="flex justify-between text-[10px] text-smoke-500 mt-1 font-mono">
+            <span>1</span><span>60</span>
+          </div>
+          <p class="text-[11px] text-smoke-500 mt-3 font-mono">
+            Need <span id="needed" class="text-smoke-300">6.0</span> lb cooked
+            &middot; have <span id="haveCooked" class="text-smoke-300">0.0</span> lb
+          </p>
+        </div>
+
+        <div id="servingVerdict" class="rounded-xl p-5 text-center ring-1">
+          <p id="verdictIcon" class="text-3xl">⏳</p>
+          <p id="verdictText" class="mt-1.5 text-lg font-bold">&mdash;</p>
+          <p id="verdictSub" class="text-xs mt-0.5">&mdash;</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cross-link to the reverse (sizing) calculator -->
+  <a href="/brisket-size-calculator" class="group mt-6 flex items-center justify-between gap-4 rounded-2xl bg-smoke-850 ring-1 ring-smoke-700/70 hover:ring-ember-500/50 shadow-xl shadow-black/40 p-5 transition-all">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">🧮</span>
+      <div>
+        <p class="text-sm font-semibold text-white group-hover:text-ember-300">Planning around a headcount instead?</p>
+        <p class="text-[11px] text-smoke-400 mt-0.5">Enter your guest count and get the raw packer weight to buy &amp; the budget — how much brisket per person.</p>
+      </div>
+    </div>
+    <svg class="h-5 w-5 shrink-0 text-ember-400 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+  </a>
+
+  <div class="mt-6 rounded-xl bg-smoke-900 border border-ember-500/20 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">🥩</span>
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-wide">Monitor Mass-Loss &amp; Internal Temps</h4>
+        <p class="text-[11px] text-smoke-400">Track your core temperature profile dynamically to prevent moisture loss during the fat rendering stage.</p>
+      </div>
+    </div>
+    <div class="w-full sm:w-auto flex flex-col items-center sm:items-end">
+      <span class="block text-[9px] text-slate-500 italic mb-1">As an Amazon Associate I earn from qualifying purchases.</span>
+      <a href="https://amzn.to/4eY9t7J" target="_blank" rel="noopener noreferrer" data-affiliate="prime_meat" class="w-full sm:w-auto text-center bg-ember-600 hover:bg-ember-500 text-white font-bold text-[11px] uppercase tracking-wider px-4 py-2 rounded-lg transition-colors">Shop Meat Box Options →</a>
+    </div>
+  </div>
+
+  <footer class="mt-8 text-center text-[11px] text-smoke-500">
+    <p>Estimates based on empirical trim &amp; shrinkage matrix v2026.1. Actual yields vary by cut, cooker, and pitmaster.</p>
+    <p class="mt-2"><a href="/privacy" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">Privacy Policy</a></p>
+  </footer>
+</div>
+
+<style is:global>
+  /* Custom slider styling for a cohesive pitmaster aesthetic */
+  body.page-brisket input[type='range'] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    border-radius: 9999px;
+    background: linear-gradient(to right, #ea580c var(--fill, 50%), #292524 var(--fill, 50%));
+    outline: none;
+  }
+  body.page-brisket input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #fb923c;
+    border: 3px solid #0c0a09;
+    box-shadow: 0 0 0 1px #ea580c, 0 2px 6px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+  body.page-brisket input[type='range']::-webkit-slider-thumb:active {
+    transform: scale(1.15);
+  }
+  body.page-brisket input[type='range']::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #fb923c;
+    border: 3px solid #0c0a09;
+    box-shadow: 0 0 0 1px #ea580c, 0 2px 6px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+  }
+  .yield-bar-fill {
+    transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .metric-pop {
+    transition: color 0.2s ease;
+  }
+  /* subtle grain */
+  body.page-brisket::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(234, 88, 12, 0.1), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(234, 88, 12, 0.06), transparent 55%);
+    z-index: 0;
+  }
+</style>
+
+<script>
+  import { initYieldCalculator } from './yieldCalculator.controller.js';
+  document.addEventListener('DOMContentLoaded', () => initYieldCalculator());
+</script>
