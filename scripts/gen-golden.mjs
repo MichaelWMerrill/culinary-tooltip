@@ -9,6 +9,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { calcBrisket, calcYield } from '../src/utils/brisketEngine.js';
 import { computeModel, buildPath, FINISH_TEMP } from '../src/utils/stallEngine.js';
 import { ambientMultiplier, estimate } from '../src/utils/fuelEngine.js';
+import { restCurve } from '../src/utils/restEngine.js';
 import { PROTEINS } from '../src/utils/proteinRegistry.js';
 
 mkdirSync('src/utils/__tests__', { recursive: true });
@@ -416,7 +417,58 @@ describe('turkey buildPath — monotonic in time AND temp, ends at 160°F', () =
 `
 );
 
-console.log('Wrote 6 spec files to src/utils/__tests__/');
+/* ---------------- rest & hold (Newtonian cooling) ---------------- */
+const REST_HOLDS = ['oven_hold', 'faux_cambro', 'bare_cooler', 'counter'];
+const restStates = REST_HOLDS.map((hold) => ({ pullTemp: 203, hold, holdHours: 2 }));
+const restGolden = restStates.map((s) => {
+  const r = restCurve(s);
+  return { safeHours: r.safeHours, tempAtServe: r.tempAtServe, safeAtServe: r.safeAtServe };
+});
+
+writeFileSync(
+  'src/utils/__tests__/restEngine.spec.js',
+  `// AUTO-GENERATED golden regression test (scripts/gen-golden.mjs). Do not hand-edit values.
+import { describe, it, expect } from 'vitest';
+import { restCurve, tempAfter, SAFE_TEMP } from '../restEngine.js';
+
+const states = ${J(restStates)};
+const golden = ${J(restGolden)};
+
+describe('restCurve — safe-hold window + temp at serve (203°F pull, 2 h)', () => {
+  states.forEach((s, i) => {
+    it(s.hold, () => {
+      const r = restCurve(s);
+      if (golden[i].safeHours === null) {
+        expect(r.safeHours).toBe(Infinity);
+      } else {
+        expect(r.safeHours).toBeCloseTo(golden[i].safeHours, 6);
+      }
+      expect(r.tempAtServe).toBeCloseTo(golden[i].tempAtServe, 6);
+      expect(r.safeAtServe).toBe(golden[i].safeAtServe);
+    });
+  });
+});
+
+describe('restCurve — physical invariants', () => {
+  it('cools monotonically and starts at the pull temp', () => {
+    const { pts } = restCurve({ pullTemp: 203, hold: 'faux_cambro', holdHours: 4 });
+    expect(pts[0].temp).toBeCloseTo(203, 6);
+    for (let i = 1; i < pts.length; i++) expect(pts[i].temp).toBeLessThanOrEqual(pts[i - 1].temp + 1e-9);
+  });
+  it('a ≥140°F hold (warm oven) never crosses the safety floor', () => {
+    expect(restCurve({ pullTemp: 203, hold: 'oven_hold', holdHours: 12 }).safeHours).toBe(Infinity);
+    expect(tempAfter(203, 'oven_hold', 100)).toBeGreaterThan(SAFE_TEMP);
+  });
+  it('the counter cools fastest (shortest safe window)', () => {
+    const counter = restCurve({ pullTemp: 203, hold: 'counter', holdHours: 1 }).safeHours;
+    const cambro = restCurve({ pullTemp: 203, hold: 'faux_cambro', holdHours: 1 }).safeHours;
+    expect(counter).toBeLessThan(cambro);
+  });
+});
+`
+);
+
+console.log('Wrote 7 spec files to src/utils/__tests__/');
 console.log('brisket combos:', Object.keys(brisketGolden).length);
 console.log('stall states:', stallGolden.length);
 console.log('fuel estimate combos:', Object.keys(estimateGolden).length, '| ambient points:', ambientGolden.length);

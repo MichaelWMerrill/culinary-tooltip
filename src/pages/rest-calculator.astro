@@ -1,0 +1,67 @@
+---
+import Layout from '../layouts/Layout.astro';
+import RestCalculator from '../components/calc/RestCalculator.astro';
+
+const pageUrl = 'https://empiricalbbq.com/rest-calculator';
+const publisher = {
+  '@type': 'Organization',
+  name: 'Empirical BBQ',
+  url: 'https://empiricalbbq.com/',
+  logo: 'https://empiricalbbq.com/android-chrome-512x512.png',
+};
+const faqs = [
+  {
+    q: 'How long can I hold a brisket after it is done?',
+    a: 'In a faux cambro (foil and towels in a pre-warmed cooler), a brisket pulled near 203°F stays above the 140°F food-safe floor for roughly 6 hours. A bare cooler holds around 3 hours, a warm oven or holding cabinet holds indefinitely, and loosely tented on the counter you have closer to an hour. The calculator plots your exact hold.',
+  },
+  {
+    q: 'What temperature is safe to hold cooked meat?',
+    a: 'Keep hot cooked meat at or above 140°F. Below that, you enter the temperature danger zone (40–140°F) where bacteria multiply, and the clock starts on how long the food is safe. This tool shows when your hold crosses 140°F.',
+  },
+  {
+    q: 'How does a faux cambro work?',
+    a: 'Wrapping the meat in foil and towels inside a pre-warmed cooler traps the heat, so it cools very slowly — the model uses Newton’s law of cooling with a low heat-loss constant. It is the closest home approximation to a commercial Cambro holding box.',
+  },
+  {
+    q: 'Does resting a brisket really matter?',
+    a: 'Yes. A rest lets the muscle fibers relax and reabsorb rendered juices, and a long hold above 140°F continues to break down connective tissue. The main constraint is food safety, which is exactly the window this calculator computes.',
+  },
+  {
+    q: 'How does the cooling model work?',
+    a: 'It applies Newton’s law of cooling: the meat’s temperature decays exponentially toward the temperature of its surroundings, at a rate set by how well the hold is insulated. Constants are calibration estimates — always confirm with a probe.',
+  },
+];
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Rest & Hold Calculator',
+    url: pageUrl,
+    applicationCategory: 'UtilityApplication',
+    operatingSystem: 'Any',
+    description:
+      'Model how long rested/held barbecue stays above the 140°F food-safe floor using Newton’s law of cooling, by cut, pull temperature, and hold method.',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout
+  title="Empirical BBQ | Rest & Hold Calculator — How Long Can You Hold a Brisket?"
+  description="Model how long rested or held barbecue stays above the 140°F food-safe floor using Newton's law of cooling, by cut, pull temperature, and hold method (cambro, cooler, or oven)."
+  ogUrl="https://empiricalbbq.com/rest-calculator"
+  schema={schema}
+  bodyClass="page-rest min-h-screen bg-slate-950 text-slate-300 font-display antialiased"
+>
+  <RestCalculator />
+</Layout>

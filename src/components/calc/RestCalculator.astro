@@ -1,0 +1,169 @@
+---
+/*
+ * RestCalculator — rest & hold cooling tool. Standalone (protein is an input,
+ * not a page identity): pick the cut, pull temp, hold vessel, and serve time to
+ * see the Newtonian cooling curve, the safe-hold window, and the serve temp.
+ * Client wiring lives in ./restCalculator.controller.js.
+ */
+import { PROTEINS } from '../../utils/proteinRegistry.js';
+import { HOLD_PROFILES } from '../../utils/restEngine.js';
+
+const proteins = Object.values(PROTEINS);
+const holds = Object.entries(HOLD_PROFILES).map(([value, h]) => ({ value, name: h.name }));
+const initPull = PROTEINS.beef_brisket.thermal.finish_temp;
+const holdLabels = {
+  oven_hold: 'Warm oven',
+  faux_cambro: 'Faux cambro',
+  bare_cooler: 'Bare cooler',
+  counter: 'Counter',
+};
+---
+
+<div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+  <header class="mb-8 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500/15 ring-1 ring-sky-500/40 text-2xl">🧊</div>
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">Rest &amp; Hold Calculator</h1>
+        <p class="text-sm text-slate-400 mt-0.5">How long your cook stays food-safe &mdash; Newtonian cooling in a cambro, cooler, or oven</p>
+      </div>
+    </div>
+    <button id="shareBtn" type="button" class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-slate-800 ring-1 ring-slate-700 hover:ring-sky-500/50 text-slate-300 hover:text-white text-xs font-semibold px-3.5 py-2 transition-all">
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+      <span data-copy-label>Copy share link</span>
+    </button>
+  </header>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- ============ CONTROLS ============ -->
+    <section class="lg:col-span-4 rounded-2xl bg-slate-900 ring-1 ring-slate-800 shadow-xl shadow-black/40 p-5 sm:p-6 space-y-6">
+      <h2 class="text-xs font-semibold uppercase tracking-widest text-sky-400">Hold Parameters</h2>
+
+      <div>
+        <label for="protein" class="block text-sm font-medium text-slate-300 mb-2">Cut</label>
+        <div class="relative">
+          <select id="protein" class="w-full appearance-none rounded-lg bg-slate-800 ring-1 ring-slate-700 text-white text-sm font-medium px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer">
+            {proteins.map((p) => <option value={p.meta.id} selected={p.meta.id === 'beef_brisket'}>{p.meta.name}</option>)}
+          </select>
+          <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+        <p class="text-[11px] text-slate-500 mt-1.5 leading-snug">Sets the default pull temperature; adjust it below if you pulled hotter or cooler.</p>
+      </div>
+
+      <div>
+        <div class="flex items-baseline justify-between mb-2">
+          <label for="pullTemp" class="text-sm font-medium text-slate-300">Pull Temperature</label>
+          <span class="text-sm font-mono"><span id="pullTempVal" class="text-white font-semibold">{initPull}</span><span class="text-slate-400">&deg;F</span></span>
+        </div>
+        <input id="pullTemp" type="range" min="120" max="215" step="1" value={initPull} class="w-full" />
+        <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-mono"><span>120&deg;F</span><span>215&deg;F</span></div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-2">Hold Method</label>
+        <div id="holdToggle" aria-label="Hold method" class="grid grid-cols-2 gap-1 rounded-lg bg-slate-800 ring-1 ring-slate-700 p-1" role="group">
+          {
+            holds.map((h) => (
+              <button data-value={h.value} class="hold-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-pressed={h.value === 'faux_cambro' ? 'true' : 'false'}>
+                {holdLabels[h.value]}
+              </button>
+            ))
+          }
+        </div>
+        <p id="holdDesc" class="text-[11px] text-slate-500 mt-1.5 leading-snug">Faux cambro (foil + towels in a cooler)</p>
+      </div>
+
+      <div>
+        <div class="flex items-baseline justify-between mb-2">
+          <label for="holdHours" class="text-sm font-medium text-slate-300">Rest / Hold Time</label>
+          <span class="text-sm font-mono"><span id="holdHoursVal" class="text-white font-semibold">2.0</span> <span class="text-slate-400">hr</span></span>
+        </div>
+        <input id="holdHours" type="range" min="0" max="12" step="0.25" value="2" class="w-full" />
+        <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-mono"><span>0 hr</span><span>12 hr</span></div>
+      </div>
+    </section>
+
+    <!-- ============ OUTPUT ============ -->
+    <section class="lg:col-span-8 space-y-6">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="rounded-2xl bg-gradient-to-br from-sky-600/25 via-slate-900 to-slate-900 ring-1 ring-sky-500/40 shadow-xl shadow-black/40 p-5 sm:p-6">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-sky-300/90">Safe Holding Window</p>
+          <p class="mt-2 text-4xl sm:text-5xl font-extrabold text-white tabular-nums leading-none" id="safeWindow">—</p>
+          <p class="text-xs text-slate-400 mt-1.5">before it drops below 140&deg;F</p>
+        </div>
+        <div class="rounded-2xl bg-gradient-to-br from-emerald-500/20 via-slate-900 to-slate-900 ring-1 ring-emerald-500/40 shadow-xl shadow-black/40 p-5 sm:p-6">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-emerald-300/90">Temp at Serve Time</p>
+          <p class="mt-2 text-4xl sm:text-5xl font-extrabold text-white tabular-nums leading-none"><span id="serveTemp">—</span><span class="text-2xl text-slate-400">&deg;F</span></p>
+          <p class="text-xs text-slate-400 mt-1.5">at your rest/hold time</p>
+        </div>
+      </div>
+
+      <div id="verdict" class="rounded-xl p-4 ring-1 flex gap-3 items-start">
+        <span id="verdictIcon" class="text-lg leading-none mt-0.5">✅</span>
+        <div>
+          <p id="verdictText" class="text-sm font-bold text-emerald-300">—</p>
+          <p id="verdictSub" class="text-[13px] text-slate-300/90 leading-relaxed">—</p>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-slate-900 ring-1 ring-slate-800 shadow-xl shadow-black/40 p-4 sm:p-5">
+        <h3 class="text-sm font-semibold text-white mb-2 px-1">Cooling Curve</h3>
+        <div class="w-full overflow-x-auto">
+          <svg id="chart" viewBox="0 0 900 440" preserveAspectRatio="xMidYMid meet" class="w-full h-auto" role="img" aria-label="Internal temperature over rest and hold time"></svg>
+        </div>
+      </div>
+
+      <footer class="text-center text-[11px] text-slate-500">
+        <p>Newton's law of cooling with calibration-estimate constants. Real holds vary with mass, wrap, and how pre-warmed the vessel is &mdash; always verify with a probe and keep hot food above 140&deg;F.</p>
+        <p class="mt-2">Read more: <a href="/blog/faux-cambro-holding" class="text-sky-400 hover:text-sky-300 underline decoration-dotted underline-offset-2">The Faux Cambro: How Long You Can Really Hold Barbecue</a></p>
+        <p class="mt-2"><a href="/privacy" class="text-sky-400 hover:text-sky-300 underline decoration-dotted underline-offset-2">Privacy Policy</a></p>
+      </footer>
+    </section>
+  </div>
+</div>
+
+<style is:global>
+  body.page-rest input[type='range'] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    border-radius: 9999px;
+    background: linear-gradient(to right, #0ea5e9 var(--fill, 50%), #1e293b var(--fill, 50%));
+    outline: none;
+  }
+  body.page-rest input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #38bdf8;
+    border: 3px solid #020617;
+    box-shadow: 0 0 0 1px #0ea5e9, 0 2px 8px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+  }
+  body.page-rest input[type='range']::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #38bdf8;
+    border: 3px solid #020617;
+    box-shadow: 0 0 0 1px #0ea5e9, 0 2px 8px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+  }
+  body.page-rest::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(1100px 550px at 85% -10%, rgba(14, 165, 233, 0.12), transparent 60%),
+      radial-gradient(800px 500px at -5% 105%, rgba(56, 189, 248, 0.07), transparent 55%);
+  }
+</style>
+
+<script>
+  import { initRestCalculator } from './restCalculator.controller.js';
+  document.addEventListener('DOMContentLoaded', () => initRestCalculator());
+</script>
