@@ -1,0 +1,72 @@
+---
+import Layout from '../layouts/Layout.astro';
+import YieldCalculator from '../components/calc/YieldCalculator.astro';
+import { PROTEINS } from '../utils/proteinRegistry.js';
+
+const pageUrl = 'https://empiricalbbq.com/pork-shoulder-calculator';
+const publisher = {
+  '@type': 'Organization',
+  name: 'Empirical BBQ',
+  url: 'https://empiricalbbq.com/',
+  logo: 'https://empiricalbbq.com/android-chrome-512x512.png',
+};
+const faqs = [
+  {
+    q: 'How much pulled pork should I make per person?',
+    a: 'Plan about 1/3 lb (0.33 lb) of finished, pulled pork per guest for a main with sides. The serving estimator converts your cooked weight into how many guests it covers so you can size the shoulder to the crowd.',
+  },
+  {
+    q: 'What is the yield of a pork shoulder (Boston butt)?',
+    a: 'A pork shoulder loses weight to light fat-cap trimming and, on a bone-in butt, to the blade bone that never becomes pulled meat — then again to rendering and evaporation during the cook. Finished pulled-pork yield typically lands near 50% for a bone-in butt and up to ~58–62% boneless.',
+  },
+  {
+    q: 'Bone-in or boneless pork shoulder — which yields more?',
+    a: 'Boneless yields more usable pulled pork per raw pound because there is no blade bone to discard and less handling loss, but it costs more per pound. Bone-in is cheaper, more forgiving, and many pitmasters feel it stays a touch juicier; the calculator compares both.',
+  },
+  {
+    q: 'How much does a pork shoulder shrink when smoked?',
+    a: 'Beyond trim, the cook itself removes roughly 34–42% of the trimmed weight as rendered fat and evaporated moisture. Foil (a boat or wrap) loses the least, butcher paper is in the middle, and cooking naked loses the most.',
+  },
+  {
+    q: 'How much raw pork shoulder should I buy?',
+    a: 'Work backward from your headcount: at ~1/3 lb pulled per guest and roughly 50–60% yield, plan on buying close to two-thirds of a raw pound per guest. Enter your guest count in the serving estimator and adjust weight until you are covered.',
+  },
+  {
+    q: 'What is the true cost per pound of pulled pork?',
+    a: 'Divide the raw purchase price by the finished pulled weight, not the raw weight. Because yield is only about 50–60%, the true cost per cooked pound is often 1.7–2× the sticker price per pound — the calculator computes it for your exact cut, wrap, and price.',
+  },
+];
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Pork Shoulder Yield & Cost Calculator',
+    url: pageUrl,
+    applicationCategory: 'UtilityApplication',
+    operatingSystem: 'Any',
+    description:
+      'Model pork shoulder (Boston butt) trim and cook shrinkage to find pulled-pork yield and true cost per cooked pound by weight, bone-in vs boneless, and wrap method.',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout
+  title="Empirical BBQ | Pork Shoulder Yield & Pulled-Pork Cost Calculator"
+  description="Model pork shoulder (Boston butt) trim and cook shrinkage to find pulled-pork yield and true cost per cooked pound by weight, bone-in vs boneless, and wrap method."
+  ogUrl="https://empiricalbbq.com/pork-shoulder-calculator"
+  schema={schema}
+  bodyClass="page-pork-yield min-h-screen bg-smoke-900 text-smoke-300 font-display antialiased"
+>
+  <YieldCalculator protein={PROTEINS.pork_shoulder} />
+</Layout>

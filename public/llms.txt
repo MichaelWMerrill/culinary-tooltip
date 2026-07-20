@@ -2,10 +2,12 @@
 
 > Physics-based barbecue calculators and field notes for precision low-and-slow cooking. Free, client-side tools that model brisket yield, the thermodynamic stall, smoker fuel & cost, and cook scheduling — plus a science-focused blog.
 
-Empirical BBQ (empiricalbbq.com) is a suite of free, ad-supported pitmaster calculators. All calculations run client-side from documented empirical models. Estimates are for planning only — always probe to temperature. Models are currently calibrated for beef brisket; other proteins are on the roadmap.
+Empirical BBQ (empiricalbbq.com) is a suite of free, ad-supported pitmaster calculators. All calculations run client-side from documented empirical models. Estimates are for planning only — always probe to temperature. Models cover beef brisket and pork shoulder; more proteins are on the roadmap.
 
 ## Calculators
 - [Brisket Trim, Shrinkage & Yield Calculator](https://empiricalbbq.com/brisket-calculator): USDA grade, trim style, and wrap method → usable yield, cook loss, and true cost per cooked pound. A typical USDA Choice packer finishes near 50% total yield.
+- [Pork Shoulder Yield & Pulled-Pork Cost Calculator](https://empiricalbbq.com/pork-shoulder-calculator): bone-in vs boneless Boston butt and wrap method → pulled-pork yield (~50% bone-in to ~62% boneless), cook loss, and true cost per cooked pound. Plan ~1/3 lb pulled per guest.
+- [Pork Shoulder Stall Predictor](https://empiricalbbq.com/pork-shoulder-stall): plots the internal-temperature curve and shorter pork stall to a ~202°F pull temperature from pit airflow and humidity, wrap method, weight, and climate.
 - [Thermodynamic Stall Predictor](https://empiricalbbq.com/stall-predictor): plots the internal-temperature curve and predicts stall duration (evaporative cooling, roughly 150–170°F) from pit airflow and humidity, wrap method, meat mass, and regional climate.
 - [Smoker Fuel & Cost Estimator](https://empiricalbbq.com/fuel-estimator): fuel weight, bags, and cost from burn-rate thermodynamics — pit efficiency, ambient temperature, and wind load. Baselines: pellets ~1.2 lb/hr, charcoal ~1.5 lb/hr, hardwood splits ~3.5 lb/hr.
 - [BBQ Cook Scheduler](https://empiricalbbq.com/cook-scheduler): enter when you want to eat → back-calculated smoker fire-up time, wrap window, and rest period, with a downloadable .ics calendar file.

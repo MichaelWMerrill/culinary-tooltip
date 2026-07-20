@@ -13,6 +13,7 @@ import { clampNum, enumParam, getParams, writeParams, wireCopyButton } from '../
 export function initStallPredictor(protein = PROTEINS.beef_brisket) {
   const wAxis = protein.thermal.axes.find((a) => a.id === 'weight');
   const wR = wAxis.range;
+  const finishTemp = protein.thermal.finish_temp;
 
   /* State */
   const state = {
@@ -119,10 +120,10 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
       }
     }
 
-    // finish line (203°F)
-    const yFin = yScale(FINISH_TEMP);
+    // finish line (protein finish temp)
+    const yFin = yScale(finishTemp);
     svg.appendChild(el('line', { x1: ml, y1: yFin, x2: W - mr, y2: yFin, stroke: '#22c55e', 'stroke-width': '1.25', 'stroke-dasharray': '5 4', 'stroke-opacity': '0.65' }));
-    svg.appendChild(el('text', { x: W - mr - 4, y: yFin - 6, 'text-anchor': 'end', 'font-size': '10', fill: '#4ade80', 'font-weight': '600' }, 'Done · 203°F'));
+    svg.appendChild(el('text', { x: W - mr - 4, y: yFin - 6, 'text-anchor': 'end', 'font-size': '10', fill: '#4ade80', 'font-weight': '600' }, 'Done · ' + finishTemp + '°F'));
 
     // wrap target line (only meaningful when a wrap is used)
     if (state.wrap !== 'none') {
@@ -226,12 +227,12 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
 
   /* Render everything */
   function render() {
-    const m = computeModel(state);
+    const m = computeModel(state, protein);
     const pts = buildPath(m);
     renderChart(m, pts);
 
     $('totalTime').textContent = fmtHrs(m.totalTime);
-    $('totalTimeSub').textContent = '≈ ' + m.totalTime.toFixed(1) + ' hrs to 203°F';
+    $('totalTimeSub').textContent = '≈ ' + m.totalTime.toFixed(1) + ' hrs to ' + finishTemp + '°F';
     $('stallTime').textContent = fmtHrs(m.stallDuration);
     $('stallSub').textContent = m.stallDuration < 0.05 ? 'crushed by the crutch' : 'plateau near ' + Math.round(m.stallStart) + '°F';
 

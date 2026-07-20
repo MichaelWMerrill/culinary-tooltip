@@ -1,77 +1,75 @@
 /*
- * YieldCalculator controller — the client logic extracted verbatim from the
- * former inline script in brisket-calculator.astro, with one change: every
- * range clamp and enum whitelist is now derived from the protein registry's
- * `yield.axes` (keyed by axis id) instead of hard-coded literals, so the input
- * UI and the engine cannot drift. Exported as init() and invoked on
- * DOMContentLoaded by the component's <script>.
+ * YieldCalculator controller — protein-generic. All state, wiring, clamps, and
+ * enum whitelists come from the protein's `yield` registry block (axes,
+ * lossKeys, initialState, defaults, copy) so a new protein needs no controller
+ * changes. For beef_brisket the computed numbers are byte-for-byte identical to
+ * the legacy inline script (calcYield reproduces calcBrisket exactly).
  */
 import { PROTEINS } from '../../utils/proteinRegistry.js';
-import { DATA, THRESHOLD_PER_GUEST, TRIM_COPY, WRAP_COPY, calcBrisket } from '../../utils/brisketEngine.js';
+import { calcYield } from '../../utils/brisketEngine.js';
 import { PitmasterAnalytics } from '../../utils/analytics.js';
 import { clampNum, enumParam, getParams, writeParams, wireCopyButton } from '../../utils/shareLink.js';
 
+// Stable share-link param keys per axis id (keeps existing brisket links valid).
+const PARAM = { weight: 'w', price: 'p', grade: 'g', trim: 't', wrap: 'wr', cut: 'c', guests: 'gu' };
+// Canonical cross-tool wrap vocabulary: naked | paper | foil <-> none | paper | foil.
+const WRAP_TO_CANON = { naked: 'none', paper: 'paper', foil: 'foil' };
+const CANON_TO_WRAP = { none: 'naked', paper: 'paper', foil: 'foil' };
+
 export function initYieldCalculator(protein = PROTEINS.beef_brisket) {
-  // Axis descriptors drive the wiring: ids, slider ranges, enum whitelists.
-  const ax = Object.fromEntries(protein.yield.axes.map((a) => [a.id, a]));
+  const y = protein.yield;
+  const axes = y.axes;
+  const ax = Object.fromEntries(axes.map((a) => [a.id, a]));
+  const primaryKey = y.lossKeys.primary; // enum axis that indexes market price
+  const market = y.defaults.market_prices;
+  const copy = y.copy;
+  const threshold = protein.serving.lbPerGuestCooked;
   const wR = ax.weight.range;
-  const pR = ax.price.range;
-  const gradeVals = ax.grade.options.map((o) => o.value);
-  const trimVals = ax.trim.options.map((o) => o.value);
-  const wrapVals = ax.wrap.options.map((o) => o.value);
+  const sliderAxes = axes.filter((a) => a.type === 'slider');
+  const enumAxes = axes.filter((a) => a.type === 'enum');
+  const segAxes = enumAxes.filter((a) => a.control === 'segmented');
+  const selectAxes = enumAxes.filter((a) => a.control === 'select');
+  const priceAxis = axes.find((a) => a.control === 'price-market');
 
-  /* State */
-  const state = {
-    weight: 14,
-    price: 4.29,
-    grade: 'CHOICE',
-    trim: 'commercial',
-    wrap: 'paper',
-    guests: 12,
-    priceTouched: false,
-  };
+  const state = { ...y.initialState, priceTouched: false };
 
-  /* Helpers */
   const $ = (id) => document.getElementById(id);
   const fmt = (n, d = 1) => Number(n).toFixed(d);
   const money = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtSlider = (a, v) => (a.control === 'price-market' ? money(v) : fmt(v));
 
   function setRangeFill(el) {
     const min = parseFloat(el.min),
       max = parseFloat(el.max),
       val = parseFloat(el.value);
-    const pct = ((val - min) / (max - min)) * 100;
-    el.style.setProperty('--fill', pct + '%');
+    el.style.setProperty('--fill', ((val - min) / (max - min)) * 100 + '%');
   }
 
   /* Render */
   function render() {
-    const r = calcBrisket(state);
+    const r = calcYield(protein, state);
 
-    // Hero
     $('trueCost').textContent = money(r.trueCost);
     $('rawCost').textContent = '$' + money(r.rawCost);
     $('markup').textContent = '+' + Math.round(r.markup * 100) + '%';
 
-    // Yield
     const yp = Math.round(r.totalYield * 100);
     $('yieldPct').textContent = yp;
     const bar = $('yieldBar');
     bar.style.width = Math.max(0, Math.min(100, r.totalYield * 100)) + '%';
     bar.parentElement.setAttribute('aria-valuenow', yp);
 
-    // Weight cards
     $('trimmedWt').textContent = fmt(r.trimmedWt);
     $('trimWt').textContent = fmt(r.trimWt);
     $('cookLoss').textContent = fmt(r.cookLoss);
     $('cookedWt').textContent = fmt(r.cookedWt);
 
-    // Descriptions
-    $('trimDesc').innerHTML = TRIM_COPY[state.trim];
-    $('wrapDesc').innerHTML = WRAP_COPY[state.wrap];
+    // Segmented-axis help copy (HTML-entity strings).
+    for (const a of segAxes) {
+      if (a.copy && $(`${a.id}Desc`)) $(`${a.id}Desc`).innerHTML = copy[a.copy][state[a.id]];
+    }
 
-    // Market hint
-    $('marketHint').textContent = '$' + money(DATA.defaults.market_prices[state.grade]);
+    if ($('marketHint')) $('marketHint').textContent = '$' + money(market[state[primaryKey]]);
 
     renderHoldingAdvice(r);
     renderServing(r);
@@ -101,7 +99,7 @@ export function initYieldCalculator(protein = PROTEINS.beef_brisket) {
   }
 
   function renderServing(r) {
-    const needed = state.guests * THRESHOLD_PER_GUEST;
+    const needed = state.guests * threshold;
     $('guestVal').textContent = state.guests;
     $('needed').textContent = fmt(needed);
     $('haveCooked').textContent = fmt(r.cookedWt);
@@ -112,7 +110,6 @@ export function initYieldCalculator(protein = PROTEINS.beef_brisket) {
     const sub = $('verdictSub');
     const diff = r.cookedWt - needed;
 
-    // reset classes
     box.className = 'rounded-xl p-5 text-center ring-1 transition-colors';
 
     if (diff >= 0) {
@@ -120,7 +117,7 @@ export function initYieldCalculator(protein = PROTEINS.beef_brisket) {
       icon.textContent = '✅';
       text.textContent = "You're covered";
       text.className = 'mt-1.5 text-lg font-bold text-emerald-400';
-      const extra = Math.floor(diff / THRESHOLD_PER_GUEST);
+      const extra = Math.floor(diff / threshold);
       sub.textContent = `+${fmt(diff)} lb spare (~${extra} extra plate${extra === 1 ? '' : 's'})`;
       sub.className = 'text-xs mt-0.5 text-emerald-300/70';
     } else {
@@ -128,7 +125,7 @@ export function initYieldCalculator(protein = PROTEINS.beef_brisket) {
       icon.textContent = '⚠️';
       text.textContent = 'Come up short';
       text.className = 'mt-1.5 text-lg font-bold text-ember-400';
-      const shortGuests = Math.ceil(-diff / THRESHOLD_PER_GUEST);
+      const shortGuests = Math.ceil(-diff / threshold);
       sub.textContent = `${fmt(-diff)} lb short (~${shortGuests} guest${shortGuests === 1 ? '' : 's'} without)`;
       sub.className = 'text-xs mt-0.5 text-ember-300/80';
     }
@@ -138,28 +135,26 @@ export function initYieldCalculator(protein = PROTEINS.beef_brisket) {
   const ACTIVE = ['bg-ember-500', 'text-white', 'shadow'];
   const INACTIVE = ['text-smoke-400', 'hover:text-smoke-300'];
 
-  function paintGroup(selector, dataAttr, current) {
-    document.querySelectorAll(selector).forEach((btn) => {
-      const on = btn.dataset[dataAttr] === current;
+  function paintGroup(axisId, current) {
+    document.querySelectorAll(`.${axisId}-opt`).forEach((btn) => {
+      const on = btn.dataset.value === current;
       btn.setAttribute('aria-pressed', on ? 'true' : 'false');
       ACTIVE.forEach((c) => btn.classList.toggle(c, on));
       INACTIVE.forEach((c) => btn.classList.toggle(c, !on));
     });
   }
 
-  /* Persistence — per-page state + shared cross-tool cook profile */
-  const STORE_KEY = 'pitmaster.brisket';
+  /* Persistence — per-protein state + shared cross-tool cook profile */
+  const STORE_KEY = `pitmaster.${protein.meta.slug}`;
   const SHARED_KEY = 'pitmaster.cook';
-  // Shared wrap vocabulary across tools: none | paper | foil
-  const WRAP_TO_CANON = { naked: 'none', paper: 'paper', foil: 'foil' };
-  const CANON_TO_WRAP = { none: 'naked', paper: 'paper', foil: 'foil' };
+  const wrapAxis = ax.wrap;
 
   function persist() {
     try {
       localStorage.setItem(STORE_KEY, JSON.stringify(state));
       const shared = JSON.parse(localStorage.getItem(SHARED_KEY) || '{}');
       shared.weight = state.weight;
-      shared.wrap = WRAP_TO_CANON[state.wrap];
+      if (wrapAxis && WRAP_TO_CANON[state.wrap]) shared.wrap = WRAP_TO_CANON[state.wrap];
       localStorage.setItem(SHARED_KEY, JSON.stringify(shared));
     } catch (e) {
       /* storage unavailable — ignore */
@@ -172,117 +167,113 @@ export function initYieldCalculator(protein = PROTEINS.beef_brisket) {
       Object.assign(state, JSON.parse(localStorage.getItem(STORE_KEY) || '{}'));
       const shared = JSON.parse(localStorage.getItem(SHARED_KEY) || '{}');
       if (typeof shared.weight === 'number') state.weight = Math.min(wR.max, Math.max(wR.min, shared.weight));
-      if (shared.wrap && CANON_TO_WRAP[shared.wrap]) state.wrap = CANON_TO_WRAP[shared.wrap];
+      if (wrapAxis && shared.wrap && CANON_TO_WRAP[shared.wrap]) state.wrap = CANON_TO_WRAP[shared.wrap];
     } catch (e) {
       /* ignore */
     }
   }
 
-  // Shareable-link hydration. Runs after loadState so URL params win over
-  // localStorage. Every value is validated (clamped / whitelisted).
+  // Shareable-link hydration — runs after loadState so URL params win. Every
+  // value is validated (clamped / whitelisted) off the axis descriptors.
   function hydrateFromParams() {
     const p = getParams();
     if (![...p.keys()].length) return;
-    if (p.has('w')) state.weight = clampNum(p.get('w'), wR.min, wR.max, state.weight);
-    if (p.has('p')) {
-      state.price = clampNum(p.get('p'), pR.min, pR.max, state.price);
-      state.priceTouched = true; // an explicit shared price should stick
+    for (const a of sliderAxes) {
+      const key = PARAM[a.id];
+      if (p.has(key)) {
+        state[a.id] = clampNum(p.get(key), a.range.min, a.range.max, state[a.id]);
+        if (a.control === 'price-market') state.priceTouched = true;
+      }
     }
-    if (p.has('g')) state.grade = enumParam(p.get('g'), gradeVals, state.grade);
-    if (p.has('t')) state.trim = enumParam(p.get('t'), trimVals, state.trim);
-    if (p.has('wr')) state.wrap = enumParam(p.get('wr'), wrapVals, state.wrap);
-    if (p.has('gu')) state.guests = Math.round(clampNum(p.get('gu'), 1, 60, state.guests));
+    for (const a of enumAxes) {
+      const key = PARAM[a.id];
+      if (p.has(key)) state[a.id] = enumParam(p.get(key), a.options.map((o) => o.value), state[a.id]);
+    }
+    if (p.has(PARAM.guests)) state.guests = Math.round(clampNum(p.get(PARAM.guests), 1, 60, state.guests));
   }
 
-  // Keep the URL in sync so it's always shareable.
   function updateShareUrl() {
-    writeParams({
-      w: state.weight,
-      p: Number(state.price).toFixed(2),
-      g: state.grade,
-      t: state.trim,
-      wr: state.wrap,
-      gu: state.guests,
-    });
+    const params = { pr: protein.meta.id };
+    for (const a of axes) {
+      params[PARAM[a.id]] = a.control === 'price-market' ? Number(state[a.id]).toFixed(2) : state[a.id];
+    }
+    params[PARAM.guests] = state.guests;
+    writeParams(params);
   }
 
   function syncControls() {
-    const weight = $('weight'),
-      price = $('price'),
-      grade = $('grade'),
-      guests = $('guests');
-    weight.value = state.weight;
-    $('weightVal').textContent = fmt(state.weight);
-    price.value = state.price;
-    $('priceVal').textContent = money(state.price);
-    grade.value = state.grade;
+    for (const a of sliderAxes) {
+      const el = $(a.id);
+      el.value = state[a.id];
+      $(`${a.id}Val`).textContent = fmtSlider(a, state[a.id]);
+      setRangeFill(el);
+    }
+    for (const a of selectAxes) $(a.id).value = state[a.id];
+    for (const a of segAxes) paintGroup(a.id, state[a.id]);
+    const guests = $('guests');
     guests.value = state.guests;
-    paintGroup('.trim-opt', 'trim', state.trim);
-    paintGroup('.wrap-opt', 'wrap', state.wrap);
-    setRangeFill(weight);
-    setRangeFill(price);
     setRangeFill(guests);
+  }
+
+  function applyMarketPrice() {
+    if (!priceAxis) return;
+    const mp = market[state[primaryKey]];
+    state.price = mp;
+    const el = $(priceAxis.id);
+    el.value = mp;
+    $(`${priceAxis.id}Val`).textContent = money(mp);
+    setRangeFill(el);
+    render();
   }
 
   /* Wiring */
   function init() {
-    const weight = $('weight'),
-      price = $('price'),
-      grade = $('grade'),
-      guests = $('guests');
-
-    // Weight slider
-    weight.addEventListener('input', () => {
-      state.weight = parseFloat(weight.value);
-      $('weightVal').textContent = fmt(state.weight);
-      setRangeFill(weight);
-      PitmasterAnalytics.debounceSlider('brisket_weight_drag', weight.value);
-      render();
-    });
-
-    // Price slider
-    price.addEventListener('input', () => {
-      state.price = parseFloat(price.value);
-      state.priceTouched = true;
-      $('priceVal').textContent = money(state.price);
-      setRangeFill(price);
-      render();
-    });
+    // Sliders (weight, price)
+    for (const a of sliderAxes) {
+      const el = $(a.id);
+      el.addEventListener('input', () => {
+        state[a.id] = parseFloat(el.value);
+        $(`${a.id}Val`).textContent = fmtSlider(a, state[a.id]);
+        setRangeFill(el);
+        if (a.control === 'price-market') state.priceTouched = true;
+        if (a.id === 'weight') PitmasterAnalytics.debounceSlider(`${protein.meta.id}_weight_drag`, el.value);
+        render();
+      });
+    }
 
     // "use market avg" button
-    $('useMarket').addEventListener('click', () => {
-      applyMarketPrice();
-      state.priceTouched = false;
-    });
+    if ($('useMarket')) {
+      $('useMarket').addEventListener('click', () => {
+        applyMarketPrice();
+        state.priceTouched = false;
+      });
+    }
 
-    // Grade dropdown
-    grade.addEventListener('change', (e) => {
-      state.grade = grade.value;
-      PitmasterAnalytics.emit('brisket_grade_selected', { grade: e.target.value });
-      // Auto-sync price to grade's market average until user overrides
-      if (!state.priceTouched) applyMarketPrice();
-      render();
-    });
+    // Enum selects (e.g. grade)
+    for (const a of selectAxes) {
+      const el = $(a.id);
+      el.addEventListener('change', () => {
+        state[a.id] = el.value;
+        PitmasterAnalytics.emit(`${protein.meta.id}_${a.id}_selected`, { [a.id]: el.value });
+        if (a.id === primaryKey && !state.priceTouched) applyMarketPrice();
+        render();
+      });
+    }
 
-    // Trim toggle
-    $('trimToggle').addEventListener('click', (e) => {
-      const btn = e.target.closest('.trim-opt');
-      if (!btn) return;
-      state.trim = btn.dataset.trim;
-      paintGroup('.trim-opt', 'trim', state.trim);
-      render();
-    });
+    // Segmented enums (trim / cut / wrap)
+    for (const a of segAxes) {
+      $(`${a.id}Toggle`).addEventListener('click', (e) => {
+        const btn = e.target.closest(`.${a.id}-opt`);
+        if (!btn) return;
+        state[a.id] = btn.dataset.value;
+        paintGroup(a.id, state[a.id]);
+        if (a.id === primaryKey && !state.priceTouched) applyMarketPrice();
+        render();
+      });
+    }
 
-    // Wrap toggle
-    $('wrapToggle').addEventListener('click', (e) => {
-      const btn = e.target.closest('.wrap-opt');
-      if (!btn) return;
-      state.wrap = btn.dataset.wrap;
-      paintGroup('.wrap-opt', 'wrap', state.wrap);
-      render();
-    });
-
-    // Guests slider
+    // Guests slider (serving estimator)
+    const guests = $('guests');
     guests.addEventListener('input', () => {
       state.guests = parseInt(guests.value, 10);
       setRangeFill(guests);
@@ -299,29 +290,18 @@ export function initYieldCalculator(protein = PROTEINS.beef_brisket) {
     });
 
     // Affiliate click telemetry
-    document.querySelectorAll('[data-affiliate]').forEach((a) => {
-      a.addEventListener('click', () => {
-        PitmasterAnalytics.emit('affiliate_click', { destination: a.dataset.affiliate });
+    document.querySelectorAll('[data-affiliate]').forEach((anchor) => {
+      anchor.addEventListener('click', () => {
+        PitmasterAnalytics.emit('affiliate_click', { destination: anchor.dataset.affiliate });
       });
     });
 
-    // Copy-share-link button
     wireCopyButton('shareBtn');
 
-    // Restore persisted state, apply any shared-link params (params win), paint
+    // Restore persisted state, apply any shared-link params (params win), paint.
     loadState();
     hydrateFromParams();
     syncControls();
-    render();
-  }
-
-  function applyMarketPrice() {
-    const mp = DATA.defaults.market_prices[state.grade];
-    state.price = mp;
-    const price = $('price');
-    price.value = mp;
-    $('priceVal').textContent = money(mp);
-    setRangeFill(price);
     render();
   }
 

@@ -1,40 +1,42 @@
 ---
 /*
- * YieldCalculator — the brisket trim/shrinkage/yield tool as a reusable
- * component. Takes a `protein` prop (default beef_brisket); the input panel is
- * rendered from that protein's `yield.axes` (labels, ranges, options, copy all
- * come from the registry), and the client wiring lives in
- * ./yieldCalculator.controller.js. Output panel, serving estimator, and ad/
- * affiliate placements are preserved from the original page verbatim.
+ * YieldCalculator — protein-generic trim/shrinkage/yield tool. Takes a
+ * `protein` prop (default beef_brisket); the entire input panel is rendered
+ * from that protein's `yield.axes` (sliders, a price slider with the market
+ * affordance, enum selects, and segmented enums), and the client wiring lives
+ * in ./yieldCalculator.controller.js keyed off axis ids. The output panel,
+ * serving estimator, and ad/affiliate placements are protein-agnostic.
  */
 import { PROTEINS } from '../../utils/proteinRegistry.js';
+import ProteinSelector from './ProteinSelector.astro';
 
 export interface Props {
   protein?: (typeof PROTEINS)[keyof typeof PROTEINS];
 }
 
 const { protein = PROTEINS.beef_brisket } = Astro.props;
-const ax = Object.fromEntries(protein.yield.axes.map((a) => [a.id, a]));
-const copy = protein.yield.copy;
-const market = protein.yield.defaults.market_prices;
-
-// Initial control values (the component's seed state; the controller re-reads
-// them from localStorage / share params on the client).
-const init = { weight: 14, price: 4.29, grade: 'CHOICE', trim: 'commercial', wrap: 'paper' };
+const y = protein.yield;
+const init = y.initialState;
+const market = y.defaults.market_prices;
+const primaryKey = y.lossKeys.primary;
 const money2 = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const wR = ax.weight.range;
-const pR = ax.price.range;
+const h1 = `${protein.meta.shortName} Yield & Cost Calculator`;
+const threshold = protein.serving.lbPerGuestCooked;
+const lastAxis = y.axes[y.axes.length - 1].id;
+const segCols = (c) => (c === 2 ? 'grid-cols-2' : 'grid-cols-3');
+const segPad = (c) => (c === 2 ? 'px-3' : 'px-2');
 ---
 
-<div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+<div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" data-yield-protein={protein.meta.id}>
+  <ProteinSelector tool="yield" current={protein.meta.id} />
   <!-- Header -->
   <header class="mb-8 sm:mb-10 flex flex-wrap items-center justify-between gap-4">
     <div class="flex items-center gap-3">
       <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-ember-500/15 ring-1 ring-ember-500/40 text-2xl">🔥</div>
       <div>
         <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-          Brisket Yield &amp; Cost Calculator
+          {h1}
         </h1>
         <p class="text-sm text-smoke-400 mt-0.5">
           Trim &middot; Shrinkage &middot; True Cost per Cooked Pound
@@ -52,66 +54,65 @@ const pR = ax.price.range;
     <section class="lg:col-span-5 rounded-2xl bg-smoke-850 ring-1 ring-smoke-700/70 shadow-xl shadow-black/40 p-5 sm:p-6">
       <h2 class="text-xs font-semibold uppercase tracking-widest text-ember-400 mb-5">The Cut</h2>
 
-      <!-- Raw Weight -->
-      <div class="mb-6">
-        <div class="flex items-baseline justify-between mb-2">
-          <label for="weight" class="text-sm font-medium text-smoke-300">{ax.weight.label}</label>
-          <span class="text-sm font-mono"><span id="weightVal" class="text-white font-semibold">{init.weight.toFixed(1)}</span> <span class="text-smoke-400">{wR.unit}</span></span>
-        </div>
-        <input id="weight" type="range" min={wR.min} max={wR.max} step={wR.step} value={init.weight} class="w-full" />
-        <div class="flex justify-between text-[10px] text-smoke-500 mt-1 font-mono">
-          <span>{wR.min} {wR.unit}</span><span>{wR.max} {wR.unit}</span>
-        </div>
-      </div>
+      {
+        y.axes.map((axis) => (
+          <div class={axis.id === lastAxis ? '' : 'mb-6'}>
+            {axis.type === 'slider' && axis.control !== 'price-market' && (
+              <Fragment>
+                <div class="flex items-baseline justify-between mb-2">
+                  <label for={axis.id} class="text-sm font-medium text-smoke-300">{axis.label}</label>
+                  <span class="text-sm font-mono"><span id={`${axis.id}Val`} class="text-white font-semibold">{Number(init[axis.id]).toFixed(1)}</span> <span class="text-smoke-400">{axis.range.unit}</span></span>
+                </div>
+                <input id={axis.id} type="range" min={axis.range.min} max={axis.range.max} step={axis.range.step} value={init[axis.id]} class="w-full" />
+                <div class="flex justify-between text-[10px] text-smoke-500 mt-1 font-mono">
+                  <span>{axis.range.min} {axis.range.unit}</span><span>{axis.range.max} {axis.range.unit}</span>
+                </div>
+              </Fragment>
+            )}
 
-      <!-- Price Per Pound -->
-      <div class="mb-6">
-        <div class="flex items-baseline justify-between mb-2">
-          <label for="price" class="text-sm font-medium text-smoke-300">{ax.price.label}</label>
-          <span class="text-sm font-mono">$<span id="priceVal" class="text-white font-semibold">{money2(init.price)}</span></span>
-        </div>
-        <input id="price" type="range" min={pR.min} max={pR.max} step={pR.step} value={init.price} class="w-full" />
-        <div class="flex justify-between items-center text-[10px] mt-1 font-mono">
-          <span class="text-smoke-500">${money2(pR.min)}</span>
-          <button id="useMarket" type="button" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">
-            use market avg (<span id="marketHint">${money2(market[init.grade])}</span>)
-          </button>
-          <span class="text-smoke-500">${money2(pR.max)}</span>
-        </div>
-      </div>
+            {axis.control === 'price-market' && (
+              <Fragment>
+                <div class="flex items-baseline justify-between mb-2">
+                  <label for={axis.id} class="text-sm font-medium text-smoke-300">{axis.label}</label>
+                  <span class="text-sm font-mono">$<span id={`${axis.id}Val`} class="text-white font-semibold">{money2(init[axis.id])}</span></span>
+                </div>
+                <input id={axis.id} type="range" min={axis.range.min} max={axis.range.max} step={axis.range.step} value={init[axis.id]} class="w-full" />
+                <div class="flex justify-between items-center text-[10px] mt-1 font-mono">
+                  <span class="text-smoke-500">${money2(axis.range.min)}</span>
+                  <button id="useMarket" type="button" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">
+                    use market avg (<span id="marketHint">${money2(market[init[primaryKey]])}</span>)
+                  </button>
+                  <span class="text-smoke-500">${money2(axis.range.max)}</span>
+                </div>
+              </Fragment>
+            )}
 
-      <!-- USDA Grade -->
-      <div class="mb-6">
-        <label for="grade" class="block text-sm font-medium text-smoke-300 mb-2">{ax.grade.label}</label>
-        <div class="relative">
-          <select id="grade" class="w-full appearance-none rounded-lg bg-smoke-800 ring-1 ring-smoke-600 text-white text-sm font-medium px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-ember-500 cursor-pointer">
-            {ax.grade.options.map((o) => <option value={o.value} selected={o.value === init.grade}>{o.label}</option>)}
-          </select>
-          <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-smoke-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-      </div>
+            {axis.type === 'enum' && axis.control === 'select' && (
+              <Fragment>
+                <label for={axis.id} class="block text-sm font-medium text-smoke-300 mb-2">{axis.label}</label>
+                <div class="relative">
+                  <select id={axis.id} class="w-full appearance-none rounded-lg bg-smoke-800 ring-1 ring-smoke-600 text-white text-sm font-medium px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-ember-500 cursor-pointer">
+                    {axis.options.map((o) => <option value={o.value} selected={o.value === init[axis.id]}>{o.label}</option>)}
+                  </select>
+                  <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-smoke-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </div>
+              </Fragment>
+            )}
 
-      <!-- Trim Style Toggle -->
-      <div class="mb-6">
-        <label class="block text-sm font-medium text-smoke-300 mb-2">{ax.trim.label}</label>
-        <div id="trimToggle" aria-label={ax.trim.label} class="grid grid-cols-2 gap-1 rounded-lg bg-smoke-800 ring-1 ring-smoke-600 p-1" role="group">
-          {ax.trim.options.map((o) => (
-            <button data-trim={o.value} class="trim-opt rounded-md px-3 py-2 text-sm font-medium transition-colors" aria-pressed={o.value === init.trim ? 'true' : 'false'}>{o.label}</button>
-          ))}
-        </div>
-        <p class="text-[11px] text-smoke-500 mt-1.5" id="trimDesc" set:html={copy.trim[init.trim]} />
-      </div>
-
-      <!-- Cook Wrap Method -->
-      <div>
-        <label class="block text-sm font-medium text-smoke-300 mb-2">{ax.wrap.label}</label>
-        <div id="wrapToggle" aria-label={ax.wrap.label} class="grid grid-cols-3 gap-1 rounded-lg bg-smoke-800 ring-1 ring-smoke-600 p-1" role="group">
-          {ax.wrap.options.map((o) => (
-            <button data-wrap={o.value} class="wrap-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed={o.value === init.wrap ? 'true' : 'false'}>{o.label}</button>
-          ))}
-        </div>
-        <p class="text-[11px] text-smoke-500 mt-1.5" id="wrapDesc" set:html={copy.wrap[init.wrap]} />
-      </div>
+            {axis.type === 'enum' && axis.control === 'segmented' && (
+              <Fragment>
+                <label class="block text-sm font-medium text-smoke-300 mb-2">{axis.label}</label>
+                <div id={`${axis.id}Toggle`} aria-label={axis.label} class={`grid ${segCols(axis.cols)} gap-1 rounded-lg bg-smoke-800 ring-1 ring-smoke-600 p-1`} role="group">
+                  {axis.options.map((o) => (
+                    <button data-value={o.value} data-axis={axis.id} class={`${axis.id}-opt rounded-md ${segPad(axis.cols)} py-2 text-sm font-medium transition-colors`} aria-pressed={o.value === init[axis.id] ? 'true' : 'false'}>{o.label}</button>
+                  ))}
+                </div>
+                {axis.copy && <p class="text-[11px] text-smoke-500 mt-1.5" id={`${axis.id}Desc`} set:html={y.copy[axis.copy][init[axis.id]]} />}
+              </Fragment>
+            )}
+          </div>
+        ))
+      }
     </section>
 
     <!-- ============ OUTPUT PANEL ============ -->
@@ -191,7 +192,7 @@ const pR = ax.price.range;
       <span class="flex items-center gap-2.5">
         <span class="text-xl">🍽️</span>
         <span class="text-sm font-semibold text-white">Serving Estimator</span>
-        <span class="text-[11px] text-smoke-500 hidden sm:inline">&mdash; 0.5 lb per guest threshold</span>
+        <span class="text-[11px] text-smoke-500 hidden sm:inline">&mdash; {threshold} lb per guest threshold</span>
       </span>
       <svg id="servingChevron" class="h-5 w-5 text-smoke-400 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
     </button>
@@ -201,9 +202,9 @@ const pR = ax.price.range;
         <div>
           <div class="flex items-baseline justify-between mb-2">
             <label for="guests" class="text-sm font-medium text-smoke-300">Guest Count</label>
-            <span class="text-sm font-mono"><span id="guestVal" class="text-white font-semibold">12</span> <span class="text-smoke-400">guests</span></span>
+            <span class="text-sm font-mono"><span id="guestVal" class="text-white font-semibold">{init.guests}</span> <span class="text-smoke-400">guests</span></span>
           </div>
-          <input id="guests" type="range" min="1" max="60" step="1" value="12" class="w-full" />
+          <input id="guests" type="range" min="1" max="60" step="1" value={init.guests} class="w-full" />
           <div class="flex justify-between text-[10px] text-smoke-500 mt-1 font-mono">
             <span>1</span><span>60</span>
           </div>
@@ -222,17 +223,20 @@ const pR = ax.price.range;
     </div>
   </section>
 
-  <!-- Cross-link to the reverse (sizing) calculator -->
-  <a href="/brisket-size-calculator" class="group mt-6 flex items-center justify-between gap-4 rounded-2xl bg-smoke-850 ring-1 ring-smoke-700/70 hover:ring-ember-500/50 shadow-xl shadow-black/40 p-5 transition-all">
-    <div class="flex items-center gap-3">
-      <span class="text-2xl">🧮</span>
-      <div>
-        <p class="text-sm font-semibold text-white group-hover:text-ember-300">Planning around a headcount instead?</p>
-        <p class="text-[11px] text-smoke-400 mt-0.5">Enter your guest count and get the raw packer weight to buy &amp; the budget — how much brisket per person.</p>
-      </div>
-    </div>
-    <svg class="h-5 w-5 shrink-0 text-ember-400 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-  </a>
+  {
+    protein.meta.id === 'beef_brisket' && (
+      <a href="/brisket-size-calculator" class="group mt-6 flex items-center justify-between gap-4 rounded-2xl bg-smoke-850 ring-1 ring-smoke-700/70 hover:ring-ember-500/50 shadow-xl shadow-black/40 p-5 transition-all">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">🧮</span>
+          <div>
+            <p class="text-sm font-semibold text-white group-hover:text-ember-300">Planning around a headcount instead?</p>
+            <p class="text-[11px] text-smoke-400 mt-0.5">Enter your guest count and get the raw packer weight to buy &amp; the budget — how much brisket per person.</p>
+          </div>
+        </div>
+        <svg class="h-5 w-5 shrink-0 text-ember-400 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+      </a>
+    )
+  }
 
   <div class="mt-6 rounded-xl bg-smoke-900 border border-ember-500/20 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
     <div class="flex items-center gap-3">
@@ -249,14 +253,15 @@ const pR = ax.price.range;
   </div>
 
   <footer class="mt-8 text-center text-[11px] text-smoke-500">
-    <p>Estimates based on empirical trim &amp; shrinkage matrix v2026.1. Actual yields vary by cut, cooker, and pitmaster.</p>
+    <p>Estimates based on empirical trim &amp; shrinkage matrix v{protein.meta.version}. Actual yields vary by cut, cooker, and pitmaster.</p>
     <p class="mt-2"><a href="/privacy" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">Privacy Policy</a></p>
   </footer>
 </div>
 
 <style is:global>
   /* Custom slider styling for a cohesive pitmaster aesthetic */
-  body.page-brisket input[type='range'] {
+  body.page-brisket input[type='range'],
+  body.page-pork-yield input[type='range'] {
     -webkit-appearance: none;
     appearance: none;
     height: 8px;
@@ -264,7 +269,8 @@ const pR = ax.price.range;
     background: linear-gradient(to right, #ea580c var(--fill, 50%), #292524 var(--fill, 50%));
     outline: none;
   }
-  body.page-brisket input[type='range']::-webkit-slider-thumb {
+  body.page-brisket input[type='range']::-webkit-slider-thumb,
+  body.page-pork-yield input[type='range']::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 22px;
@@ -276,10 +282,12 @@ const pR = ax.price.range;
     cursor: pointer;
     transition: transform 0.1s ease;
   }
-  body.page-brisket input[type='range']::-webkit-slider-thumb:active {
+  body.page-brisket input[type='range']::-webkit-slider-thumb:active,
+  body.page-pork-yield input[type='range']::-webkit-slider-thumb:active {
     transform: scale(1.15);
   }
-  body.page-brisket input[type='range']::-moz-range-thumb {
+  body.page-brisket input[type='range']::-moz-range-thumb,
+  body.page-pork-yield input[type='range']::-moz-range-thumb {
     width: 22px;
     height: 22px;
     border-radius: 9999px;
@@ -295,7 +303,8 @@ const pR = ax.price.range;
     transition: color 0.2s ease;
   }
   /* subtle grain */
-  body.page-brisket::before {
+  body.page-brisket::before,
+  body.page-pork-yield::before {
     content: '';
     position: fixed;
     inset: 0;
@@ -309,5 +318,9 @@ const pR = ax.price.range;
 
 <script>
   import { initYieldCalculator } from './yieldCalculator.controller.js';
-  document.addEventListener('DOMContentLoaded', () => initYieldCalculator());
+  import { PROTEINS } from '../../utils/proteinRegistry.js';
+  document.addEventListener('DOMContentLoaded', () => {
+    const id = document.querySelector('[data-yield-protein]')?.dataset.yieldProtein || 'beef_brisket';
+    initYieldCalculator(PROTEINS[id] || PROTEINS.beef_brisket);
+  });
 </script>

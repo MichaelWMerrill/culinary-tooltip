@@ -1,0 +1,49 @@
+---
+/*
+ * ProteinSelector — tab row above a calculator. Each tab is a real link to the
+ * sibling protein's canonical page (not client-side state), so every
+ * protein × tool combination stays independently indexable and share links stay
+ * unambiguous. Rendered inside a calculator component's max-width container.
+ */
+import { PROTEINS } from '../../utils/proteinRegistry.js';
+
+export interface Props {
+  tool: 'yield' | 'stall' | 'scheduler';
+  current: string; // protein id (the active tab, unless `interactive`)
+  // When true, every tab is a real link and none is pre-marked active — the host
+  // controller sets the active tab client-side (used by the single-URL scheduler,
+  // whose protein is chosen by a ?pr= query param).
+  interactive?: boolean;
+}
+
+const { tool, current, interactive = false } = Astro.props;
+
+// Canonical URL for each (tool, protein). Existing brisket routes are unchanged;
+// pork gets additive routes. The scheduler is a single route with a ?pr= param.
+const URLS = {
+  yield: { beef_brisket: '/brisket-calculator', pork_shoulder: '/pork-shoulder-calculator' },
+  stall: { beef_brisket: '/stall-predictor', pork_shoulder: '/pork-shoulder-stall' },
+  scheduler: { beef_brisket: '/cook-scheduler?pr=beef_brisket', pork_shoulder: '/cook-scheduler?pr=pork_shoulder' },
+};
+
+const proteins = Object.values(PROTEINS).filter((p) => URLS[tool][p.meta.id]);
+---
+
+<div class="mb-6 flex items-center gap-2 overflow-x-auto" role="tablist" aria-label="Choose protein">
+  <span class="text-[11px] font-semibold uppercase tracking-widest text-white/40 mr-1 shrink-0">Protein</span>
+  <div class="inline-flex rounded-xl bg-black/25 ring-1 ring-white/10 p-1 gap-1">
+    {
+      proteins.map((p) =>
+        p.meta.id === current && !interactive ? (
+          <span data-protein-tab={p.meta.id} class="protein-tab px-4 py-2 rounded-lg text-sm font-semibold bg-flame-500 text-white shadow whitespace-nowrap" role="tab" aria-selected="true" aria-current="page">
+            {p.meta.name}
+          </span>
+        ) : (
+          <a data-protein-tab={p.meta.id} href={URLS[tool][p.meta.id]} class="protein-tab px-4 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors whitespace-nowrap" role="tab" aria-selected="false">
+            {p.meta.name}
+          </a>
+        )
+      )
+    }
+  </div>
+</div>

@@ -6,8 +6,8 @@
  */
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 
-export async function mountComponent(Component) {
+export async function mountComponent(Component, props = {}) {
   const container = await AstroContainer.create();
-  const html = await container.renderToString(Component);
+  const html = await container.renderToString(Component, { props });
   document.body.innerHTML = html.replace(/<script[\s\S]*?<\/script>/gi, '');
 }
