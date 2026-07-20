@@ -12,7 +12,13 @@ import { clampNum, enumParam, getParams, writeParams, wireCopyButton } from '../
 
 // Appetite multipliers applied to the protein's standard cooked-lb-per-guest.
 const APPETITE = { light: 0.7, standard: 1.0, hearty: 1.35 };
-const PRICE_RANGE = { min: 0.75, max: 12 };
+// Price slider bounds are per-protein — the same $/lb range each protein uses in
+// the yield calculator (brisket 1.5–9, pork 1–6, turkey 0.75–4) — so the Party
+// Planner can't offer a price the yield tool wouldn't.
+const priceRangeFor = (pid) => {
+  const a = PROTEINS[pid].yield.axes.find((x) => x.id === 'price');
+  return a ? a.range : { min: 0.75, max: 12, step: 0.05 };
+};
 // Share-link keys per enum axis (distinct from the price key 'p').
 const AXIS_PARAM = { grade: 'g', trim: 't', wrap: 'wr', cut: 'c', preparation: 'pp', brined: 'br' };
 
@@ -116,7 +122,8 @@ export function initPartyPlanner() {
     if (q.has('gu')) state.guests = Math.round(clampNum(q.get('gu'), 1, 100, state.guests));
     if (q.has('ap')) state.appetite = enumParam(q.get('ap'), Object.keys(APPETITE), state.appetite);
     if (q.has('p')) {
-      state.price = clampNum(q.get('p'), PRICE_RANGE.min, PRICE_RANGE.max, state.price);
+      const pr = priceRangeFor(state.protein);
+      state.price = clampNum(q.get('p'), pr.min, pr.max, state.price);
       state.priceTouched = true;
     }
     for (const a of enumAxes()) {
@@ -141,6 +148,14 @@ export function initPartyPlanner() {
     $('protein').value = state.protein;
     const price = $('price'),
       guests = $('guests');
+    // Re-range the price slider to the active protein and clamp the value in.
+    const pr = priceRangeFor(state.protein);
+    price.min = pr.min;
+    price.max = pr.max;
+    price.step = pr.step;
+    state.price = Math.min(pr.max, Math.max(pr.min, state.price));
+    if ($('priceMin')) $('priceMin').textContent = '$' + money(pr.min);
+    if ($('priceMax')) $('priceMax').textContent = '$' + money(pr.max);
     price.value = state.price;
     $('priceVal').textContent = money(state.price);
     guests.value = state.guests;

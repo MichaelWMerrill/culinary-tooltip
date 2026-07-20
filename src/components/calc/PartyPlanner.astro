@@ -20,6 +20,10 @@ const unionEnumAxes = Object.values(axisById);
 const brisket = PROTEINS.beef_brisket;
 const defaultVisible = new Set(brisket.yield.axes.filter((a) => a.type === 'enum').map((a) => a.id));
 const initPrice = brisket.yield.defaults.market_prices[brisket.yield.initialState[brisket.yield.lossKeys.primary]];
+// Price slider range is per-protein (from each protein's yield price axis), so
+// the same $/lb bounds apply here as in the yield calculator. Seed with brisket;
+// the controller re-ranges it on protein change.
+const initPriceAxis = brisket.yield.axes.find((a) => a.id === 'price').range;
 const segCols = (c) => (c === 2 ? 'grid-cols-2' : 'grid-cols-3');
 const segPad = (c) => (c === 2 ? 'px-3' : 'px-2');
 const appetites = [
@@ -87,11 +91,11 @@ const appetites = [
           <label for="price" class="text-sm font-medium text-smoke-300">Price Per Pound (raw)</label>
           <span class="text-sm font-mono">$<span id="priceVal" class="text-white font-semibold">{money2(initPrice)}</span></span>
         </div>
-        <input id="price" type="range" min="0.75" max="12" step="0.05" value={initPrice} class="w-full" />
+        <input id="price" type="range" min={initPriceAxis.min} max={initPriceAxis.max} step={initPriceAxis.step} value={initPrice} class="w-full" />
         <div class="flex justify-between items-center text-[10px] mt-1 font-mono">
-          <span class="text-smoke-500">$0.75</span>
+          <span id="priceMin" class="text-smoke-500">${money2(initPriceAxis.min)}</span>
           <button id="useMarket" type="button" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">use market avg (<span id="marketHint">${money2(initPrice)}</span>)</button>
-          <span class="text-smoke-500">$12.00</span>
+          <span id="priceMax" class="text-smoke-500">${money2(initPriceAxis.max)}</span>
         </div>
       </div>
 
