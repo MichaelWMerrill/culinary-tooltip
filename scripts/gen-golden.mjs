@@ -267,7 +267,156 @@ describe('pork_shoulder buildPath — time monotonic, ends at pork finish temp',
 `
 );
 
-console.log('Wrote 4 spec files to src/utils/__tests__/');
+/* ---------------- ribs (slab geometry, near-zero stall) ---------------- */
+const ribs = PROTEINS.pork_ribs;
+const ribsStallStates = [
+  { cut: 'spare', racks: 3, pitTemp: '250', pit: 'offset_smoker', wrap: 'peach_butcher_paper', wrapTemp: 160, climate: 'moderate' },
+  { cut: 'baby_back', racks: 2, pitTemp: '225', pit: 'pellet_cooker', wrap: 'none', wrapTemp: 160, climate: 'arid' },
+  { cut: 'st_louis', racks: 4, pitTemp: '275', pit: 'ceramic_kamado', wrap: 'aluminum_foil', wrapTemp: 165, climate: 'humid' },
+];
+const ribsStallGolden = ribsStallStates.map((s) => {
+  const m = computeModel(s, ribs);
+  return { t1: m.t1, stallDuration: m.stallDuration, t3: m.t3, totalTime: m.totalTime, finishTemp: m.finishTemp };
+});
+
+writeFileSync(
+  'src/utils/__tests__/ribsEngine.spec.js',
+  `// AUTO-GENERATED golden regression test (scripts/gen-golden.mjs). Do not hand-edit values.
+import { describe, it, expect } from 'vitest';
+import { computeModel, buildPath } from '../stallEngine.js';
+import { PROTEINS } from '../proteinRegistry.js';
+
+const ribs = PROTEINS.pork_ribs;
+const stallStates = ${J(ribsStallStates)};
+const stallGolden = ${J(ribsStallGolden)};
+
+describe('pork_ribs slab geometry — phase durations to 6 decimals', () => {
+  stallStates.forEach((s, i) => {
+    it(\`state \${i}: \${s.cut} / \${s.wrap}\`, () => {
+      const m = computeModel(s, ribs);
+      expect(m.t1).toBeCloseTo(stallGolden[i].t1, 6);
+      expect(m.stallDuration).toBeCloseTo(stallGolden[i].stallDuration, 6);
+      expect(m.t3).toBeCloseTo(stallGolden[i].t3, 6);
+      expect(m.totalTime).toBeCloseTo(stallGolden[i].totalTime, 6);
+    });
+  });
+});
+
+describe('pork_ribs slab geometry — rack count does NOT change cook time', () => {
+  it('same cut/pit, 2 racks vs 8 racks → identical total time', () => {
+    const base = { cut: 'spare', pitTemp: '250', pit: 'offset_smoker', wrap: 'none', wrapTemp: 160, climate: 'moderate' };
+    const t2 = computeModel({ ...base, racks: 2 }, ribs).totalTime;
+    const t8 = computeModel({ ...base, racks: 8 }, ribs).totalTime;
+    expect(t8).toBeCloseTo(t2, 10);
+  });
+  it('thinner cuts cook faster: baby_back < st_louis < spare', () => {
+    const base = { pitTemp: '250', pit: 'offset_smoker', wrap: 'none', wrapTemp: 160, climate: 'moderate', racks: 3 };
+    const bb = computeModel({ ...base, cut: 'baby_back' }, ribs).totalTime;
+    const sl = computeModel({ ...base, cut: 'st_louis' }, ribs).totalTime;
+    const sp = computeModel({ ...base, cut: 'spare' }, ribs).totalTime;
+    expect(bb).toBeLessThan(sl);
+    expect(sl).toBeLessThan(sp);
+  });
+});
+
+describe('pork_ribs buildPath — monotonic, ends at finish temp', () => {
+  stallStates.forEach((s, i) => {
+    it(\`state \${i} path\`, () => {
+      const pts = buildPath(computeModel(s, ribs));
+      expect(pts.length).toBeGreaterThan(0);
+      for (let k = 1; k < pts.length; k++) expect(pts[k].t).toBeGreaterThanOrEqual(pts[k - 1].t);
+      expect(pts[pts.length - 1].temp).toBeCloseTo(stallGolden[i].finishTemp, 6);
+    });
+  });
+});
+`
+);
+
+/* ---------------- turkey (no-stall yield + monotonic climb) ---------------- */
+const turkey = PROTEINS.turkey;
+const TURKEY_PREPS = ['whole', 'spatchcock'];
+const TURKEY_BRINE = ['no', 'yes'];
+const turkeyYieldGolden = {};
+for (const preparation of TURKEY_PREPS)
+  for (const brined of TURKEY_BRINE)
+    turkeyYieldGolden[`${preparation}|${brined}`] = calcYield(turkey, { weight: 14, price: 1.49, preparation, brined });
+
+const turkeyStallStates = [
+  { preparation: 'whole', weight: 14, pitTemp: '275', pit: 'offset_smoker', wrap: 'none', wrapTemp: 160, climate: 'moderate' },
+  { preparation: 'spatchcock', weight: 12, pitTemp: '250', pit: 'pellet_cooker', wrap: 'none', wrapTemp: 160, climate: 'moderate' },
+  { preparation: 'whole', weight: 20, pitTemp: '225', pit: 'ceramic_kamado', wrap: 'none', wrapTemp: 160, climate: 'humid' },
+];
+const turkeyStallGolden = turkeyStallStates.map((s) => {
+  const m = computeModel(s, turkey);
+  return { t1: m.t1, stallDuration: m.stallDuration, t3: m.t3, totalTime: m.totalTime, noStall: m.noStall, finishTemp: m.finishTemp };
+});
+
+writeFileSync(
+  'src/utils/__tests__/turkeyEngine.spec.js',
+  `// AUTO-GENERATED golden regression test (scripts/gen-golden.mjs). Do not hand-edit values.
+import { describe, it, expect } from 'vitest';
+import { calcYield } from '../brisketEngine.js';
+import { computeModel, buildPath } from '../stallEngine.js';
+import { PROTEINS } from '../proteinRegistry.js';
+
+const turkey = PROTEINS.turkey;
+const PREPS = ${J(TURKEY_PREPS)};
+const BRINE = ${J(TURKEY_BRINE)};
+const yieldGolden = ${J(turkeyYieldGolden)};
+
+describe('turkey yield — preparation × brined at 14 lb / $1.49', () => {
+  for (const preparation of PREPS)
+    for (const brined of BRINE) {
+      const key = \`\${preparation}|\${brined}\`;
+      it(key, () => {
+        expect(calcYield(turkey, { weight: 14, price: 1.49, preparation, brined })).toEqual(yieldGolden[key]);
+      });
+    }
+  it('brined retains more weight than unbrined (higher cooked yield)', () => {
+    const dry = calcYield(turkey, { weight: 14, price: 1.49, preparation: 'whole', brined: 'no' });
+    const wet = calcYield(turkey, { weight: 14, price: 1.49, preparation: 'whole', brined: 'yes' });
+    expect(wet.cookedWt).toBeGreaterThan(dry.cookedWt);
+  });
+});
+
+const stallStates = ${J(turkeyStallStates)};
+const stallGolden = ${J(turkeyStallGolden)};
+
+describe('turkey no-stall path — monotonic climb, no plateau', () => {
+  stallStates.forEach((s, i) => {
+    it(\`state \${i}: \${s.preparation} / \${s.weight}lb / \${s.pitTemp}\`, () => {
+      const m = computeModel(s, turkey);
+      expect(m.noStall).toBe(true);
+      expect(m.stallDuration).toBe(0);
+      expect(m.t1).toBeCloseTo(stallGolden[i].t1, 6);
+      expect(m.totalTime).toBeCloseTo(stallGolden[i].totalTime, 6);
+    });
+  });
+  it('spatchcock cooks faster than a whole bird of the same weight', () => {
+    const base = { weight: 14, pitTemp: '275', pit: 'offset_smoker', wrap: 'none', wrapTemp: 160, climate: 'moderate' };
+    const whole = computeModel({ ...base, preparation: 'whole' }, turkey).totalTime;
+    const spatch = computeModel({ ...base, preparation: 'spatchcock' }, turkey).totalTime;
+    expect(spatch).toBeLessThan(whole);
+  });
+});
+
+describe('turkey buildPath — monotonic in time AND temp, ends at 160°F', () => {
+  stallStates.forEach((s, i) => {
+    it(\`state \${i} path\`, () => {
+      const pts = buildPath(computeModel(s, turkey));
+      expect(pts.length).toBeGreaterThan(0);
+      for (let k = 1; k < pts.length; k++) {
+        expect(pts[k].t).toBeGreaterThanOrEqual(pts[k - 1].t);
+        expect(pts[k].temp).toBeGreaterThanOrEqual(pts[k - 1].temp - 1e-9);
+      }
+      expect(pts[pts.length - 1].temp).toBeCloseTo(stallGolden[i].finishTemp, 6);
+    });
+  });
+});
+`
+);
+
+console.log('Wrote 6 spec files to src/utils/__tests__/');
 console.log('brisket combos:', Object.keys(brisketGolden).length);
 console.log('stall states:', stallGolden.length);
 console.log('fuel estimate combos:', Object.keys(estimateGolden).length, '| ambient points:', ambientGolden.length);

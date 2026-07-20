@@ -14,9 +14,20 @@ export interface Props {
 }
 
 const { protein = PROTEINS.beef_brisket } = Astro.props;
-const wAxis = protein.thermal.axes.find((a) => a.id === 'weight');
-const wR = wAxis.range;
-const initWeight = 12;
+
+// The scheduler is one page; the protein is chosen client-side via ?pr=. So we
+// render the union of every scheduler protein's thermal controls and the
+// controller shows the active set. Weight is the default (brisket/pork);
+// ribs' cut+racks are present but hidden until selected.
+const schedulerIds = ['beef_brisket', 'pork_shoulder', 'pork_ribs'];
+const axisById = {};
+for (const id of schedulerIds) for (const a of PROTEINS[id].thermal.axes) if (!axisById[a.id]) axisById[a.id] = a;
+const unionAxes = Object.values(axisById);
+const tInit = { weight: 12, cut: 'spare', racks: 3 };
+const tCopy = { ...(PROTEINS.pork_ribs.thermal.copy || {}) };
+const segCols = (c) => (c === 2 ? 'grid-cols-2' : 'grid-cols-3');
+// Axis ids that ship visible by default (weight); others start hidden.
+const defaultVisible = new Set(['weight']);
 ---
 
   <div class="relative z-10 flex-1 w-full">
@@ -46,15 +57,35 @@ const initWeight = 12;
             <input id="serveAt" type="datetime-local" class="w-full rounded-lg bg-base-900 border border-base-700 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-flame-500 transition-all" />
           </div>
 
-          <!-- Weight (rendered from protein.thermal.axes) -->
-          <div>
-            <div class="flex items-baseline justify-between mb-2">
-              <label for="weight" class="text-sm font-medium text-base-300">{wAxis.label}</label>
-              <span class="text-sm font-mono"><span id="weightVal" class="text-white font-semibold">{initWeight.toFixed(1)}</span> <span class="text-base-400">{wR.unit}</span></span>
-            </div>
-            <input id="weight" type="range" min={wR.min} max={wR.max} step={wR.step} value={initWeight} class="w-full" />
-            <div class="flex justify-between text-[10px] text-base-500 mt-1 font-mono"><span id="weightMin">{wR.min} {wR.unit}</span><span id="weightMax">{wR.max} {wR.unit}</span></div>
-          </div>
+          {
+            /* Union of scheduler proteins' thermal inputs; controller shows the
+               active set (weight for brisket/pork, cut+racks for ribs). */
+            unionAxes.map((axis) => (
+              <div data-thermal-axis={axis.id} hidden={!defaultVisible.has(axis.id)}>
+                {axis.type === 'slider' && (
+                  <Fragment>
+                    <div class="flex items-baseline justify-between mb-2">
+                      <label for={axis.id} class="text-sm font-medium text-base-300">{axis.label}</label>
+                      <span class="text-sm font-mono"><span id={`${axis.id}Val`} class="text-white font-semibold">{Number(tInit[axis.id]).toFixed(1)}</span> <span class="text-base-400">{axis.range.unit}</span></span>
+                    </div>
+                    <input id={axis.id} type="range" min={axis.range.min} max={axis.range.max} step={axis.range.step} value={tInit[axis.id]} class="w-full" />
+                    <div class="flex justify-between text-[10px] text-base-500 mt-1 font-mono"><span id={`${axis.id}Min`}>{axis.range.min} {axis.range.unit}</span><span id={`${axis.id}Max`}>{axis.range.max} {axis.range.unit}</span></div>
+                  </Fragment>
+                )}
+                {axis.type === 'enum' && axis.control === 'segmented' && (
+                  <Fragment>
+                    <label class="block text-sm font-medium text-base-300 mb-2">{axis.label}</label>
+                    <div id={`${axis.id}Toggle`} aria-label={axis.label} class={`grid ${segCols(axis.cols)} gap-1 rounded-lg bg-base-900 ring-1 ring-base-700 p-1`} role="group">
+                      {axis.options.map((o) => (
+                        <button data-value={o.value} data-axis={axis.id} class={`${axis.id}-opt rounded-md px-2 py-2 text-xs font-medium transition-colors`} aria-pressed={o.value === tInit[axis.id] ? 'true' : 'false'}>{o.label}</button>
+                      ))}
+                    </div>
+                    {axis.copy && <p id={`${axis.id}Desc`} class="text-[11px] text-base-500 mt-1.5 leading-snug" set:html={tCopy[axis.copy][tInit[axis.id]]} />}
+                  </Fragment>
+                )}
+              </div>
+            ))
+          }
 
           <div>
             <label class="block text-sm font-medium text-base-300 mb-2">Target Pit Temp</label>
@@ -75,7 +106,7 @@ const initWeight = 12;
             </select>
           </div>
 
-          <div>
+          <div data-stall-only>
             <label class="block text-sm font-medium text-base-300 mb-2">Wrap Type</label>
             <div id="wrapToggle" class="grid grid-cols-3 gap-1 rounded-lg bg-base-900 ring-1 ring-base-700 p-1" role="group">
               <button data-wrap="none" class="wrap-opt rounded-md px-2 py-2 text-xs font-medium transition-colors" aria-pressed="false">No Wrap</button>
@@ -84,7 +115,7 @@ const initWeight = 12;
             </div>
           </div>
 
-          <div id="wrapTempWrap">
+          <div id="wrapTempWrap" data-stall-only>
             <div class="flex items-baseline justify-between mb-2">
               <label for="wrapTemp" class="text-sm font-medium text-base-300">Wrap at Internal Temp</label>
               <span class="text-sm font-mono"><span id="wrapTempVal" class="text-white font-semibold">160</span><span class="text-base-400">&deg;F</span></span>
@@ -92,7 +123,7 @@ const initWeight = 12;
             <input id="wrapTemp" type="range" min="150" max="170" step="1" value="160" class="w-full" />
           </div>
 
-          <div>
+          <div data-stall-only>
             <label class="block text-sm font-medium text-base-300 mb-2">Regional Climate</label>
             <div id="climateToggle" class="grid grid-cols-3 gap-1 rounded-lg bg-base-900 ring-1 ring-base-700 p-1" role="group">
               <button data-climate="arid" class="climate-opt rounded-md px-1 py-2 text-[11px] font-medium transition-colors" aria-pressed="false">Arid</button>

@@ -10,15 +10,21 @@ import { computeModel, buildPath, FINISH_TEMP } from '../../utils/stallEngine.js
 import { clampNum, enumParam, getParams, writeParams, wireCopyButton } from '../../utils/shareLink.js';
 
 export function initCookScheduler(protein = PROTEINS.beef_brisket) {
-  const wAxis = protein.thermal.axes.find((a) => a.id === 'weight');
-  const wR = wAxis.range;
-  const finishTemp = protein.thermal.finish_temp;
+  const thermal = protein.thermal;
+  const finishTemp = thermal.finish_temp;
+  const method321 = thermal.method_321 || null; // ribs use fixed 3-2-1 blocks
+  const usesStall = !method321; // brisket/pork use the stall/curve back-calc
+  const tAxes = thermal.axes;
+  const tSliders = tAxes.filter((a) => a.type === 'slider');
+  const tSegs = tAxes.filter((a) => a.type === 'enum' && a.control === 'segmented');
+  const wAxis = tSliders.find((a) => a.id === 'weight'); // may be undefined (ribs)
+  const PARAM = { weight: 'w', racks: 'rk', cut: 'ct', preparation: 'pp' };
 
   const PREHEAT_HRS = 0.75; // smoker preheat before the meat goes on
   const HR = 3600 * 1000;
 
   const state = {
-    weight: 12,
+    ...(thermal.initialState ?? { weight: 12 }),
     pitTemp: '225',
     pit: 'offset_smoker',
     wrap: 'peach_butcher_paper',
@@ -35,6 +41,14 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
   function paintGroup(selector, attr, current) {
     document.querySelectorAll(selector).forEach((btn) => {
       const on = btn.dataset[attr] === current;
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      ACTIVE.forEach((c) => btn.classList.toggle(c, on));
+      INACTIVE.forEach((c) => btn.classList.toggle(c, !on));
+    });
+  }
+  function paintThermal(axisId, current) {
+    document.querySelectorAll(`.${axisId}-opt`).forEach((btn) => {
+      const on = btn.dataset.value === current;
       btn.setAttribute('aria-pressed', on ? 'true' : 'false');
       ACTIVE.forEach((c) => btn.classList.toggle(c, on));
       INACTIVE.forEach((c) => btn.classList.toggle(c, !on));
@@ -65,7 +79,11 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
   function computeSchedule() {
     const serve = state.serveAt ? new Date(state.serveAt) : null;
     if (!serve || isNaN(serve.getTime())) return null;
+    return method321 ? computeSchedule321(serve) : computeScheduleStall(serve);
+  }
 
+  // Stall-model back-calc (brisket / pork).
+  function computeScheduleStall(serve) {
     const m = computeModel(
       {
         weight: state.weight,
@@ -112,18 +130,53 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
     return { milestones, model: m, fireUp, serve };
   }
 
+  // Fixed 3-2-1 (or 2-2-1) method for ribs: unwrapped smoke → wrapped → sauced.
+  function computeSchedule321(serve) {
+    const [smoke, wrapH, sauce] = method321[state.cut];
+    const total = smoke + wrapH + sauce;
+    const label = `${smoke}-${wrapH}-${sauce}`;
+
+    const pull = new Date(serve.getTime() - state.rest * HR);
+    const meatOn = new Date(pull.getTime() - total * HR);
+    const fireUp = new Date(meatOn.getTime() - PREHEAT_HRS * HR);
+    const wrapAt = new Date(meatOn.getTime() + smoke * HR);
+    const sauceAt = new Date(meatOn.getTime() + (smoke + wrapH) * HR);
+
+    const milestones = [
+      { icon: '🔥', at: fireUp, title: 'Light the fire', sub: `Preheat the pit to ${state.pitTemp}°F (${fmtHrs(PREHEAT_HRS)} before the ribs go on).` },
+      { icon: '🥩', at: meatOn, title: 'Ribs on', sub: `Smoke unwrapped for ${fmtHrs(smoke)} (the "${label}" method for this cut).` },
+      { icon: '📦', at: wrapAt, title: 'Wrap in foil', sub: `Wrap with a little liquid and cook ${fmtHrs(wrapH)} to tenderize.` },
+      { icon: '🍯', at: sauceAt, title: 'Unwrap & sauce', sub: `Unwrap, sauce, and firm up the bark for the final ${fmtHrs(sauce)}.` },
+      { icon: '🌡️', at: pull, title: 'Pull & rest', sub: `Bend-tender near ${finishTemp}°F. Rest ${fmtHrs(state.rest)} before cutting.` },
+      { icon: '🍽️', at: serve, title: 'Serve', sub: 'Cut between the bones and eat.' },
+    ];
+    milestones.sort((a, b) => a.at - b.at);
+    return { milestones, model: { totalTime: total }, fireUp, serve };
+  }
+
   function render() {
-    setFill($('weight'));
-    setFill($('wrapTemp'));
+    for (const a of tSliders) {
+      const el = $(a.id);
+      if (el) {
+        setFill(el);
+        $(`${a.id}Val`).textContent = Number(state[a.id]).toFixed(1);
+      }
+    }
+    for (const a of tSegs) {
+      paintThermal(a.id, state[a.id]);
+      if (a.copy && $(`${a.id}Desc`)) $(`${a.id}Desc`).innerHTML = (thermal.copy || {})[a.copy][state[a.id]];
+    }
     setFill($('rest'));
-    $('weightVal').textContent = state.weight.toFixed(1);
-    $('wrapTempVal').textContent = state.wrapTemp;
     $('restVal').textContent = state.rest.toFixed(1);
     paintGroup('.temp-opt', 'temp', state.pitTemp);
-    paintGroup('.wrap-opt', 'wrap', state.wrap);
-    paintGroup('.climate-opt', 'climate', state.climate);
-    $('wrapTempWrap').style.opacity = state.wrap === 'none' ? '0.4' : '1';
-    $('wrapTemp').disabled = state.wrap === 'none';
+    if (usesStall) {
+      setFill($('wrapTemp'));
+      $('wrapTempVal').textContent = state.wrapTemp;
+      paintGroup('.wrap-opt', 'wrap', state.wrap);
+      paintGroup('.climate-opt', 'climate', state.climate);
+      $('wrapTempWrap').style.opacity = state.wrap === 'none' ? '0.4' : '1';
+      $('wrapTemp').disabled = state.wrap === 'none';
+    }
 
     const sched = computeSchedule();
     const timeline = $('timeline');
@@ -231,13 +284,22 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
   function hydrateFromParams() {
     const p = getParams();
     if (![...p.keys()].length) return;
-    if (p.has('w')) state.weight = clampNum(p.get('w'), wR.min, wR.max, state.weight);
+    for (const a of tSliders) {
+      const key = PARAM[a.id];
+      if (key && p.has(key)) state[a.id] = clampNum(p.get(key), a.range.min, a.range.max, state[a.id]);
+    }
+    for (const a of tSegs) {
+      const key = PARAM[a.id];
+      if (key && p.has(key)) state[a.id] = enumParam(p.get(key), a.options.map((o) => o.value), state[a.id]);
+    }
     if (p.has('pt')) state.pitTemp = enumParam(p.get('pt'), ['225', '250', '275'], state.pitTemp);
     if (p.has('pit'))
       state.pit = enumParam(p.get('pit'), ['pellet_cooker', 'offset_smoker', 'ceramic_kamado', 'charcoal_kettle'], state.pit);
-    if (p.has('wr')) state.wrap = enumParam(p.get('wr'), ['none', 'peach_butcher_paper', 'aluminum_foil'], state.wrap);
-    if (p.has('wt')) state.wrapTemp = Math.round(clampNum(p.get('wt'), 150, 170, state.wrapTemp));
-    if (p.has('cl')) state.climate = enumParam(p.get('cl'), ['arid', 'moderate', 'humid'], state.climate);
+    if (usesStall) {
+      if (p.has('wr')) state.wrap = enumParam(p.get('wr'), ['none', 'peach_butcher_paper', 'aluminum_foil'], state.wrap);
+      if (p.has('wt')) state.wrapTemp = Math.round(clampNum(p.get('wt'), 150, 170, state.wrapTemp));
+      if (p.has('cl')) state.climate = enumParam(p.get('cl'), ['arid', 'moderate', 'humid'], state.climate);
+    }
     if (p.has('r')) state.rest = clampNum(p.get('r'), 0.5, 4, state.rest);
     // serve time: accept only a well-formed datetime-local string
     if (p.has('s')) {
@@ -246,16 +308,13 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
     }
   }
   function updateShareUrl() {
-    const params = {
-      pr: protein.meta.id,
-      w: state.weight,
-      pt: state.pitTemp,
-      pit: state.pit,
-      wr: state.wrap,
-      wt: state.wrapTemp,
-      cl: state.climate,
-      r: state.rest,
-    };
+    const params = { pr: protein.meta.id, pt: state.pitTemp, pit: state.pit, r: state.rest };
+    for (const a of tAxes) if (PARAM[a.id]) params[PARAM[a.id]] = state[a.id];
+    if (usesStall) {
+      params.wr = state.wrap;
+      params.wt = state.wrapTemp;
+      params.cl = state.climate;
+    }
     if (state.serveAt) params.s = state.serveAt;
     writeParams(params);
   }
@@ -274,17 +333,44 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
 
     // hydrate controls
     $('serveAt').value = state.serveAt;
-    $('weight').value = state.weight;
 
-    // Protein-aware weight slider bounds (the static page ships brisket defaults).
-    state.weight = Math.min(wR.max, Math.max(wR.min, state.weight));
-    const wEl = $('weight');
-    wEl.min = wR.min;
-    wEl.max = wR.max;
-    wEl.step = wR.step;
-    wEl.value = state.weight;
-    if ($('weightMin')) $('weightMin').textContent = `${wR.min} ${wR.unit}`;
-    if ($('weightMax')) $('weightMax').textContent = `${wR.max} ${wR.unit}`;
+    // Show only the active protein's thermal controls; hide stall-only controls
+    // (wrap / wrap-temp / climate) for fixed-method proteins like ribs.
+    const activeIds = new Set(tAxes.map((a) => a.id));
+    document.querySelectorAll('[data-thermal-axis]').forEach((c) => {
+      c.hidden = !activeIds.has(c.dataset.thermalAxis);
+    });
+    document.querySelectorAll('[data-stall-only]').forEach((c) => {
+      c.hidden = !usesStall;
+    });
+
+    // Protein thermal sliders: set value + protein-aware bounds/labels + wire.
+    for (const a of tSliders) {
+      const el = $(a.id);
+      if (!el) continue;
+      state[a.id] = Math.min(a.range.max, Math.max(a.range.min, state[a.id]));
+      el.min = a.range.min;
+      el.max = a.range.max;
+      el.step = a.range.step;
+      el.value = state[a.id];
+      if ($(`${a.id}Min`)) $(`${a.id}Min`).textContent = `${a.range.min} ${a.range.unit}`;
+      if ($(`${a.id}Max`)) $(`${a.id}Max`).textContent = `${a.range.max} ${a.range.unit}`;
+      el.addEventListener('input', () => {
+        state[a.id] = parseFloat(el.value);
+        render();
+      });
+    }
+    // Protein thermal segmented controls (e.g. rib cut).
+    for (const a of tSegs) {
+      paintThermal(a.id, state[a.id]);
+      $(`${a.id}Toggle`).addEventListener('click', (e) => {
+        const btn = e.target.closest(`.${a.id}-opt`);
+        if (!btn) return;
+        state[a.id] = btn.dataset.value;
+        paintThermal(a.id, state[a.id]);
+        render();
+      });
+    }
 
     // Highlight the active protein tab (selector is interactive on this page).
     document.querySelectorAll('.protein-tab').forEach((tab) => {
@@ -297,20 +383,11 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
       tab.classList.toggle('text-white/60', !on);
       tab.classList.toggle('font-medium', !on);
     });
-    $('wrapTemp').value = state.wrapTemp;
     $('rest').value = state.rest;
     $('pit').value = state.pit;
 
     $('serveAt').addEventListener('input', () => {
       state.serveAt = $('serveAt').value;
-      render();
-    });
-    $('weight').addEventListener('input', () => {
-      state.weight = parseFloat($('weight').value);
-      render();
-    });
-    $('wrapTemp').addEventListener('input', () => {
-      state.wrapTemp = parseInt($('wrapTemp').value, 10);
       render();
     });
     $('rest').addEventListener('input', () => {
@@ -327,18 +404,26 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
       state.pitTemp = btn.dataset.temp;
       render();
     });
-    $('wrapToggle').addEventListener('click', (e) => {
-      const btn = e.target.closest('.wrap-opt');
-      if (!btn) return;
-      state.wrap = btn.dataset.wrap;
-      render();
-    });
-    $('climateToggle').addEventListener('click', (e) => {
-      const btn = e.target.closest('.climate-opt');
-      if (!btn) return;
-      state.climate = btn.dataset.climate;
-      render();
-    });
+
+    if (usesStall) {
+      $('wrapTemp').value = state.wrapTemp;
+      $('wrapTemp').addEventListener('input', () => {
+        state.wrapTemp = parseInt($('wrapTemp').value, 10);
+        render();
+      });
+      $('wrapToggle').addEventListener('click', (e) => {
+        const btn = e.target.closest('.wrap-opt');
+        if (!btn) return;
+        state.wrap = btn.dataset.wrap;
+        render();
+      });
+      $('climateToggle').addEventListener('click', (e) => {
+        const btn = e.target.closest('.climate-opt');
+        if (!btn) return;
+        state.climate = btn.dataset.climate;
+        render();
+      });
+    }
     $('icsBtn').addEventListener('click', downloadIcs);
     wireCopyButton('shareBtn');
 

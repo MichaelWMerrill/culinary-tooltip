@@ -1,0 +1,68 @@
+---
+import Layout from '../layouts/Layout.astro';
+import StallPredictor from '../components/calc/StallPredictor.astro';
+import { PROTEINS } from '../utils/proteinRegistry.js';
+
+const pageUrl = 'https://empiricalbbq.com/ribs-stall';
+const publisher = {
+  '@type': 'Organization',
+  name: 'Empirical BBQ',
+  url: 'https://empiricalbbq.com/',
+  logo: 'https://empiricalbbq.com/android-chrome-512x512.png',
+};
+const faqs = [
+  {
+    q: 'Do ribs stall like brisket?',
+    a: 'Barely. Ribs are thin, so heat reaches the center fast and the evaporative plateau is small to nonexistent. The predictor models a near-flat, brief stall — cook time is driven far more by the cut (thickness) than by the stall.',
+  },
+  {
+    q: 'How long does it take to smoke ribs?',
+    a: 'Roughly 5–6 hours for spare ribs at 225–250°F, about 5 hours for St. Louis, and 4–4.5 hours for baby backs, since thinner cuts finish faster. Wrapping speeds the middle of the cook. The predictor plots the full curve for your cut and pit.',
+  },
+  {
+    q: 'Why does the number of racks not change the cook time?',
+    a: 'Ribs cook by their thin dimension (thickness), not their total mass. Two racks and eight racks of the same cut reach temperature in about the same time as long as the pit holds its temperature and airflow — more racks mainly means more fuel and grate space, not more hours.',
+  },
+  {
+    q: 'What temperature are ribs done?',
+    a: 'Ribs are best judged by feel — a toothpick slides in like butter and the rack bends and cracks when lifted, typically around 200–203°F between the bones. The predictor targets a ~203°F probe-tender finish.',
+  },
+  {
+    q: 'Which rib cut cooks fastest?',
+    a: 'Baby backs (loin ribs) are the thinnest and cook fastest, then St. Louis (a squared spare), then full spare ribs, which are the thickest and take longest. Choose your cut in the predictor to see the difference.',
+  },
+];
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Ribs Cook-Time & Stall Predictor',
+    url: pageUrl,
+    applicationCategory: 'UtilityApplication',
+    operatingSystem: 'Any',
+    description:
+      'Model rib cook time and the (near-absent) stall by cut, wrap method, and pit — slab-geometry heat transfer where thickness, not rack count, drives the time.',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout
+  title="Empirical BBQ | Ribs Cook-Time & Stall Predictor"
+  description="Model rib cook time and the near-absent stall by cut (spare, St. Louis, baby back), wrap method, and pit — slab-geometry heat transfer where thickness, not rack count, drives the time."
+  ogUrl="https://empiricalbbq.com/ribs-stall"
+  schema={schema}
+  bodyClass="page-ribs-stall min-h-screen bg-slate-950 text-slate-300 font-display antialiased"
+>
+  <StallPredictor protein={PROTEINS.pork_ribs} />
+</Layout>

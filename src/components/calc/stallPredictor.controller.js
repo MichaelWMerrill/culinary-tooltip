@@ -1,26 +1,35 @@
 /*
- * StallPredictor controller — client logic extracted verbatim from the former
- * inline script in stall-predictor.astro. The only protein-driven input is meat
- * weight, whose slider range/clamp now comes from the registry's `thermal.axes`
- * (keyed by axis id). Pit / wrap / climate are equipment/environment inputs and
- * stay as component-local whitelists.
+ * StallPredictor controller — protein-generic. The protein-specific inputs come
+ * from `thermal.axes` (weight, or ribs cut+racks, or turkey preparation+weight)
+ * and are rendered/wired generically off axis ids. Pit / wrap / climate are
+ * equipment/environment and stay component-local. No-stall proteins (poultry)
+ * hide the wrap/climate controls and show a steady-climb summary. For
+ * beef_brisket the behavior is identical to the prior version.
  */
 import { PROTEINS } from '../../utils/proteinRegistry.js';
 import { DATA, START_TEMP, FINISH_TEMP, WRAP_COPY, CLIMATE_COPY, computeModel, buildPath } from '../../utils/stallEngine.js';
 import { PitmasterAnalytics } from '../../utils/analytics.js';
 import { clampNum, enumParam, getParams, writeParams, wireCopyButton } from '../../utils/shareLink.js';
 
-export function initStallPredictor(protein = PROTEINS.beef_brisket) {
-  const wAxis = protein.thermal.axes.find((a) => a.id === 'weight');
-  const wR = wAxis.range;
-  const finishTemp = protein.thermal.finish_temp;
+// Share-link param keys per axis id (existing brisket keys unchanged).
+const PARAM = { weight: 'w', racks: 'rk', cut: 'ct', preparation: 'pp' };
 
-  /* State */
+export function initStallPredictor(protein = PROTEINS.beef_brisket) {
+  const thermal = protein.thermal;
+  const stalls = thermal.stalls !== false;
+  const finishTemp = thermal.finish_temp;
+  const tAxes = thermal.axes;
+  const tCopy = thermal.copy || {};
+  const tSliders = tAxes.filter((a) => a.type === 'slider');
+  const tSegs = tAxes.filter((a) => a.type === 'enum' && a.control === 'segmented');
+  const tSelects = tAxes.filter((a) => a.type === 'enum' && a.control === 'select');
+
+  /* State: protein thermal inputs + equipment defaults. */
   const state = {
-    weight: 12,
+    ...(thermal.initialState ?? { weight: 12 }),
     pitTemp: '225',
     pit: 'offset_smoker',
-    wrap: 'peach_butcher_paper',
+    wrap: stalls ? 'peach_butcher_paper' : 'none',
     wrapTemp: 160,
     climate: 'moderate',
   };
@@ -49,7 +58,6 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
     return e;
   }
 
-  // Hover state — pixel/data samples of the current curve, read by the hover handler.
   let chartSamples = [];
   let chartPlot = null;
 
@@ -66,7 +74,6 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
     const pw = W - ml - mr,
       ph = H - mt - mb;
 
-    // transparent capture layer so pointer moves anywhere in the plot are hit-tested
     svg.appendChild(el('rect', { x: 0, y: 0, width: W, height: H, fill: 'transparent', 'pointer-events': 'all' }));
 
     const yMin = 40,
@@ -76,7 +83,6 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
     const xScale = (t) => ml + (t / xMax) * pw;
     const yScale = (v) => mt + (1 - (v - yMin) / (yMax - yMin)) * ph;
 
-    // defs: gradients
     const defs = el('defs', {});
     const lg = el('linearGradient', { id: 'lineGrad', x1: '0', y1: '0', x2: '1', y2: '0' });
     lg.appendChild(el('stop', { offset: '0%', 'stop-color': '#f59e0b' }));
@@ -89,13 +95,11 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
     defs.appendChild(ag);
     svg.appendChild(defs);
 
-    // horizontal gridlines + Y labels (every 20°F)
     for (let v = yMin; v <= yMax; v += 20) {
       const y = yScale(v);
       svg.appendChild(el('line', { x1: ml, y1: y, x2: W - mr, y2: y, stroke: '#1e293b', 'stroke-width': '1' }));
       svg.appendChild(el('text', { x: ml - 10, y: y + 4, 'text-anchor': 'end', 'font-size': '11', fill: '#64748b', 'font-family': 'ui-monospace, monospace' }, v + '°'));
     }
-    // vertical gridlines + X labels
     const xStep = xMax > 12 ? 2 : 1;
     for (let hh = 0; hh <= xMax; hh += xStep) {
       const x = xScale(hh);
@@ -103,12 +107,10 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
       svg.appendChild(el('text', { x: x, y: H - mb + 20, 'text-anchor': 'middle', 'font-size': '11', fill: '#64748b', 'font-family': 'ui-monospace, monospace' }, hh + 'h'));
     }
 
-    // axis titles
     svg.appendChild(el('text', { x: ml + pw / 2, y: H - 6, 'text-anchor': 'middle', 'font-size': '12', fill: '#94a3b8', 'font-weight': '600' }, 'Hours of Cook Time'));
     const yTitle = el('text', { x: 16, y: mt + ph / 2, 'text-anchor': 'middle', 'font-size': '12', fill: '#94a3b8', 'font-weight': '600', transform: `rotate(-90 16 ${mt + ph / 2})` }, 'Internal Meat Temp (°F)');
     svg.appendChild(yTitle);
 
-    // stall band shading
     if (m.stallDuration > 0.04) {
       const x0 = xScale(m.t1),
         x1 = xScale(m.t1 + m.stallDuration);
@@ -120,22 +122,18 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
       }
     }
 
-    // finish line (protein finish temp)
     const yFin = yScale(finishTemp);
     svg.appendChild(el('line', { x1: ml, y1: yFin, x2: W - mr, y2: yFin, stroke: '#22c55e', 'stroke-width': '1.25', 'stroke-dasharray': '5 4', 'stroke-opacity': '0.65' }));
     svg.appendChild(el('text', { x: W - mr - 4, y: yFin - 6, 'text-anchor': 'end', 'font-size': '10', fill: '#4ade80', 'font-weight': '600' }, 'Done · ' + finishTemp + '°F'));
 
-    // wrap target line (only meaningful when a wrap is used)
     if (state.wrap !== 'none') {
       const yW = yScale(state.wrapTemp);
       svg.appendChild(el('line', { x1: ml, y1: yW, x2: W - mr, y2: yW, stroke: '#38bdf8', 'stroke-width': '1', 'stroke-dasharray': '2 4', 'stroke-opacity': '0.5' }));
       svg.appendChild(el('text', { x: ml + 4, y: yW - 5, 'text-anchor': 'start', 'font-size': '10', fill: '#7dd3fc', 'font-weight': '600' }, 'Wrap · ' + state.wrapTemp + '°F'));
     }
 
-    // build point coords
     const coords = pts.map((p) => [xScale(Math.min(p.t, xMax)), yScale(Math.min(Math.max(p.temp, yMin), yMax))]);
 
-    // area under curve
     let areaD = `M ${coords[0][0]} ${yScale(yMin)} `;
     coords.forEach((c) => {
       areaD += `L ${c[0].toFixed(1)} ${c[1].toFixed(1)} `;
@@ -143,20 +141,17 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
     areaD += `L ${coords[coords.length - 1][0]} ${yScale(yMin)} Z`;
     svg.appendChild(el('path', { d: areaD, fill: 'url(#areaGrad)' }));
 
-    // main curve
     let lineD = `M ${coords[0][0].toFixed(1)} ${coords[0][1].toFixed(1)} `;
     for (let i = 1; i < coords.length; i++) lineD += `L ${coords[i][0].toFixed(1)} ${coords[i][1].toFixed(1)} `;
     svg.appendChild(el('path', { d: lineD, fill: 'none', stroke: 'url(#lineGrad)', 'stroke-width': '3.25', 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
 
-    // markers: start, stall-entry, finish
     const start = coords[0];
     const finish = coords[coords.length - 1];
     const stallEntry = [xScale(m.t1), yScale(m.stallStart)];
     svg.appendChild(el('circle', { cx: start[0], cy: start[1], r: '4', fill: '#0f172a', stroke: '#f59e0b', 'stroke-width': '2' }));
-    svg.appendChild(el('circle', { cx: stallEntry[0], cy: stallEntry[1], r: '4', fill: '#0f172a', stroke: '#fbbf24', 'stroke-width': '2' }));
+    if (stalls) svg.appendChild(el('circle', { cx: stallEntry[0], cy: stallEntry[1], r: '4', fill: '#0f172a', stroke: '#fbbf24', 'stroke-width': '2' }));
     svg.appendChild(el('circle', { cx: finish[0], cy: finish[1], r: '5', fill: '#22c55e', stroke: '#0f172a', 'stroke-width': '2' }));
 
-    // ---- interactive hover layer (crosshair + tooltip) ----
     chartSamples = pts.map((p, i) => ({ x: coords[i][0], y: coords[i][1], t: p.t, temp: p.temp }));
     chartPlot = { left: ml, right: W - mr, top: mt, bottom: mt + ph };
 
@@ -213,12 +208,21 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
     });
   }
 
-  /* Segmented control painter */
+  /* Segmented control painters. Equipment groups key off their own data-attr;
+     protein thermal groups key off data-value (generic). */
   const ACTIVE = ['bg-flame-500', 'text-white', 'shadow'];
   const INACTIVE = ['text-slate-400', 'hover:text-slate-300'];
-  function paintGroup(selector, dataAttr, current) {
+  function paintEquip(selector, dataAttr, current) {
     document.querySelectorAll(selector).forEach((btn) => {
       const on = btn.dataset[dataAttr] === current;
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      ACTIVE.forEach((c) => btn.classList.toggle(c, on));
+      INACTIVE.forEach((c) => btn.classList.toggle(c, !on));
+    });
+  }
+  function paintThermal(axisId, current) {
+    document.querySelectorAll(`.${axisId}-opt`).forEach((btn) => {
+      const on = btn.dataset.value === current;
       btn.setAttribute('aria-pressed', on ? 'true' : 'false');
       ACTIVE.forEach((c) => btn.classList.toggle(c, on));
       INACTIVE.forEach((c) => btn.classList.toggle(c, !on));
@@ -233,18 +237,29 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
 
     $('totalTime').textContent = fmtHrs(m.totalTime);
     $('totalTimeSub').textContent = '≈ ' + m.totalTime.toFixed(1) + ' hrs to ' + finishTemp + '°F';
-    $('stallTime').textContent = fmtHrs(m.stallDuration);
-    $('stallSub').textContent = m.stallDuration < 0.05 ? 'crushed by the crutch' : 'plateau near ' + Math.round(m.stallStart) + '°F';
 
-    $('phase1').textContent = fmtHrsShort(m.t1);
-    $('phase2').textContent = fmtHrsShort(m.stallDuration);
-    $('phase3').textContent = fmtHrsShort(m.t3);
+    if (stalls) {
+      $('stallTime').textContent = fmtHrs(m.stallDuration);
+      $('stallSub').textContent = m.stallDuration < 0.05 ? 'crushed by the crutch' : 'plateau near ' + Math.round(m.stallStart) + '°F';
+      $('phase1').textContent = fmtHrsShort(m.t1);
+      $('phase2').textContent = fmtHrsShort(m.stallDuration);
+      $('phase3').textContent = fmtHrsShort(m.t3);
+      $('wrapTempWrap').style.opacity = state.wrap === 'none' ? '0.4' : '1';
+      $('wrapTemp').disabled = state.wrap === 'none';
+      $('climateDesc').textContent = CLIMATE_COPY[state.climate];
+    } else {
+      $('stallTime').textContent = 'None';
+      $('stallSub').textContent = 'poultry climbs steadily';
+      $('phase1').textContent = fmtHrsShort(m.totalTime);
+      $('phase2').textContent = '—';
+      $('phase3').textContent = '—';
+    }
 
-    // wrap temp control only relevant when wrapping
-    $('wrapTempWrap').style.opacity = state.wrap === 'none' ? '0.4' : '1';
-    $('wrapTemp').disabled = state.wrap === 'none';
+    // Protein thermal segmented-axis help copy.
+    for (const a of tSegs) {
+      if (a.copy && $(`${a.id}Desc`)) $(`${a.id}Desc`).innerHTML = tCopy[a.copy][state[a.id]];
+    }
 
-    $('climateDesc').textContent = CLIMATE_COPY[state.climate];
     persist();
   }
 
@@ -255,52 +270,59 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
     el.style.setProperty('--fill', ((val - min) / (max - min)) * 100 + '%');
   }
 
-  /* Persistence — per-page state + shared cross-tool cook profile */
-  const STORE_KEY = 'pitmaster.stall';
+  /* Persistence — per-protein state + shared cross-tool cook profile */
+  const STORE_KEY = `pitmaster.stall.${protein.meta.slug}`;
   const SHARED_KEY = 'pitmaster.cook';
-  // Shared wrap vocabulary across tools: none | paper | foil
   const WRAP_TO_CANON = { none: 'none', peach_butcher_paper: 'paper', aluminum_foil: 'foil' };
   const CANON_TO_WRAP = { none: 'none', paper: 'peach_butcher_paper', foil: 'aluminum_foil' };
 
   function persist() {
     try {
       localStorage.setItem(STORE_KEY, JSON.stringify(state));
-      const shared = JSON.parse(localStorage.getItem(SHARED_KEY) || '{}');
-      shared.weight = state.weight;
-      shared.wrap = WRAP_TO_CANON[state.wrap];
-      localStorage.setItem(SHARED_KEY, JSON.stringify(shared));
+      if (typeof state.weight === 'number') {
+        const shared = JSON.parse(localStorage.getItem(SHARED_KEY) || '{}');
+        shared.weight = state.weight;
+        if (stalls) shared.wrap = WRAP_TO_CANON[state.wrap];
+        localStorage.setItem(SHARED_KEY, JSON.stringify(shared));
+      }
     } catch (e) {
       /* storage unavailable — ignore */
     }
     updateShareUrl();
   }
 
-  // Shareable-link hydration (validated) — runs after loadState so params win.
   function hydrateFromParams() {
     const p = getParams();
     if (![...p.keys()].length) return;
-    if (p.has('w')) state.weight = clampNum(p.get('w'), wR.min, wR.max, state.weight);
+    for (const a of tSliders) {
+      const key = PARAM[a.id];
+      if (key && p.has(key)) state[a.id] = clampNum(p.get(key), a.range.min, a.range.max, state[a.id]);
+    }
+    for (const a of [...tSegs, ...tSelects]) {
+      const key = PARAM[a.id];
+      if (key && p.has(key)) state[a.id] = enumParam(p.get(key), a.options.map((o) => o.value), state[a.id]);
+    }
     if (p.has('pt')) state.pitTemp = enumParam(p.get('pt'), ['225', '250', '275'], state.pitTemp);
     if (p.has('pit'))
       state.pit = enumParam(p.get('pit'), ['pellet_cooker', 'offset_smoker', 'ceramic_kamado', 'charcoal_kettle'], state.pit);
-    if (p.has('wr'))
-      state.wrap = enumParam(p.get('wr'), ['none', 'peach_butcher_paper', 'aluminum_foil'], state.wrap);
-    if (p.has('wt')) state.wrapTemp = Math.round(clampNum(p.get('wt'), 150, 170, state.wrapTemp));
-    if (p.has('cl')) state.climate = enumParam(p.get('cl'), ['arid', 'moderate', 'humid'], state.climate);
+    if (stalls) {
+      if (p.has('wr')) state.wrap = enumParam(p.get('wr'), ['none', 'peach_butcher_paper', 'aluminum_foil'], state.wrap);
+      if (p.has('wt')) state.wrapTemp = Math.round(clampNum(p.get('wt'), 150, 170, state.wrapTemp));
+      if (p.has('cl')) state.climate = enumParam(p.get('cl'), ['arid', 'moderate', 'humid'], state.climate);
+    }
   }
 
   function updateShareUrl() {
-    writeParams({
-      w: state.weight,
-      pt: state.pitTemp,
-      pit: state.pit,
-      wr: state.wrap,
-      wt: state.wrapTemp,
-      cl: state.climate,
-    });
+    const params = { pr: protein.meta.id, pt: state.pitTemp, pit: state.pit };
+    for (const a of tAxes) if (PARAM[a.id]) params[PARAM[a.id]] = state[a.id];
+    if (stalls) {
+      params.wr = state.wrap;
+      params.wt = state.wrapTemp;
+      params.cl = state.climate;
+    }
+    writeParams(params);
   }
 
-  // Seed pit type & target temp from the hub "Save My Setup" profile (first-visit defaults).
   function applyGlobalSetup() {
     try {
       const rig = localStorage.getItem('pitmaster_smoker');
@@ -313,7 +335,6 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
       if (rig && RIG_TO_PIT[rig]) state.pit = RIG_TO_PIT[rig];
       const target = parseFloat(localStorage.getItem('pitmaster_target_temp'));
       if (isFinite(target)) {
-        // snap to nearest supported pit temperature
         state.pitTemp = ['225', '250', '275'].reduce((a, b) => (Math.abs(b - target) < Math.abs(a - target) ? b : a));
       }
     } catch (e) {
@@ -323,103 +344,124 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
 
   function loadState() {
     try {
-      applyGlobalSetup(); // hub profile seeds defaults; per-page + shared state override below
+      applyGlobalSetup();
       Object.assign(state, JSON.parse(localStorage.getItem(STORE_KEY) || '{}'));
-      const shared = JSON.parse(localStorage.getItem(SHARED_KEY) || '{}');
-      if (typeof shared.weight === 'number') state.weight = Math.min(wR.max, Math.max(wR.min, shared.weight));
-      if (shared.wrap && CANON_TO_WRAP[shared.wrap]) state.wrap = CANON_TO_WRAP[shared.wrap];
+      if (typeof state.weight === 'number') {
+        const shared = JSON.parse(localStorage.getItem(SHARED_KEY) || '{}');
+        const wAxis = tSliders.find((a) => a.id === 'weight');
+        if (wAxis && typeof shared.weight === 'number') state.weight = Math.min(wAxis.range.max, Math.max(wAxis.range.min, shared.weight));
+        if (stalls && shared.wrap && CANON_TO_WRAP[shared.wrap]) state.wrap = CANON_TO_WRAP[shared.wrap];
+      }
     } catch (e) {
       /* ignore */
     }
   }
 
   function syncControls() {
-    const weight = $('weight'),
-      wrapTemp = $('wrapTemp'),
-      pit = $('pit');
-    weight.value = state.weight;
-    $('weightVal').textContent = state.weight.toFixed(1);
-    wrapTemp.value = state.wrapTemp;
-    $('wrapTempVal').textContent = state.wrapTemp;
+    for (const a of tSliders) {
+      const el = $(a.id);
+      el.value = state[a.id];
+      $(`${a.id}Val`).textContent = Number(state[a.id]).toFixed(1);
+      setFill(el);
+    }
+    for (const a of tSelects) $(a.id).value = state[a.id];
+    for (const a of tSegs) paintThermal(a.id, state[a.id]);
+
+    const pit = $('pit');
     pit.value = state.pit;
     $('pitDesc').textContent = DATA.pit_profiles[state.pit].description;
-    $('wrapDesc').textContent = WRAP_COPY[state.wrap];
-    paintGroup('.temp-opt', 'temp', state.pitTemp);
-    paintGroup('.wrap-opt', 'wrap', state.wrap);
-    paintGroup('.climate-opt', 'climate', state.climate);
-    setFill(weight);
-    setFill(wrapTemp);
+    paintEquip('.temp-opt', 'temp', state.pitTemp);
+    if (stalls) {
+      const wrapTemp = $('wrapTemp');
+      wrapTemp.value = state.wrapTemp;
+      $('wrapTempVal').textContent = state.wrapTemp;
+      $('wrapDesc').textContent = WRAP_COPY[state.wrap];
+      paintEquip('.wrap-opt', 'wrap', state.wrap);
+      paintEquip('.climate-opt', 'climate', state.climate);
+      setFill(wrapTemp);
+    }
   }
 
   /* Wiring */
   function init() {
-    const weight = $('weight'),
-      wrapTemp = $('wrapTemp'),
-      pit = $('pit');
+    for (const a of tSliders) {
+      const el = $(a.id);
+      el.addEventListener('input', () => {
+        state[a.id] = parseFloat(el.value);
+        $(`${a.id}Val`).textContent = Number(state[a.id]).toFixed(1);
+        setFill(el);
+        render();
+      });
+    }
+    for (const a of tSelects) {
+      const el = $(a.id);
+      el.addEventListener('change', () => {
+        state[a.id] = el.value;
+        render();
+      });
+    }
+    for (const a of tSegs) {
+      $(`${a.id}Toggle`).addEventListener('click', (e) => {
+        const btn = e.target.closest(`.${a.id}-opt`);
+        if (!btn) return;
+        state[a.id] = btn.dataset.value;
+        paintThermal(a.id, state[a.id]);
+        render();
+      });
+    }
 
-    weight.addEventListener('input', () => {
-      state.weight = parseFloat(weight.value);
-      $('weightVal').textContent = state.weight.toFixed(1);
-      setFill(weight);
-      render();
-    });
-
-    wrapTemp.addEventListener('input', () => {
-      state.wrapTemp = parseInt(wrapTemp.value, 10);
-      $('wrapTempVal').textContent = state.wrapTemp;
-      setFill(wrapTemp);
-      render();
-    });
-
+    const pit = $('pit');
     pit.addEventListener('change', () => {
       state.pit = pit.value;
       $('pitDesc').textContent = DATA.pit_profiles[state.pit].description;
       render();
     });
-
     $('pitTempToggle').addEventListener('click', (e) => {
       const btn = e.target.closest('.temp-opt');
       if (!btn) return;
       state.pitTemp = btn.dataset.temp;
-      paintGroup('.temp-opt', 'temp', state.pitTemp);
+      paintEquip('.temp-opt', 'temp', state.pitTemp);
       render();
     });
 
-    $('wrapToggle').addEventListener('click', (e) => {
-      const btn = e.target.closest('.wrap-opt');
-      if (!btn) return;
-      state.wrap = btn.dataset.wrap;
-      paintGroup('.wrap-opt', 'wrap', state.wrap);
-      $('wrapDesc').textContent = WRAP_COPY[state.wrap];
-      PitmasterAnalytics.emit('stall_wrap_selected', { wrap: state.wrap });
-      render();
-    });
+    if (stalls) {
+      const wrapTemp = $('wrapTemp');
+      wrapTemp.addEventListener('input', () => {
+        state.wrapTemp = parseInt(wrapTemp.value, 10);
+        $('wrapTempVal').textContent = state.wrapTemp;
+        setFill(wrapTemp);
+        render();
+      });
+      $('wrapToggle').addEventListener('click', (e) => {
+        const btn = e.target.closest('.wrap-opt');
+        if (!btn) return;
+        state.wrap = btn.dataset.wrap;
+        paintEquip('.wrap-opt', 'wrap', state.wrap);
+        $('wrapDesc').textContent = WRAP_COPY[state.wrap];
+        PitmasterAnalytics.emit('stall_wrap_selected', { wrap: state.wrap });
+        render();
+      });
+      $('climateToggle').addEventListener('click', (e) => {
+        const btn = e.target.closest('.climate-opt');
+        if (!btn) return;
+        state.climate = btn.dataset.climate;
+        paintEquip('.climate-opt', 'climate', state.climate);
+        render();
+      });
+    }
 
-    // Regional climate profile — recompute & redraw the curve on change.
-    $('climateToggle').addEventListener('click', (e) => {
-      const btn = e.target.closest('.climate-opt');
-      if (!btn) return;
-      state.climate = btn.dataset.climate;
-      paintGroup('.climate-opt', 'climate', state.climate);
-      render();
-    });
-
-    // Chart hover crosshair + tooltip
     const chart = $('chart');
     chart.addEventListener('pointermove', onChartHover);
     chart.addEventListener('pointerleave', hideChartHover);
 
-    // Affiliate click telemetry
     document.querySelectorAll('[data-affiliate]').forEach((a) => {
       a.addEventListener('click', () => {
         PitmasterAnalytics.emit('affiliate_click', { destination: a.dataset.affiliate });
       });
     });
 
-    // Copy-share-link button
     wireCopyButton('shareBtn');
 
-    // Restore persisted state, apply any shared-link params (params win), paint
     loadState();
     hydrateFromParams();
     syncControls();
