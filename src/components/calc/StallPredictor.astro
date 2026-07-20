@@ -217,7 +217,10 @@ const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${prot
 </div>
 
 <style is:global>
-  body.page-stall input, body.page-pork-stall input, body.page-ribs-stall input, body.page-turkey-stall input[type='range'] {
+  body.page-stall input[type='range'],
+  body.page-pork-stall input[type='range'],
+  body.page-ribs-stall input[type='range'],
+  body.page-turkey-stall input[type='range'] {
     -webkit-appearance: none;
     appearance: none;
     height: 8px;
@@ -225,7 +228,10 @@ const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${prot
     background: linear-gradient(to right, #f97316 var(--fill, 50%), #1e293b var(--fill, 50%));
     outline: none;
   }
-  body.page-stall input, body.page-pork-stall input, body.page-ribs-stall input, body.page-turkey-stall input[type='range']::-webkit-slider-thumb {
+  body.page-stall input[type='range']::-webkit-slider-thumb,
+  body.page-pork-stall input[type='range']::-webkit-slider-thumb,
+  body.page-ribs-stall input[type='range']::-webkit-slider-thumb,
+  body.page-turkey-stall input[type='range']::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 22px;
@@ -237,10 +243,16 @@ const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${prot
     cursor: pointer;
     transition: transform 0.1s ease;
   }
-  body.page-stall input, body.page-pork-stall input, body.page-ribs-stall input, body.page-turkey-stall input[type='range']::-webkit-slider-thumb:active {
+  body.page-stall input[type='range']::-webkit-slider-thumb:active,
+  body.page-pork-stall input[type='range']::-webkit-slider-thumb:active,
+  body.page-ribs-stall input[type='range']::-webkit-slider-thumb:active,
+  body.page-turkey-stall input[type='range']::-webkit-slider-thumb:active {
     transform: scale(1.15);
   }
-  body.page-stall input, body.page-pork-stall input, body.page-ribs-stall input, body.page-turkey-stall input[type='range']::-moz-range-thumb {
+  body.page-stall input[type='range']::-moz-range-thumb,
+  body.page-pork-stall input[type='range']::-moz-range-thumb,
+  body.page-ribs-stall input[type='range']::-moz-range-thumb,
+  body.page-turkey-stall input[type='range']::-moz-range-thumb {
     width: 22px;
     height: 22px;
     border-radius: 9999px;
