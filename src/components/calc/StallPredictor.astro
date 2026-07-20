@@ -7,6 +7,7 @@
  * lives in ./stallPredictor.controller.js.
  */
 import { PROTEINS } from '../../utils/proteinRegistry.js';
+import ProteinSelector from './ProteinSelector.astro';
 
 export interface Props {
   protein?: (typeof PROTEINS)[keyof typeof PROTEINS];
@@ -16,15 +17,19 @@ const { protein = PROTEINS.beef_brisket } = Astro.props;
 const wAxis = protein.thermal.axes.find((a) => a.id === 'weight');
 const wR = wAxis.range;
 const initWeight = 12;
+const finishTemp = protein.thermal.finish_temp;
+// Brisket keeps the bare "Stall Predictor" heading; other proteins are named.
+const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${protein.meta.shortName} Stall Predictor`;
 ---
 
-<div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+<div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" data-stall-protein={protein.meta.id}>
+  <ProteinSelector tool="stall" current={protein.meta.id} />
   <!-- Header -->
   <header class="mb-8 flex flex-wrap items-center justify-between gap-4">
     <div class="flex items-center gap-3">
       <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-flame-500/15 ring-1 ring-flame-500/40 text-2xl">📈</div>
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">Stall Predictor</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">{heading}</h1>
         <p class="text-sm text-slate-400 mt-0.5">Internal-temp curve, stall duration &amp; total cook time modeling</p>
       </div>
     </div>
@@ -120,7 +125,7 @@ const initWeight = 12;
         <div class="rounded-2xl bg-gradient-to-br from-flame-600/25 via-slate-900 to-slate-900 ring-1 ring-flame-500/40 shadow-xl shadow-black/40 p-5 sm:p-6">
           <p class="text-[11px] font-semibold uppercase tracking-widest text-flame-300/90">Estimated Total Cook</p>
           <p class="mt-2 text-4xl sm:text-5xl font-extrabold text-white tabular-nums leading-none" id="totalTime">—</p>
-          <p class="text-xs text-slate-400 mt-1.5" id="totalTimeSub">to 203&deg;F finish</p>
+          <p class="text-xs text-slate-400 mt-1.5" id="totalTimeSub">to {finishTemp}&deg;F finish</p>
         </div>
         <div class="rounded-2xl bg-gradient-to-br from-amber-500/20 via-slate-900 to-slate-900 ring-1 ring-amber-500/40 shadow-xl shadow-black/40 p-5 sm:p-6">
           <p class="text-[11px] font-semibold uppercase tracking-widest text-amber-300/90">Projected Stall</p>
@@ -180,7 +185,7 @@ const initWeight = 12;
 </div>
 
 <style is:global>
-  body.page-stall input[type='range'] {
+  body.page-stall input, body.page-pork-stall input[type='range'] {
     -webkit-appearance: none;
     appearance: none;
     height: 8px;
@@ -188,7 +193,7 @@ const initWeight = 12;
     background: linear-gradient(to right, #f97316 var(--fill, 50%), #1e293b var(--fill, 50%));
     outline: none;
   }
-  body.page-stall input[type='range']::-webkit-slider-thumb {
+  body.page-stall input, body.page-pork-stall input[type='range']::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 22px;
@@ -200,10 +205,10 @@ const initWeight = 12;
     cursor: pointer;
     transition: transform 0.1s ease;
   }
-  body.page-stall input[type='range']::-webkit-slider-thumb:active {
+  body.page-stall input, body.page-pork-stall input[type='range']::-webkit-slider-thumb:active {
     transform: scale(1.15);
   }
-  body.page-stall input[type='range']::-moz-range-thumb {
+  body.page-stall input, body.page-pork-stall input[type='range']::-moz-range-thumb {
     width: 22px;
     height: 22px;
     border-radius: 9999px;
@@ -215,7 +220,7 @@ const initWeight = 12;
   .curve-path {
     transition: stroke-dashoffset 0.1s linear;
   }
-  body.page-stall::before {
+  body.page-stall::before, body.page-pork-stall::before {
     content: '';
     position: fixed;
     inset: 0;
@@ -229,5 +234,9 @@ const initWeight = 12;
 
 <script>
   import { initStallPredictor } from './stallPredictor.controller.js';
-  document.addEventListener('DOMContentLoaded', () => initStallPredictor());
+  import { PROTEINS } from '../../utils/proteinRegistry.js';
+  document.addEventListener('DOMContentLoaded', () => {
+    const id = document.querySelector('[data-stall-protein]')?.dataset.stallProtein || 'beef_brisket';
+    initStallPredictor(PROTEINS[id] || PROTEINS.beef_brisket);
+  });
 </script>

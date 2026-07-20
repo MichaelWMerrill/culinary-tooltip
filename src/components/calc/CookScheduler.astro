@@ -7,6 +7,7 @@
  * ./cookScheduler.controller.js.
  */
 import { PROTEINS } from '../../utils/proteinRegistry.js';
+import ProteinSelector from './ProteinSelector.astro';
 
 export interface Props {
   protein?: (typeof PROTEINS)[keyof typeof PROTEINS];
@@ -20,6 +21,7 @@ const initWeight = 12;
 
   <div class="relative z-10 flex-1 w-full">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <ProteinSelector tool="scheduler" current={protein.meta.id} interactive={true} />
       <header class="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-3">
           <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-flame-500/15 ring-1 ring-flame-500/40 text-2xl">🗓️</div>
@@ -51,7 +53,7 @@ const initWeight = 12;
               <span class="text-sm font-mono"><span id="weightVal" class="text-white font-semibold">{initWeight.toFixed(1)}</span> <span class="text-base-400">{wR.unit}</span></span>
             </div>
             <input id="weight" type="range" min={wR.min} max={wR.max} step={wR.step} value={initWeight} class="w-full" />
-            <div class="flex justify-between text-[10px] text-base-500 mt-1 font-mono"><span>{wR.min} {wR.unit}</span><span>{wR.max} {wR.unit}</span></div>
+            <div class="flex justify-between text-[10px] text-base-500 mt-1 font-mono"><span id="weightMin">{wR.min} {wR.unit}</span><span id="weightMax">{wR.max} {wR.unit}</span></div>
           </div>
 
           <div>
@@ -205,5 +207,16 @@ const initWeight = 12;
 
 <script>
   import { initCookScheduler } from './cookScheduler.controller.js';
-  document.addEventListener('DOMContentLoaded', () => initCookScheduler());
+  import { PROTEINS } from '../../utils/proteinRegistry.js';
+  import { proteinParam } from '../../utils/shareLink.js';
+  document.addEventListener('DOMContentLoaded', () => {
+    let raw = null;
+    try {
+      raw = new URLSearchParams(window.location.search).get('pr');
+    } catch (e) {
+      /* ignore */
+    }
+    const id = proteinParam(raw, Object.keys(PROTEINS));
+    initCookScheduler(PROTEINS[id]);
+  });
 </script>

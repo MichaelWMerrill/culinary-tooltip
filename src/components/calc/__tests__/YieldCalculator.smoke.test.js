@@ -11,10 +11,10 @@ import { mountComponent } from './mount.js';
 
 vi.mock('../../../utils/brisketEngine.js', async (importOriginal) => {
   const actual = await importOriginal();
-  return { ...actual, calcBrisket: vi.fn(actual.calcBrisket) };
+  return { ...actual, calcYield: vi.fn(actual.calcYield) };
 });
 
-import { calcBrisket } from '../../../utils/brisketEngine.js';
+import { calcYield } from '../../../utils/brisketEngine.js';
 import { initYieldCalculator } from '../yieldCalculator.controller.js';
 
 const mount = () => mountComponent(YieldCalculator);
@@ -36,9 +36,10 @@ describe('YieldCalculator smoke', () => {
 
     initYieldCalculator();
 
-    // Engine invoked with the axis parameter names.
-    expect(calcBrisket).toHaveBeenCalled();
-    const firstArg = calcBrisket.mock.calls.at(-1)[0];
+    // Engine invoked with the axis parameter names (calcYield is called with the
+    // protein as the first arg and the state as the second).
+    expect(calcYield).toHaveBeenCalled();
+    const firstArg = calcYield.mock.calls.at(-1)[1];
     for (const key of ['weight', 'price', 'grade', 'trim', 'wrap']) {
       expect(firstArg, `arg has ${key}`).toHaveProperty(key);
     }
@@ -52,10 +53,10 @@ describe('YieldCalculator smoke', () => {
     grade.value = 'PRIME';
     grade.dispatchEvent(new Event('change'));
 
-    document.querySelector('.trim-opt[data-trim="competition"]').click();
-    document.querySelector('.wrap-opt[data-wrap="foil"]').click();
+    document.querySelector('.trim-opt[data-value="competition"]').click();
+    document.querySelector('.wrap-opt[data-value="foil"]').click();
 
-    const last = calcBrisket.mock.calls.at(-1)[0];
+    const last = calcYield.mock.calls.at(-1)[1];
     expect(last.weight).toBe(20);
     expect(last.grade).toBe('PRIME');
     expect(last.trim).toBe('competition');

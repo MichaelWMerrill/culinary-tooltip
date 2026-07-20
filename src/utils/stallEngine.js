@@ -68,13 +68,22 @@ export const CLIMATE_COPY = {
   humid: 'Humid coastal air — suppressed evaporation lifts the stall onset (~162°F) and stretches the plateau ~15% longer.',
 };
 
-/** Convert inputs into phase durations & a temperature path. Pure. */
-export function computeModel(state) {
+/**
+ * Convert inputs into phase durations & a temperature path. Pure.
+ * `protein` supplies the protein-specific thermal block (per-cook-temp stall
+ * thresholds, geometry, start/finish temps, base stall length). Pit, wrap, and
+ * climate profiles are equipment/environment and stay module-level. Defaults to
+ * beef_brisket so existing callers are unchanged.
+ */
+export function computeModel(state, protein = PROTEINS.beef_brisket) {
+  const thermal = protein.thermal;
   const pit = DATA.pit_profiles[state.pit];
-  const ct = DATA.cook_temperatures[state.pitTemp];
+  const ct = thermal.cook_temperatures[state.pitTemp];
   const wrap = DATA.wrapping_boundary_conditions[state.wrap];
-  const geo = DATA.mass_geometry_scaling;
+  const geo = thermal.geometry; // { shape, beta, exponent, weight_bounds }
   const cl = CLIMATE[state.climate];
+  const startTemp = thermal.start_temp;
+  const finishTemp = thermal.finish_temp;
 
   // Mass scaling: larger mass climbs slower / stalls longer. rate ∝ W^exponent (-0.333); duration ∝ 1/rate.
   const massRateScale = Math.pow(state.weight / REF_WEIGHT, geo.exponent); // <1 for big meat
@@ -89,12 +98,12 @@ export function computeModel(state) {
 
   // ---- Phase 1: initial climb 40°F -> stall threshold ----
   const climb1 = ct.base_hourly_climb_rate_initial * pitFactor * massRateScale; // °F/hr avg-ish
-  const t1 = ((stallStart - START_TEMP) / climb1) * 1.15; // mild easing correction
+  const t1 = ((stallStart - startTemp) / climb1) * 1.15; // mild easing correction
 
   // ---- Phase 2: the stall ----
   // Evaporative potential: drier pit + more airflow => longer stall.
   const evapFactor = (1 - pit.base_relative_humidity) * (pit.convective_coefficient_hc / REF_PIT_POWER);
-  const nakedStall = 1.9 * massDurScale * evapFactor; // hours if never wrapped
+  const nakedStall = thermal.stall_hours_base * massDurScale * evapFactor; // hours if never wrapped
 
   let stallDuration;
   if (state.wrap === 'none') {
@@ -118,11 +127,11 @@ export function computeModel(state) {
   // Climate can accelerate the post-wrap climb (arid surface dries fast).
   const effPostMod = wrap.post_stall_climb_modifier * cl.postClimbMult;
   const climb3 = climb1 * effPostMod;
-  const t3 = ((FINISH_TEMP - stallEndTemp) / climb3) * 1.1;
+  const t3 = ((finishTemp - stallEndTemp) / climb3) * 1.1;
 
   const totalTime = t1 + stallDuration + t3;
 
-  return { t1, stallDuration, t3, totalTime, stallStart, stallEndTemp, climb1, climb3, postMod: effPostMod };
+  return { t1, stallDuration, t3, totalTime, stallStart, stallEndTemp, climb1, climb3, postMod: effPostMod, startTemp, finishTemp };
 }
 
 /** Sample a smooth temperature path: array of {t (hours), temp (°F)}. Pure. */
@@ -131,12 +140,16 @@ export function buildPath(m) {
   const N1 = 60,
     N2 = 40,
     N3 = 60;
+  // Start/finish come from the model (protein-specific); fall back to the
+  // brisket module constants for any legacy model object without them.
+  const startTemp = m.startTemp ?? START_TEMP;
+  const finishTemp = m.finishTemp ?? FINISH_TEMP;
 
   // Phase 1: exponential approach (fast then easing into the stall)
   for (let i = 0; i <= N1; i++) {
     const f = i / N1;
     const t = f * m.t1;
-    const temp = m.stallStart - (m.stallStart - START_TEMP) * Math.exp(-2.6 * f);
+    const temp = m.stallStart - (m.stallStart - startTemp) * Math.exp(-2.6 * f);
     pts.push({ t, temp });
   }
   // Phase 2: near-flat plateau, gently rising
@@ -151,7 +164,7 @@ export function buildPath(m) {
   for (let i = 1; i <= N3; i++) {
     const f = i / N3;
     const t = m.t1 + m.stallDuration + f * m.t3;
-    const temp = m.stallEndTemp + (FINISH_TEMP - m.stallEndTemp) * Math.pow(f, p);
+    const temp = m.stallEndTemp + (finishTemp - m.stallEndTemp) * Math.pow(f, p);
     pts.push({ t, temp });
   }
   return pts;

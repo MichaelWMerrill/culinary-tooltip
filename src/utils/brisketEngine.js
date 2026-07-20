@@ -50,3 +50,29 @@ export function calcBrisket(state) {
 
   return { trimPct, cookPct, raw, trimWt, trimmedWt, cookLoss, cookedWt, totalYield, rawCost, trueCost, markup };
 }
+
+/**
+ * Generic yield calculation for any protein. Reads the loss fractions from the
+ * protein's `yield.matrix` using its declared `yield.lossKeys`, then applies the
+ * same sequential trim → cook loss model as calcBrisket. For beef_brisket this
+ * returns byte-for-byte the same result as calcBrisket (validated in tests).
+ */
+export function calcYield(protein, state) {
+  const lk = protein.yield.lossKeys;
+  const row = protein.yield.matrix[state[lk.primary]];
+  const trimPct = lk.trim ? row.trim[state[lk.trim]] : row.trim; // prep/trim loss fraction
+  const cookPct = lk.cook ? row.cook[state[lk.cook]] : row.cook; // cook loss fraction
+
+  const raw = state.weight;
+  const trimWt = raw * trimPct;
+  const trimmedWt = raw - trimWt;
+  const cookLoss = trimmedWt * cookPct;
+  const cookedWt = trimmedWt - cookLoss;
+
+  const totalYield = raw > 0 ? cookedWt / raw : 0;
+  const rawCost = raw * state.price;
+  const trueCost = cookedWt > 0 ? rawCost / cookedWt : 0;
+  const markup = state.price > 0 ? trueCost / state.price - 1 : 0;
+
+  return { trimPct, cookPct, raw, trimWt, trimmedWt, cookLoss, cookedWt, totalYield, rawCost, trueCost, markup };
+}

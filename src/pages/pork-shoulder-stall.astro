@@ -1,0 +1,68 @@
+---
+import Layout from '../layouts/Layout.astro';
+import StallPredictor from '../components/calc/StallPredictor.astro';
+import { PROTEINS } from '../utils/proteinRegistry.js';
+
+const pageUrl = 'https://empiricalbbq.com/pork-shoulder-stall';
+const publisher = {
+  '@type': 'Organization',
+  name: 'Empirical BBQ',
+  url: 'https://empiricalbbq.com/',
+  logo: 'https://empiricalbbq.com/android-chrome-512x512.png',
+};
+const faqs = [
+  {
+    q: 'Does pork shoulder stall like brisket?',
+    a: 'Yes, but usually a shorter, softer stall. Evaporative cooling still plateaus the internal temperature in the 160–170°F range, but a fattier, more compact butt renders through it faster than a wide brisket. The predictor models the shorter plateau.',
+  },
+  {
+    q: 'What temperature is pulled pork done?',
+    a: 'Pull around 200–205°F internal — near 202°F the collagen has rendered and the blade bone wobbles free, so the meat shreds easily. That is well above the 145°F food-safety minimum for pork; the extra time at temperature is what makes it pull.',
+  },
+  {
+    q: 'How long does it take to smoke a pork shoulder?',
+    a: 'Budget roughly 1.5–2 hours per pound at 225–250°F, including the stall. A typical 8 lb bone-in butt runs about 12–16 hours unwrapped, less if you wrap; the predictor plots the full internal-temperature curve for your setup.',
+  },
+  {
+    q: 'Should I wrap a pork shoulder?',
+    a: 'Wrapping in foil (often a foil boat) or butcher paper pushes through the stall faster and locks in moisture, at some cost to bark. Cooking naked gives the deepest bark but the longest cook. The predictor models no-wrap, paper, and foil paths.',
+  },
+  {
+    q: 'At what temperature does the pork stall start?',
+    a: 'Most often between 155°F and 170°F, shifting with pit airflow, humidity, and your climate. Drier, higher-airflow pits drive a sharper, shorter stall; low-airflow, humid cookers stretch it out.',
+  },
+];
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Pork Shoulder Stall Predictor',
+    url: pageUrl,
+    applicationCategory: 'UtilityApplication',
+    operatingSystem: 'Any',
+    description:
+      'Model the pork shoulder stall and cook time: plot internal temperature versus time and predict stall duration from pit convection, humidity, wrap method, and weight.',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout
+  title="Empirical BBQ | Pork Shoulder Stall Predictor & Cook-Time Curve"
+  description="Model the pork shoulder stall and cook time: plot internal temperature versus time and predict stall duration from pit convection, humidity, wrap method, and weight."
+  ogUrl="https://empiricalbbq.com/pork-shoulder-stall"
+  schema={schema}
+  bodyClass="page-pork-stall min-h-screen bg-slate-950 text-slate-300 font-display antialiased"
+>
+  <StallPredictor protein={PROTEINS.pork_shoulder} />
+</Layout>

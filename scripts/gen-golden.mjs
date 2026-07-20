@@ -6,9 +6,10 @@
  * so any accidental change to engine constants fails the tests.
  */
 import { writeFileSync, mkdirSync } from 'node:fs';
-import { calcBrisket } from '../src/utils/brisketEngine.js';
+import { calcBrisket, calcYield } from '../src/utils/brisketEngine.js';
 import { computeModel, buildPath, FINISH_TEMP } from '../src/utils/stallEngine.js';
 import { ambientMultiplier, estimate } from '../src/utils/fuelEngine.js';
+import { PROTEINS } from '../src/utils/proteinRegistry.js';
 
 mkdirSync('src/utils/__tests__', { recursive: true });
 const J = (v) => JSON.stringify(v, null, 2);
@@ -182,7 +183,92 @@ describe('estimate — all fuel × insulation × wind at a fixed state', () => {
 `
 );
 
-console.log('Wrote 3 spec files to src/utils/__tests__/');
+/* ---------------- pork shoulder (per-protein yield + stall) ---------------- */
+const pork = PROTEINS.pork_shoulder;
+const PORK_CUTS = ['bone_in', 'boneless'];
+const PORK_WRAPS = ['naked', 'paper', 'foil'];
+const porkYieldGolden = {};
+for (const cut of PORK_CUTS)
+  for (const wrap of PORK_WRAPS)
+    porkYieldGolden[`${cut}|${wrap}`] = calcYield(pork, { weight: 8, price: 1.99, cut, wrap });
+porkYieldGolden['zeroWeight'] = calcYield(pork, { weight: 0, price: 1.99, cut: 'bone_in', wrap: 'paper' });
+porkYieldGolden['zeroPrice'] = calcYield(pork, { weight: 8, price: 0, cut: 'boneless', wrap: 'paper' });
+
+const porkStallStates = [
+  { weight: 8, pitTemp: '250', pit: 'offset_smoker', wrap: 'peach_butcher_paper', wrapTemp: 160, climate: 'moderate' },
+  { weight: 6, pitTemp: '225', pit: 'pellet_cooker', wrap: 'none', wrapTemp: 160, climate: 'arid' },
+  { weight: 10, pitTemp: '275', pit: 'ceramic_kamado', wrap: 'aluminum_foil', wrapTemp: 165, climate: 'humid' },
+  { weight: 12, pitTemp: '250', pit: 'charcoal_kettle', wrap: 'peach_butcher_paper', wrapTemp: 155, climate: 'moderate' },
+];
+const porkStallGolden = porkStallStates.map((s) => {
+  const m = computeModel(s, pork);
+  return { t1: m.t1, stallDuration: m.stallDuration, t3: m.t3, totalTime: m.totalTime, finishTemp: m.finishTemp };
+});
+
+writeFileSync(
+  'src/utils/__tests__/porkShoulderEngine.spec.js',
+  `// AUTO-GENERATED golden regression test (scripts/gen-golden.mjs). Do not hand-edit values.
+import { describe, it, expect } from 'vitest';
+import { calcYield } from '../brisketEngine.js';
+import { computeModel, buildPath } from '../stallEngine.js';
+import { PROTEINS } from '../proteinRegistry.js';
+
+const pork = PROTEINS.pork_shoulder;
+const CUTS = ${J(PORK_CUTS)};
+const WRAPS = ${J(PORK_WRAPS)};
+
+// Yield golden captured at 8 lb / $1.99.
+const yieldGolden = ${J(porkYieldGolden)};
+
+describe('pork_shoulder yield — all cut × wrap at 8 lb / $1.99', () => {
+  for (const cut of CUTS)
+    for (const wrap of WRAPS) {
+      const key = \`\${cut}|\${wrap}\`;
+      it(key, () => {
+        expect(calcYield(pork, { weight: 8, price: 1.99, cut, wrap })).toEqual(yieldGolden[key]);
+      });
+    }
+
+  it('zero weight → zero cooked weight, guarded cost/markup', () => {
+    expect(calcYield(pork, { weight: 0, price: 1.99, cut: 'bone_in', wrap: 'paper' })).toEqual(yieldGolden.zeroWeight);
+  });
+  it('zero price → zero cost', () => {
+    expect(calcYield(pork, { weight: 8, price: 0, cut: 'boneless', wrap: 'paper' })).toEqual(yieldGolden.zeroPrice);
+  });
+});
+
+const stallStates = ${J(porkStallStates)};
+const stallGolden = ${J(porkStallGolden)};
+
+describe('pork_shoulder stall — phase durations to 6 decimals', () => {
+  stallStates.forEach((s, i) => {
+    it(\`state \${i}: \${s.pit} / \${s.wrap} / \${s.climate}\`, () => {
+      const m = computeModel(s, pork);
+      expect(m.t1).toBeCloseTo(stallGolden[i].t1, 6);
+      expect(m.stallDuration).toBeCloseTo(stallGolden[i].stallDuration, 6);
+      expect(m.t3).toBeCloseTo(stallGolden[i].t3, 6);
+      expect(m.totalTime).toBeCloseTo(stallGolden[i].totalTime, 6);
+    });
+  });
+});
+
+describe('pork_shoulder buildPath — time monotonic, ends at pork finish temp', () => {
+  stallStates.forEach((s, i) => {
+    it(\`state \${i} path\`, () => {
+      const pts = buildPath(computeModel(s, pork));
+      expect(pts.length).toBeGreaterThan(0);
+      for (let k = 1; k < pts.length; k++) {
+        expect(pts[k].t).toBeGreaterThanOrEqual(pts[k - 1].t);
+      }
+      expect(pts[pts.length - 1].temp).toBeCloseTo(stallGolden[i].finishTemp, 6);
+    });
+  });
+});
+`
+);
+
+console.log('Wrote 4 spec files to src/utils/__tests__/');
 console.log('brisket combos:', Object.keys(brisketGolden).length);
 console.log('stall states:', stallGolden.length);
 console.log('fuel estimate combos:', Object.keys(estimateGolden).length, '| ambient points:', ambientGolden.length);
+console.log('pork yield combos:', Object.keys(porkYieldGolden).length, '| pork stall states:', porkStallGolden.length);

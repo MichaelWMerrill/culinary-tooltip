@@ -20,6 +20,15 @@ export function enumParam(v, allowed, fallback) {
   return allowed.includes(v) ? v : fallback;
 }
 
+/**
+ * Validate a `protein` share-link param against the registry's known protein
+ * ids. A hostile/unknown value falls back to the default so it can never select
+ * an unregistered protein.
+ */
+export function proteinParam(v, allowedIds, fallback = 'beef_brisket') {
+  return allowedIds.includes(v) ? v : fallback;
+}
+
 /** Parse a boolean-ish param. */
 export function boolParam(v, fallback) {
   if (v === '1' || v === 'true') return true;

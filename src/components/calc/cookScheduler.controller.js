@@ -12,6 +12,7 @@ import { clampNum, enumParam, getParams, writeParams, wireCopyButton } from '../
 export function initCookScheduler(protein = PROTEINS.beef_brisket) {
   const wAxis = protein.thermal.axes.find((a) => a.id === 'weight');
   const wR = wAxis.range;
+  const finishTemp = protein.thermal.finish_temp;
 
   const PREHEAT_HRS = 0.75; // smoker preheat before the meat goes on
   const HR = 3600 * 1000;
@@ -65,14 +66,17 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
     const serve = state.serveAt ? new Date(state.serveAt) : null;
     if (!serve || isNaN(serve.getTime())) return null;
 
-    const m = computeModel({
-      weight: state.weight,
-      pitTemp: state.pitTemp,
-      pit: state.pit,
-      wrap: state.wrap,
-      wrapTemp: state.wrapTemp,
-      climate: state.climate,
-    });
+    const m = computeModel(
+      {
+        weight: state.weight,
+        pitTemp: state.pitTemp,
+        pit: state.pit,
+        wrap: state.wrap,
+        wrapTemp: state.wrapTemp,
+        climate: state.climate,
+      },
+      protein
+    );
     const pts = buildPath(m);
 
     const pull = new Date(serve.getTime() - state.rest * HR); // rest starts (pull off pit)
@@ -81,7 +85,7 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
 
     const milestones = [
       { icon: '🔥', at: fireUp, title: 'Light the fire', sub: `Preheat the pit to ${state.pitTemp}°F (${fmtHrs(PREHEAT_HRS)} before the meat goes on).` },
-      { icon: '🥩', at: meatOn, title: 'Meat on', sub: `Cold meat on the grate. Estimated ${fmtHrs(m.totalTime)} to a ${FINISH_TEMP}°F finish.` },
+      { icon: '🥩', at: meatOn, title: 'Meat on', sub: `Cold meat on the grate. Estimated ${fmtHrs(m.totalTime)} to a ${finishTemp}°F finish.` },
     ];
 
     if (state.wrap !== 'none') {
@@ -100,7 +104,7 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
       icon: '🌡️',
       at: pull,
       title: `Pull & rest`,
-      sub: `Probe-tender near ${FINISH_TEMP}°F. Rest ${fmtHrs(state.rest)} in a faux-cambro before slicing.`,
+      sub: `Probe-tender near ${finishTemp}°F. Rest ${fmtHrs(state.rest)} in a faux-cambro before slicing.`,
     });
     milestones.push({ icon: '🍽️', at: serve, title: 'Serve', sub: 'Slice against the grain and eat.' });
 
@@ -243,6 +247,7 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
   }
   function updateShareUrl() {
     const params = {
+      pr: protein.meta.id,
       w: state.weight,
       pt: state.pitTemp,
       pit: state.pit,
@@ -270,6 +275,28 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
     // hydrate controls
     $('serveAt').value = state.serveAt;
     $('weight').value = state.weight;
+
+    // Protein-aware weight slider bounds (the static page ships brisket defaults).
+    state.weight = Math.min(wR.max, Math.max(wR.min, state.weight));
+    const wEl = $('weight');
+    wEl.min = wR.min;
+    wEl.max = wR.max;
+    wEl.step = wR.step;
+    wEl.value = state.weight;
+    if ($('weightMin')) $('weightMin').textContent = `${wR.min} ${wR.unit}`;
+    if ($('weightMax')) $('weightMax').textContent = `${wR.max} ${wR.unit}`;
+
+    // Highlight the active protein tab (selector is interactive on this page).
+    document.querySelectorAll('.protein-tab').forEach((tab) => {
+      const on = tab.dataset.proteinTab === protein.meta.id;
+      tab.setAttribute('aria-selected', on ? 'true' : 'false');
+      tab.classList.toggle('bg-flame-500', on);
+      tab.classList.toggle('text-white', on);
+      tab.classList.toggle('font-semibold', on);
+      tab.classList.toggle('shadow', on);
+      tab.classList.toggle('text-white/60', !on);
+      tab.classList.toggle('font-medium', !on);
+    });
     $('wrapTemp').value = state.wrapTemp;
     $('rest').value = state.rest;
     $('pit').value = state.pit;
