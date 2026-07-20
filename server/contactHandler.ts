@@ -166,8 +166,12 @@ export async function handleContact(request: Request, env: ContactEnv): Promise<
       ? await sendViaResend(env.RESEND_API_KEY, subject, text, replyTo)
       : await sendViaMailChannels(subject, text, replyTo);
     if (!sendRes.ok) {
+      // Keep the upstream provider's error out of the client response (it can
+      // expose provider internals); surface it server-side only, via
+      // observability logs, for debugging.
       const detail = await sendRes.text().catch(() => '');
-      return json({ ok: false, error: 'Delivery failed. Please email us directly.', detail: detail.slice(0, 300) }, 502);
+      console.error('contact delivery failed', sendRes.status, detail.slice(0, 300));
+      return json({ ok: false, error: 'Delivery failed. Please email us directly.' }, 502);
     }
   } catch {
     return json({ ok: false, error: 'Delivery failed. Please email us directly.' }, 502);
