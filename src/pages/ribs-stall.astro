@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import StallPredictor from '../components/calc/StallPredictor.astro';
+import FaqSection from '../components/calc/FaqSection.astro';
 import { PROTEINS } from '../utils/proteinRegistry.js';
 
 const pageUrl = 'https://empiricalbbq.com/ribs-stall';
@@ -65,4 +66,8 @@ const schema = [
   bodyClass="page-ribs-stall min-h-screen bg-slate-950 text-slate-300 font-display antialiased"
 >
   <StallPredictor protein={PROTEINS.pork_ribs} />
+  <FaqSection
+    faqs={faqs}
+    intro="Ribs are a slab, not a block, so their cook time is set by the rack's thickness — not by how many racks are on the pit — and the evaporative stall is nearly absent. That is why two racks and six racks finish in about the same time. This tool lays out rib cook time by cut (spare, St. Louis, baby back) and wrap, following the classic 3-2-1 method (or a shorter 2-2-1 for thinner baby backs)."
+  />
 </Layout>

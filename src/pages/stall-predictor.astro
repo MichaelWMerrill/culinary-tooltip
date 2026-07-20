@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import StallPredictor from '../components/calc/StallPredictor.astro';
+import FaqSection from '../components/calc/FaqSection.astro';
 
 const pageUrl = 'https://empiricalbbq.com/stall-predictor';
 const publisher = {
@@ -74,4 +75,8 @@ const schema = [
   bodyClass="page-stall min-h-screen bg-slate-950 text-slate-300 font-display antialiased"
 >
   <StallPredictor />
+  <FaqSection
+    faqs={faqs}
+    intro="The stall is the hours-long temperature plateau that frustrates every new pitmaster — and it is not your thermometer failing. It is evaporative cooling: as moisture wicks to the surface and evaporates, it pulls heat away about as fast as the pit adds it, so the internal temperature stalls until the surface dries. This predictor models exactly how long that plateau lasts for your cut, pit, wrap, and climate, so you can plan the cook around it instead of panicking through it."
+  />
 </Layout>

@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import StallPredictor from '../components/calc/StallPredictor.astro';
+import FaqSection from '../components/calc/FaqSection.astro';
 import { PROTEINS } from '../utils/proteinRegistry.js';
 
 const pageUrl = 'https://empiricalbbq.com/pork-shoulder-stall';
@@ -65,4 +66,8 @@ const schema = [
   bodyClass="page-pork-stall min-h-screen bg-slate-950 text-slate-300 font-display antialiased"
 >
   <StallPredictor protein={PROTEINS.pork_shoulder} />
+  <FaqSection
+    faqs={faqs}
+    intro="Pork shoulder hits the same evaporative stall as brisket, but a fattier, more compact cut renders through it faster — the plateau is shorter and softer. This predictor plots the full internal-temperature curve and the pork stall to a roughly 202°F pull, where the bone wobbles and the meat shreds, from your pit airflow and humidity, wrap method, weight, and climate."
+  />
 </Layout>

@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import YieldCalculator from '../components/calc/YieldCalculator.astro';
+import FaqSection from '../components/calc/FaqSection.astro';
 
 const pageUrl = 'https://empiricalbbq.com/brisket-calculator';
 const publisher = {
@@ -74,4 +75,8 @@ const schema = [
   bodyClass="page-brisket min-h-screen bg-smoke-900 text-smoke-300 font-display antialiased"
 >
   <YieldCalculator />
+  <FaqSection
+    faqs={faqs}
+    intro="A whole packer brisket loses close to half its raw weight before it hits the plate — first to trimming the fat cap and hard fat, then to rendering and evaporation over a long cook. That is why planning around the cooked weight is a trap: the number that matters at the butcher is the raw weight. This calculator turns your raw weight, USDA grade, trim style, and wrap method into an honest usable yield, the cook loss along the way, and your true cost per cooked pound."
+  />
 </Layout>

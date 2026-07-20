@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import RestCalculator from '../components/calc/RestCalculator.astro';
+import FaqSection from '../components/calc/FaqSection.astro';
 
 const pageUrl = 'https://empiricalbbq.com/rest-calculator';
 const publisher = {
@@ -64,4 +65,8 @@ const schema = [
   bodyClass="page-rest min-h-screen bg-slate-950 text-slate-300 font-display antialiased"
 >
   <RestCalculator />
+  <FaqSection
+    faqs={faqs}
+    intro="A rested cut does not cool in a straight line — it cools exponentially toward the temperature of its surroundings, fast at first and then ever more slowly. A long, warm rest is not a compromise either: it lets the muscle fibers relax and reabsorb rendered juices. The only hard limit is food safety — cooked meat must stay above the 140°F danger-zone floor. This calculator applies Newton's law of cooling to show how long your cook holds safe in a warm oven, faux cambro, bare cooler, or on the counter."
+  />
 </Layout>

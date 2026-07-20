@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import PartyPlanner from '../components/calc/PartyPlanner.astro';
+import FaqSection from '../components/calc/FaqSection.astro';
 
 const pageUrl = 'https://empiricalbbq.com/party-planner';
 const publisher = {
@@ -64,4 +65,8 @@ const schema = [
   bodyClass="page-party min-h-screen bg-smoke-900 text-smoke-300 font-display antialiased"
 >
   <PartyPlanner />
+  <FaqSection
+    faqs={faqs}
+    intro="Every cookout comes down to two numbers: how much cooked meat each guest eats, and how much raw weight you have to buy to get there after shrinkage. The mistake is planning around the cooked number — because low-and-slow cooking is brutal on weight, the raw target is often nearly double. This planner inverts our yield model across brisket, pork, and turkey: enter a guest count and appetite, and it back-solves the raw weight to buy and the budget."
+  />
 </Layout>
