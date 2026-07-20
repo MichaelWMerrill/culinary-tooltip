@@ -153,14 +153,16 @@ export const PROTEINS = {
 
       // Protein-specific input axis for the stall/scheduler tools. Only weight is
       // protein-driven here; wrap/pit/climate are equipment/environment and stay
-      // component-local. The slider UI range is wider than the physics
-      // weight_bounds above (which only clamps the mass-scaling term).
+      // component-local. Range matches the yield calculator's weight axis
+      // (4–30 lb) so the same brisket weight is valid across every tool; the
+      // phenomenological model scales continuously with weight and does not clamp
+      // to geometry.weight_bounds (which is informational only).
       axes: [
         {
           id: 'weight',
           label: 'Meat Weight',
           type: 'slider',
-          range: { min: 4, max: 20, step: 0.5, unit: 'lb' },
+          range: { min: 4, max: 30, step: 0.5, unit: 'lb' },
         },
       ],
     },
