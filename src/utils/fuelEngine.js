@@ -66,6 +66,19 @@ export function ambientMultiplier(tempF) {
   return a[a.length - 1][1];
 }
 
+/*
+ * Single-wall steel is the real-world baseline cooker: the `base_burn_ideal`
+ * rates are calibrated to it at ideal weather (calm, ~70°F) — single-wall
+ * charcoal ≈ 1.5 lb/hr and pellets ≈ 1.2 lb/hr at 225–250°F (calibration
+ * estimate — see METHODOLOGY). Better insulation reduces burn *from* this
+ * baseline; the efficiency ratio sets how much (e.g. an insulated blanket at
+ * η 0.70 burns 0.45/0.70 ≈ 0.64× the single-wall fuel, a ~36% saving). This
+ * anchoring keeps the insulation what-if percentages intact while giving
+ * physically realistic absolute pounds — a plain `/ efficiency_eta` overstated
+ * single-wall consumption by ~2.2×.
+ */
+export const BASELINE_EFFICIENCY = CONFIG.insulation_profiles.single_wall_steel.efficiency_eta;
+
 /**
  * Estimate fuel weight, cost, bags, and effective burn rate for a state and a
  * specific insulation profile (so what-if comparisons can pass alternates). Pure.
@@ -76,7 +89,7 @@ export function estimate(state, insulationKey) {
   const amb = ambientMultiplier(state.ambientTemp);
   const wind = CONFIG.wind_modifiers[state.wind];
 
-  const lbs = (fm.base_burn_ideal * state.duration * amb * wind) / ins.efficiency_eta;
+  const lbs = fm.base_burn_ideal * state.duration * amb * wind * (BASELINE_EFFICIENCY / ins.efficiency_eta);
   const costPerLb = state.bagWeight > 0 ? state.bagCost / state.bagWeight : 0;
   const cost = lbs * costPerLb;
   const bags = state.bagWeight > 0 ? lbs / state.bagWeight : 0;

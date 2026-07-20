@@ -52,201 +52,201 @@ const baseState = {
 };
 const estimateGolden = {
   "wood_pellets|single_wall_steel|calm_0_5mph": {
-    "lbs": 31.999999999999996,
-    "cost": 28.799999999999997,
-    "bags": 1.5999999999999999,
+    "lbs": 14.399999999999999,
+    "cost": 12.959999999999999,
+    "bags": 0.72,
     "costPerLb": 0.9,
-    "effRate": 2.6666666666666665
+    "effRate": 1.2
   },
   "wood_pellets|single_wall_steel|breezy_5_15mph": {
-    "lbs": 40,
-    "cost": 36,
-    "bags": 2,
+    "lbs": 18,
+    "cost": 16.2,
+    "bags": 0.9,
     "costPerLb": 0.9,
-    "effRate": 3.3333333333333335
+    "effRate": 1.5
   },
   "wood_pellets|single_wall_steel|high_wind_15mph": {
-    "lbs": 51.199999999999996,
-    "cost": 46.08,
-    "bags": 2.5599999999999996,
+    "lbs": 23.04,
+    "cost": 20.736,
+    "bags": 1.152,
     "costPerLb": 0.9,
-    "effRate": 4.266666666666667
+    "effRate": 1.92
   },
   "wood_pellets|insulated_blanket|calm_0_5mph": {
-    "lbs": 20.57142857142857,
-    "cost": 18.514285714285712,
-    "bags": 1.0285714285714285,
+    "lbs": 9.257142857142856,
+    "cost": 8.331428571428571,
+    "bags": 0.4628571428571428,
     "costPerLb": 0.9,
-    "effRate": 1.7142857142857142
+    "effRate": 0.7714285714285714
   },
   "wood_pellets|insulated_blanket|breezy_5_15mph": {
-    "lbs": 25.714285714285715,
-    "cost": 23.142857142857146,
-    "bags": 1.2857142857142858,
+    "lbs": 11.571428571428573,
+    "cost": 10.414285714285716,
+    "bags": 0.5785714285714286,
     "costPerLb": 0.9,
-    "effRate": 2.142857142857143
+    "effRate": 0.9642857142857144
   },
   "wood_pellets|insulated_blanket|high_wind_15mph": {
-    "lbs": 32.91428571428572,
-    "cost": 29.622857142857146,
-    "bags": 1.645714285714286,
+    "lbs": 14.811428571428571,
+    "cost": 13.330285714285715,
+    "bags": 0.7405714285714285,
     "costPerLb": 0.9,
-    "effRate": 2.7428571428571433
+    "effRate": 1.2342857142857142
   },
   "wood_pellets|ceramic_double_wall|calm_0_5mph": {
-    "lbs": 16.941176470588236,
-    "cost": 15.247058823529413,
-    "bags": 0.8470588235294118,
+    "lbs": 7.623529411764705,
+    "cost": 6.861176470588235,
+    "bags": 0.3811764705882353,
     "costPerLb": 0.9,
-    "effRate": 1.411764705882353
+    "effRate": 0.6352941176470588
   },
   "wood_pellets|ceramic_double_wall|breezy_5_15mph": {
-    "lbs": 21.176470588235293,
-    "cost": 19.058823529411764,
-    "bags": 1.0588235294117647,
+    "lbs": 9.529411764705882,
+    "cost": 8.576470588235294,
+    "bags": 0.4764705882352941,
     "costPerLb": 0.9,
-    "effRate": 1.7647058823529411
+    "effRate": 0.7941176470588235
   },
   "wood_pellets|ceramic_double_wall|high_wind_15mph": {
-    "lbs": 27.105882352941176,
-    "cost": 24.395294117647058,
-    "bags": 1.3552941176470588,
+    "lbs": 12.197647058823529,
+    "cost": 10.977882352941176,
+    "bags": 0.6098823529411764,
     "costPerLb": 0.9,
-    "effRate": 2.2588235294117647
+    "effRate": 1.016470588235294
   },
   "charcoal_briquettes|single_wall_steel|calm_0_5mph": {
-    "lbs": 40,
-    "cost": 36,
-    "bags": 2,
+    "lbs": 18,
+    "cost": 16.2,
+    "bags": 0.9,
     "costPerLb": 0.9,
-    "effRate": 3.3333333333333335
+    "effRate": 1.5
   },
   "charcoal_briquettes|single_wall_steel|breezy_5_15mph": {
-    "lbs": 50,
-    "cost": 45,
-    "bags": 2.5,
+    "lbs": 22.5,
+    "cost": 20.25,
+    "bags": 1.125,
     "costPerLb": 0.9,
-    "effRate": 4.166666666666667
+    "effRate": 1.875
   },
   "charcoal_briquettes|single_wall_steel|high_wind_15mph": {
-    "lbs": 64,
-    "cost": 57.6,
-    "bags": 3.2,
+    "lbs": 28.8,
+    "cost": 25.92,
+    "bags": 1.44,
     "costPerLb": 0.9,
-    "effRate": 5.333333333333333
+    "effRate": 2.4
   },
   "charcoal_briquettes|insulated_blanket|calm_0_5mph": {
-    "lbs": 25.714285714285715,
-    "cost": 23.142857142857146,
-    "bags": 1.2857142857142858,
+    "lbs": 11.571428571428573,
+    "cost": 10.414285714285716,
+    "bags": 0.5785714285714286,
     "costPerLb": 0.9,
-    "effRate": 2.142857142857143
+    "effRate": 0.9642857142857144
   },
   "charcoal_briquettes|insulated_blanket|breezy_5_15mph": {
-    "lbs": 32.142857142857146,
-    "cost": 28.92857142857143,
-    "bags": 1.6071428571428572,
+    "lbs": 14.464285714285715,
+    "cost": 13.017857142857144,
+    "bags": 0.7232142857142858,
     "costPerLb": 0.9,
-    "effRate": 2.678571428571429
+    "effRate": 1.205357142857143
   },
   "charcoal_briquettes|insulated_blanket|high_wind_15mph": {
-    "lbs": 41.142857142857146,
-    "cost": 37.02857142857143,
-    "bags": 2.0571428571428574,
+    "lbs": 18.514285714285716,
+    "cost": 16.662857142857145,
+    "bags": 0.9257142857142858,
     "costPerLb": 0.9,
-    "effRate": 3.428571428571429
+    "effRate": 1.542857142857143
   },
   "charcoal_briquettes|ceramic_double_wall|calm_0_5mph": {
-    "lbs": 21.176470588235293,
-    "cost": 19.058823529411764,
-    "bags": 1.0588235294117647,
+    "lbs": 9.529411764705882,
+    "cost": 8.576470588235294,
+    "bags": 0.4764705882352941,
     "costPerLb": 0.9,
-    "effRate": 1.7647058823529411
+    "effRate": 0.7941176470588235
   },
   "charcoal_briquettes|ceramic_double_wall|breezy_5_15mph": {
-    "lbs": 26.47058823529412,
-    "cost": 23.823529411764707,
-    "bags": 1.323529411764706,
+    "lbs": 11.911764705882353,
+    "cost": 10.720588235294118,
+    "bags": 0.5955882352941176,
     "costPerLb": 0.9,
-    "effRate": 2.2058823529411766
+    "effRate": 0.9926470588235294
   },
   "charcoal_briquettes|ceramic_double_wall|high_wind_15mph": {
-    "lbs": 33.88235294117647,
-    "cost": 30.494117647058825,
-    "bags": 1.6941176470588235,
+    "lbs": 15.247058823529413,
+    "cost": 13.72235294117647,
+    "bags": 0.7623529411764707,
     "costPerLb": 0.9,
-    "effRate": 2.823529411764706
+    "effRate": 1.2705882352941178
   },
   "hardwood_splits|single_wall_steel|calm_0_5mph": {
-    "lbs": 93.33333333333333,
-    "cost": 84,
-    "bags": 4.666666666666666,
+    "lbs": 42,
+    "cost": 37.800000000000004,
+    "bags": 2.1,
     "costPerLb": 0.9,
-    "effRate": 7.777777777777778
+    "effRate": 3.5
   },
   "hardwood_splits|single_wall_steel|breezy_5_15mph": {
-    "lbs": 116.66666666666666,
-    "cost": 105,
-    "bags": 5.833333333333333,
+    "lbs": 52.5,
+    "cost": 47.25,
+    "bags": 2.625,
     "costPerLb": 0.9,
-    "effRate": 9.722222222222221
+    "effRate": 4.375
   },
   "hardwood_splits|single_wall_steel|high_wind_15mph": {
-    "lbs": 149.33333333333334,
-    "cost": 134.4,
-    "bags": 7.466666666666667,
+    "lbs": 67.2,
+    "cost": 60.480000000000004,
+    "bags": 3.3600000000000003,
     "costPerLb": 0.9,
-    "effRate": 12.444444444444445
+    "effRate": 5.6000000000000005
   },
   "hardwood_splits|insulated_blanket|calm_0_5mph": {
-    "lbs": 60.00000000000001,
-    "cost": 54.00000000000001,
-    "bags": 3.0000000000000004,
+    "lbs": 27.000000000000004,
+    "cost": 24.300000000000004,
+    "bags": 1.35,
     "costPerLb": 0.9,
-    "effRate": 5.000000000000001
+    "effRate": 2.2500000000000004
   },
   "hardwood_splits|insulated_blanket|breezy_5_15mph": {
-    "lbs": 75,
-    "cost": 67.5,
-    "bags": 3.75,
+    "lbs": 33.75,
+    "cost": 30.375,
+    "bags": 1.6875,
     "costPerLb": 0.9,
-    "effRate": 6.25
+    "effRate": 2.8125
   },
   "hardwood_splits|insulated_blanket|high_wind_15mph": {
-    "lbs": 96.00000000000001,
-    "cost": 86.40000000000002,
-    "bags": 4.800000000000001,
+    "lbs": 43.2,
+    "cost": 38.88,
+    "bags": 2.16,
     "costPerLb": 0.9,
-    "effRate": 8.000000000000002
+    "effRate": 3.6
   },
   "hardwood_splits|ceramic_double_wall|calm_0_5mph": {
-    "lbs": 49.411764705882355,
-    "cost": 44.47058823529412,
-    "bags": 2.4705882352941178,
+    "lbs": 22.235294117647058,
+    "cost": 20.011764705882353,
+    "bags": 1.111764705882353,
     "costPerLb": 0.9,
-    "effRate": 4.11764705882353
+    "effRate": 1.852941176470588
   },
   "hardwood_splits|ceramic_double_wall|breezy_5_15mph": {
-    "lbs": 61.76470588235294,
-    "cost": 55.58823529411765,
-    "bags": 3.088235294117647,
+    "lbs": 27.794117647058822,
+    "cost": 25.014705882352942,
+    "bags": 1.3897058823529411,
     "costPerLb": 0.9,
-    "effRate": 5.147058823529412
+    "effRate": 2.316176470588235
   },
   "hardwood_splits|ceramic_double_wall|high_wind_15mph": {
-    "lbs": 79.05882352941177,
-    "cost": 71.15294117647059,
-    "bags": 3.9529411764705884,
+    "lbs": 35.576470588235296,
+    "cost": 32.01882352941177,
+    "bags": 1.7788235294117647,
     "costPerLb": 0.9,
-    "effRate": 6.588235294117648
+    "effRate": 2.9647058823529413
   }
 };
 const zeroBagGolden = {
-  "lbs": 31.999999999999996,
+  "lbs": 14.399999999999999,
   "cost": 0,
   "bags": 0,
   "costPerLb": 0,
-  "effRate": 2.6666666666666665
+  "effRate": 1.2
 };
 
 describe('ambientMultiplier — anchors and midpoints', () => {
