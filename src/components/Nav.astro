@@ -1,23 +1,34 @@
 ---
 /*
  * Shared responsive navigation header.
- * `active` highlights the current page: 'home' | 'brisket' | 'stall' | 'fuel' | 'scheduler' | 'blog' | 'contact'.
+ * `active` highlights the current page: 'home' | 'yield' | 'stall' | 'fuel' | 'scheduler' | 'blog' | 'contact'.
+ *
+ * Nav is grouped by TOOL, not protein — each label is a calculator, and the
+ * per-protein variants (brisket / pork / ribs / turkey) are reached from the
+ * homepage command-center matrix and the in-page protein tabs. See the Phase 6
+ * commit message for why this beats dropdown sub-menus on mobile.
+ * ('brisket' stays an accepted alias so the existing brisket pages still light
+ * up the Yield tab without touching them.)
  */
 export interface Props {
-  active?: 'home' | 'brisket' | 'stall' | 'fuel' | 'scheduler' | 'blog' | 'contact' | null;
+  active?: 'home' | 'yield' | 'brisket' | 'stall' | 'fuel' | 'scheduler' | 'blog' | 'contact' | null;
 }
 const { active = null } = Astro.props;
 
 // Absolute (root-relative), extensionless canonical hrefs so the nav resolves
 // correctly from nested routes too — e.g. blog posts served under /blog/<slug>.
+// The yield tab lands on the brisket calculator (its protein tabs fan out to
+// pork & turkey); 'brisket' is treated as an alias of 'yield' for highlighting.
 const links = [
-  { key: 'brisket', href: '/brisket-calculator', label: 'Brisket' },
+  { key: 'yield', href: '/brisket-calculator', label: 'Yield' },
   { key: 'stall', href: '/stall-predictor', label: 'Stall' },
-  { key: 'fuel', href: '/fuel-estimator', label: 'Fuel' },
   { key: 'scheduler', href: '/cook-scheduler', label: 'Scheduler' },
+  { key: 'fuel', href: '/fuel-estimator', label: 'Fuel' },
   { key: 'blog', href: '/blog', label: 'Blog' },
   { key: 'contact', href: '/contact', label: 'Contact' },
 ];
+
+const isActive = (key) => active === key || (key === 'yield' && active === 'brisket');
 
 const inactiveCls =
   'text-gray-400 hover:text-white hover:bg-white/5 rounded-md px-3 py-1.5 whitespace-nowrap transition-colors';
@@ -38,8 +49,8 @@ const activeCls =
       links.map((l) => (
         <a
           href={l.href}
-          aria-current={active === l.key ? 'page' : undefined}
-          class={active === l.key ? activeCls : inactiveCls}
+          aria-current={isActive(l.key) ? 'page' : undefined}
+          class={isActive(l.key) ? activeCls : inactiveCls}
         >
           {l.label}
         </a>
