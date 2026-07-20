@@ -7,6 +7,7 @@
  * lives in ./fuelEstimator.controller.js.
  */
 import { PROTEINS } from '../../utils/proteinRegistry.js';
+import GearModule from './GearModule.astro';
 
 export interface Props {
   protein?: (typeof PROTEINS)[keyof typeof PROTEINS];
@@ -141,35 +142,9 @@ const { protein = PROTEINS.beef_brisket } = Astro.props;
           </div>
         </div>
 
-        <!-- Affiliate banner: Wood Pellets (shown when fuel type is pellets) -->
-        <div id="affPellet" class="mt-6 rounded-xl bg-gradient-to-r from-charcoal-900 to-charcoal-800 ring-1 ring-emerald-500/20 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <span class="text-2xl">🪵</span>
-            <div>
-              <h4 class="text-xs font-bold text-white uppercase tracking-wide">Optimize Thermal Efficiency</h4>
-              <p class="text-[11px] text-charcoal-400">Burn cleaner hardwood pellets engineered specifically for high heat-retention.</p>
-            </div>
-          </div>
-          <div class="w-full sm:w-auto flex flex-col items-center sm:items-end">
-            <span class="block text-[9px] text-slate-500 italic mb-1">As an Amazon Associate I earn from qualifying purchases.</span>
-            <a href="https://amzn.to/4wuM3N2" target="_blank" rel="noopener noreferrer" data-affiliate="wood_pellets" class="w-full sm:w-auto text-center bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] uppercase tracking-wider px-4 py-2 rounded-lg transition-colors">View Rated Fuel Brands →</a>
-          </div>
-        </div>
-
-        <!-- Affiliate banner: Smoker Charcoal (shown for charcoal / hardwood splits) -->
-        <div id="affCharcoal" class="hidden mt-6 rounded-xl bg-gradient-to-r from-charcoal-900 to-charcoal-800 ring-1 ring-emerald-500/20 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <span class="text-2xl">🧱</span>
-            <div>
-              <h4 class="text-xs font-bold text-white uppercase tracking-wide">Optimize Thermal Efficiency</h4>
-              <p class="text-[11px] text-charcoal-400">Dense lump charcoal, briquettes &amp; seasoned splits for steady, long-burn heat retention.</p>
-            </div>
-          </div>
-          <div class="w-full sm:w-auto flex flex-col items-center sm:items-end">
-            <span class="block text-[9px] text-slate-500 italic mb-1">As an Amazon Associate I earn from qualifying purchases.</span>
-            <a href="https://amzn.to/4vuiMBs" target="_blank" rel="noopener noreferrer" data-affiliate="smoker_charcoal" class="w-full sm:w-auto text-center bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] uppercase tracking-wider px-4 py-2 rounded-lg transition-colors">View Rated Charcoal →</a>
-          </div>
-        </div>
+        <!-- State-aware gear: the visible product tracks the selected fuel type
+             (controller toggles [data-gear-pick] by fuel). -->
+        <GearModule tool="fuel" state={{ fuel: 'wood_pellets' }} candidates={['wood_pellets', 'smoker_charcoal']} heading="Recommended Fuel" />
 
         <div class="rounded-2xl bg-charcoal-900 ring-1 ring-charcoal-800 shadow-xl shadow-black/40 p-5 sm:p-6">
           <div class="flex items-start justify-between gap-4">
@@ -271,7 +246,7 @@ const { protein = PROTEINS.beef_brisket } = Astro.props;
 
     <footer class="mt-8 text-center text-[11px] text-charcoal-500">
       <p>Estimates model fuel burn as base rate &times; duration &times; ambient &times; wind &divide; insulation efficiency. Real consumption varies with door-opens, fire management &amp; fuel moisture.</p>
-      <p class="mt-2"><a href="/privacy" class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">Privacy Policy</a></p>
+      <p class="mt-2"><a href="/methodology" class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">Methodology &amp; sources</a> · <a href="/privacy" class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">Privacy Policy</a></p>
     </footer>
   </div>
 <style is:global>

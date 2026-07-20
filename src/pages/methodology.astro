@@ -1,0 +1,194 @@
+---
+/*
+ * /methodology — the site's transparency page. The equations, the constants
+ * behind every calculator, the engine versions, and the golden-test/versioning
+ * story in plain language. The per-protein constants tables are GENERATED from
+ * the protein registry, so the published numbers can never drift from what the
+ * engines actually compute. Linked from every calculator footer.
+ */
+import Layout from '../layouts/Layout.astro';
+import { PROTEINS } from '../utils/proteinRegistry.js';
+
+const proteins = Object.values(PROTEINS);
+
+// One row of thermal facts per protein, read straight from the registry.
+const rows = proteins.map((p) => {
+  const t = p.thermal;
+  const g = t.geometry;
+  const thresholds = Object.values(t.cook_temperatures)
+    .map((c) => `${c.target_fahrenheit}°F pit → ~${c.stall_threshold_fahrenheit}°F`)
+    .join(' · ');
+  return {
+    name: p.meta.name,
+    version: p.meta.version,
+    shape: g.shape,
+    exponent: g.exponent,
+    startTemp: t.start_temp,
+    finishTemp: t.finish_temp,
+    stalls: t.stalls !== false,
+    stallBase: t.stall_hours_base,
+    thresholds,
+    hasYield: !!p.yield,
+    serving: p.serving,
+  };
+});
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: 'Methodology — the models, constants & versioning behind Empirical BBQ',
+  description:
+    'The equations, calibration constants, engine versions, and golden-test regression story behind the Empirical BBQ calculators.',
+  author: { '@type': 'Organization', name: 'Empirical BBQ' },
+  mainEntityOfPage: 'https://empiricalbbq.com/methodology',
+};
+---
+
+<Layout
+  title="Methodology | The Models & Constants Behind Empirical BBQ"
+  description="How the Empirical BBQ calculators work: the mass-transfer, convective-heat, combustion and Newtonian-cooling models, every calibration constant, engine versions, and the golden-test regression story — in plain language."
+  ogUrl="https://empiricalbbq.com/methodology"
+  bodyClass="page-methodology min-h-screen flex flex-col bg-base-850 text-base-300 font-display antialiased selection:bg-flame-500/30"
+  schema={schema}
+>
+  <div class="relative z-10 flex-1 w-full">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <header class="mb-10">
+        <div class="inline-flex items-center gap-2 rounded-full bg-flame-500/10 ring-1 ring-flame-500/40 px-3.5 py-1.5 mb-5">
+          <span class="text-sm">📐</span>
+          <span class="text-xs font-semibold tracking-wide text-flame-300 uppercase">Methodology &amp; Sources</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-[1.08]">How these calculators actually work</h1>
+        <p class="mt-5 text-base sm:text-lg text-base-400 leading-relaxed">
+          Every tool here runs a documented empirical model in your browser — no server, no black box.
+          This page lays out the equations, the constants behind each protein, the engine versions, and
+          how we keep the numbers from silently changing. All outputs are planning estimates:
+          <strong class="text-base-300">always probe to temperature.</strong>
+        </p>
+      </header>
+
+      <!-- ============ THE MODELS ============ -->
+      <section class="space-y-6 mb-12">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400">The Models</h2>
+
+        <div class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6">
+          <h3 class="text-base font-bold text-white">Yield &amp; shrinkage — mass transfer</h3>
+          <p class="mt-2 text-sm text-base-400 leading-relaxed">
+            Trim and cook losses apply evaporative mass-loss relations
+            (<span class="font-mono text-base-300">ṁ = h<sub>m</sub>·A·Δρ<sub>v</sub></span>) with the latent
+            heat of vaporization <span class="font-mono text-base-300">L<sub>v</sub></span>. In practice each
+            protein carries an empirical loss matrix (fraction lost to trimming, then to rendering and
+            evaporation in the pit), calibrated to published USDA yield data and pitmaster field results.
+          </p>
+        </div>
+
+        <div class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6">
+          <h3 class="text-base font-bold text-white">The stall &amp; cook time — convective heat</h3>
+          <p class="mt-2 text-sm text-base-400 leading-relaxed">
+            The internal-temperature climb is a phenomenological model driven by Newton's law of cooling
+            (<span class="font-mono text-base-300">q = h<sub>c</sub>·A·(T<sub>pit</sub> − T<sub>meat</sub>)</span>)
+            balanced against evaporative flux during the stall, and scaled by a geometric mass term
+            <span class="font-mono text-base-300">W<sup>−1/3</sup></span> (thick cuts heat slower per pound).
+            Slab cuts like ribs scale by thickness, not weight, so rack count doesn't change the time.
+          </p>
+        </div>
+
+        <div class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6">
+          <h3 class="text-base font-bold text-white">Fuel &amp; cost — combustion</h3>
+          <p class="mt-2 text-sm text-base-400 leading-relaxed">
+            Fuel demand integrates a baseline burn rate against pit thermal efficiency
+            <span class="font-mono text-base-300">η</span> and a heat-loss coefficient
+            <span class="font-mono text-base-300">U</span>, modulated by ambient temperature and wind load.
+            Baselines: pellets ~1.2 lb/hr, charcoal ~1.5 lb/hr, hardwood splits ~3.5 lb/hr.
+          </p>
+        </div>
+
+        <div class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6">
+          <h3 class="text-base font-bold text-white">Rest &amp; hold — Newtonian cooling</h3>
+          <p class="mt-2 text-sm text-base-400 leading-relaxed">
+            A rested cut cools exponentially toward its surroundings:
+            <span class="font-mono text-base-300">T(t) = T<sub>amb</sub> + (T<sub>pull</sub> − T<sub>amb</sub>)·e<sup>−k·t</sup></span>.
+            The rate constant <span class="font-mono text-base-300">k</span> depends on the vessel (warm oven,
+            faux cambro, bare cooler, counter); the tool reports how long the cut stays above the 140°F
+            food-safe floor.
+          </p>
+        </div>
+      </section>
+
+      <!-- ============ CONSTANTS (generated from the registry) ============ -->
+      <section class="mb-12">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400 mb-2">Per-Protein Constants</h2>
+        <p class="text-sm text-base-400 leading-relaxed mb-5">
+          These values are read directly from the engine's protein registry at build time — the table below
+          cannot drift from what the calculators actually compute. Constants are calibration estimates unless
+          a published source is cited; they are refreshed per data version.
+        </p>
+        <div class="space-y-4">
+          {
+            rows.map((r) => (
+              <div class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6">
+                <div class="flex items-baseline justify-between gap-3 mb-3">
+                  <h3 class="text-base font-bold text-white">{r.name}</h3>
+                  <span class="text-[11px] font-mono font-semibold text-flame-400 bg-flame-500/10 ring-1 ring-flame-500/30 px-2 py-0.5 rounded-md">Model v{r.version}</span>
+                </div>
+                <dl class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 text-sm">
+                  <div><dt class="text-[11px] uppercase tracking-wider text-base-500">Geometry</dt><dd class="text-base-200 font-mono">{r.shape} · W<sup>{r.exponent}</sup></dd></div>
+                  <div><dt class="text-[11px] uppercase tracking-wider text-base-500">Start → Finish</dt><dd class="text-base-200 font-mono">{r.startTemp}°F → {r.finishTemp}°F</dd></div>
+                  <div><dt class="text-[11px] uppercase tracking-wider text-base-500">Stall</dt><dd class="text-base-200 font-mono">{r.stalls ? `~${r.stallBase} h base` : 'none (monotonic)'}</dd></div>
+                  {r.hasYield && <div><dt class="text-[11px] uppercase tracking-wider text-base-500">Yield model</dt><dd class="text-base-200 font-mono">trim + cook matrix</dd></div>}
+                  {r.serving?.lbPerGuestCooked != null && <div><dt class="text-[11px] uppercase tracking-wider text-base-500">Serving</dt><dd class="text-base-200 font-mono">{r.serving.lbPerGuestCooked} lb/guest</dd></div>}
+                  {r.serving?.bonesPerGuest != null && <div><dt class="text-[11px] uppercase tracking-wider text-base-500">Serving</dt><dd class="text-base-200 font-mono">{r.serving.bonesPerGuest} bones/guest</dd></div>}
+                </dl>
+                <p class="mt-3 text-[12px] text-base-500 leading-relaxed"><span class="text-base-400 font-semibold">Stall onset by pit temp:</span> {r.thresholds}</p>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+
+      <!-- ============ VERSIONING & GOLDEN TESTS ============ -->
+      <section class="mb-12">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400 mb-4">Versioning &amp; Regression Testing</h2>
+        <div class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6 space-y-4 text-sm text-base-400 leading-relaxed">
+          <p>
+            Each protein model carries a <strong class="text-base-300">version</strong> (shown as
+            "Model v{PROTEINS.beef_brisket.meta.version}" in the results panels). When we recalibrate a
+            constant, the version bumps so a shared link or screenshot stays traceable to the model that
+            produced it.
+          </p>
+          <p>
+            Every engine is covered by <strong class="text-base-300">golden regression tests</strong>: a frozen
+            set of input → output snapshots checked in with the code. The brisket yield and stall outputs in
+            particular are byte-frozen — any change to the math that would move a published number fails the
+            test suite before it can ship. That's how we add proteins and features without silently shifting
+            the numbers you've already planned around.
+          </p>
+          <p class="text-[13px] text-base-500">
+            Bottom line: these are transparent estimates, not guarantees. Cuts, pits, and weather vary — build
+            in a buffer and probe to temperature.
+          </p>
+        </div>
+      </section>
+
+      <nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-medium">
+        <a href="/" class="text-flame-400 hover:text-flame-300 transition-colors">← Home</a>
+        <a href="/brisket-calculator" class="text-base-400 hover:text-white transition-colors">Calculators</a>
+        <a href="/blog" class="text-base-400 hover:text-white transition-colors">Blog</a>
+        <a href="/privacy" class="text-base-400 hover:text-white transition-colors">Privacy</a>
+      </nav>
+    </div>
+  </div>
+</Layout>
+
+<style is:global>
+  body.page-methodology::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(1200px 600px at 82% -12%, rgba(249, 115, 22, 0.14), transparent 60%),
+      radial-gradient(950px 520px at -8% 108%, rgba(245, 158, 11, 0.09), transparent 55%);
+  }
+</style>

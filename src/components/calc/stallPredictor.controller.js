@@ -48,6 +48,12 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
     if (!isFinite(h) || h <= 0) return '0.0 h';
     return h.toFixed(1) + ' h';
   }
+  // ±5% window around a point estimate — honest imprecision without losing the
+  // underlying number (which stays in the share link via the input params).
+  function fmtHrsRange(h) {
+    if (!isFinite(h) || h <= 0) return fmtHrs(h);
+    return fmtHrs(h * 0.95) + '–' + fmtHrs(h * 1.05);
+  }
 
   /* SVG chart rendering */
   const NS = 'http://www.w3.org/2000/svg';
@@ -236,7 +242,7 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
     renderChart(m, pts);
 
     $('totalTime').textContent = fmtHrs(m.totalTime);
-    $('totalTimeSub').textContent = '≈ ' + m.totalTime.toFixed(1) + ' hrs to ' + finishTemp + '°F';
+    $('totalTimeSub').textContent = fmtHrsRange(m.totalTime) + ' window to ' + finishTemp + '°F (±5%)';
 
     if (stalls) {
       $('stallTime').textContent = fmtHrs(m.stallDuration);

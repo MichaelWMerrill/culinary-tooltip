@@ -1,0 +1,62 @@
+---
+/*
+ * GearModule — a state-aware affiliate block. Given the calculator's `tool` and
+ * initial `state`, it renders the most relevant products from gear.js with the
+ * shared Amazon Associates disclosure. It is a visually distinct block — never
+ * inject affiliate links into results copy.
+ *
+ * Server render picks from the initial state. A controller that tracks relevant
+ * state (e.g. the fuel estimator's fuel type) can pass `candidates` — the full
+ * set this tool might show — and then toggle `[data-gear-pick]` children by id
+ * client-side to swap the visible product without re-rendering. Inactive
+ * candidates ship `hidden`.
+ */
+import { gearFor, resolveGear, ASSOCIATE_DISCLOSURE } from '../../data/gear.js';
+
+export interface Props {
+  tool: string;
+  state?: Record<string, unknown>;
+  /** Explicit candidate id list to render (marking the state-active ones shown,
+   *  the rest hidden). Omit to render only the initial picks. */
+  candidates?: string[];
+  heading?: string;
+}
+
+const { tool, state = {}, candidates, heading = 'Recommended Gear' } = Astro.props;
+
+const activeIds = gearFor(tool, state);
+const renderIds = candidates ?? activeIds;
+const items = renderIds.map((id) => resolveGear(id)).filter(Boolean);
+const isActive = (id) => activeIds.includes(id);
+---
+
+{
+  items.length > 0 && (
+    <div class="gear-module mt-6 rounded-xl bg-slate-900 border border-amber-500/20 p-4" data-gear-tool={tool}>
+      <div class="flex items-center justify-between gap-3 mb-3">
+        <h4 class="text-xs font-bold text-white uppercase tracking-wide">{heading}</h4>
+        <span class="text-[9px] text-slate-500 italic">{ASSOCIATE_DISCLOSURE}</span>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-3">
+        {items.map((g) => (
+          <a
+            href={g.url}
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            data-affiliate={g.id}
+            data-gear-pick={g.id}
+            hidden={candidates ? !isActive(g.id) : false}
+            class="flex-1 flex items-center gap-3 rounded-lg bg-slate-950/60 ring-1 ring-slate-800 hover:ring-amber-500/40 p-3 transition-all group"
+          >
+            <span class="text-2xl shrink-0" aria-hidden="true">{g.icon}</span>
+            <span class="min-w-0">
+              <span class="block text-sm font-semibold text-white truncate">{g.name}</span>
+              <span class="block text-[11px] text-slate-400 leading-snug">{g.blurb}</span>
+              <span class="mt-1 inline-block text-[11px] font-bold text-amber-400 group-hover:text-amber-300 uppercase tracking-wider">{g.cta} →</span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  )
+}
