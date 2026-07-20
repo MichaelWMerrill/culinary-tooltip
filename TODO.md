@@ -60,8 +60,10 @@ After the extensionless-canonical migration deploys, do these by hand:
       offline caching would suppress ad impressions.
 - [ ] Community calibration loop (= #9 above).
 - [ ] Email capture / ESP integration (= #6 above).
-- [ ] CSP enforce-mode flip — manual, after reviewing the production
-      report-only CSP report.
+- [x] CSP enforce-mode flip — done: `public/_headers` now sends
+      `Content-Security-Policy` (was `-Report-Only`), same validated allowlist.
+      Watch for any blocked ad/analytics resource post-deploy; add its host or
+      revert to report-only to re-observe if needed.
 - [ ] Turnstile production site key — manual, via the Cloudflare dashboard.
 - [ ] GSC sitemap resubmission — manual, post-deploy.
 - [ ] Whole-app security audit — the `/api/contact` Worker (input validation,
