@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import YieldCalculator from '../components/calc/YieldCalculator.astro';
+import FaqSection from '../components/calc/FaqSection.astro';
 import { PROTEINS } from '../utils/proteinRegistry.js';
 
 const pageUrl = 'https://empiricalbbq.com/turkey-calculator';
@@ -65,4 +66,8 @@ const schema = [
   bodyClass="page-turkey-yield min-h-screen bg-smoke-900 text-smoke-300 font-display antialiased"
 >
   <YieldCalculator protein={PROTEINS.turkey} />
+  <FaqSection
+    faqs={faqs}
+    intro="A smoked turkey yields roughly 65–75% of its raw weight as carved meat — bones, giblets, and evaporation account for the rest, and brining or spatchcocking shift the number. Plan on about half a pound of carved meat per guest. This calculator turns raw weight, preparation, and whether you brine into carved-meat yield and your true cost per cooked pound, so you buy the right bird the first time."
+  />
 </Layout>

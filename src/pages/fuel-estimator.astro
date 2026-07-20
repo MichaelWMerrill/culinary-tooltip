@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import FuelEstimator from '../components/calc/FuelEstimator.astro';
+import FaqSection from '../components/calc/FaqSection.astro';
 
 const pageUrl = 'https://empiricalbbq.com/fuel-estimator';
 const publisher = {
@@ -74,4 +75,8 @@ const schema = [
   bodyClass="page-fuel min-h-screen bg-charcoal-950 text-charcoal-300 font-display antialiased"
 >
   <FuelEstimator />
+  <FaqSection
+    faqs={faqs}
+    intro="How much fuel a long cook burns comes down to three things: your fuel's baseline burn rate, how efficiently your pit holds heat, and the weather working against it. A cold, windy day on a thin-walled offset can double consumption versus a still, mild day on an insulated cooker. This estimator turns cook length, pit type, ambient temperature, and wind into the pounds, bags, and dollars you will actually spend — so you buy once and never run dry mid-cook."
+  />
 </Layout>

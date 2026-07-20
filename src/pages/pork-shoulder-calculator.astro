@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import YieldCalculator from '../components/calc/YieldCalculator.astro';
+import FaqSection from '../components/calc/FaqSection.astro';
 import { PROTEINS } from '../utils/proteinRegistry.js';
 
 const pageUrl = 'https://empiricalbbq.com/pork-shoulder-calculator';
@@ -69,4 +70,8 @@ const schema = [
   bodyClass="page-pork-yield min-h-screen bg-smoke-900 text-smoke-300 font-display antialiased"
 >
   <YieldCalculator protein={PROTEINS.pork_shoulder} />
+  <FaqSection
+    faqs={faqs}
+    intro="A Boston butt renders down to roughly half its raw weight as pulled pork bone-in, or just under two-thirds boneless — the bone and a share of the fat never make it to the sandwich, and a long cook evaporates the rest. Plan on about a third of a pound of pulled pork per guest. This calculator turns your raw weight, cut, and wrap method into pulled-pork yield, the cook loss along the way, and your true cost per cooked pound."
+  />
 </Layout>

@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import GearModule from '../components/calc/GearModule.astro';
+import FaqSection from '../components/calc/FaqSection.astro';
 
 const pageUrl = 'https://empiricalbbq.com/brisket-size-calculator';
 const publisher = {
@@ -248,6 +249,10 @@ const schema = [
       <p class="mt-2"><a href="/methodology" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">Methodology &amp; sources</a> · <a href="/privacy" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">Privacy Policy</a></p>
     </footer>
   </div>
+  <FaqSection
+    faqs={faqs}
+    intro="Planning a brisket cook for a crowd starts at the butcher counter, not the smoker. Because a whole packer only yields around half its raw weight after trimming and the cook, you have to buy close to double the cooked weight you actually need. This tool back-solves that: enter your guest count and it returns the raw packer weight to buy and the total budget, using the same trim-and-shrinkage yield model as the brisket calculator, run backward."
+  />
 </Layout>
 
 <style is:global>

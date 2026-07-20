@@ -1,0 +1,39 @@
+---
+/*
+ * FaqSection — renders a calculator page's FAQ (and an optional intro) as
+ * VISIBLE on-page content. The same `faqs` array already feeds each page's
+ * FAQPage JSON-LD; surfacing it here keeps the structured data matched to real
+ * visible content (which search/ad crawlers expect) and gives every tool page
+ * substantive written content instead of a bare widget.
+ *
+ * Theme-neutral (translucent white on the page's own dark background) so it
+ * looks at home on every calculator's palette. Answers render as plain text.
+ */
+export interface Props {
+  faqs: { q: string; a: string }[];
+  intro?: string;
+  heading?: string;
+}
+const { faqs, intro, heading = 'Frequently Asked Questions' } = Astro.props;
+---
+
+<section class="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-2">
+  {
+    intro && (
+      <div class="mb-8 rounded-2xl bg-white/[0.03] ring-1 ring-white/10 p-5 sm:p-6">
+        <p class="text-sm sm:text-[15px] text-slate-300/90 leading-relaxed">{intro}</p>
+      </div>
+    )
+  }
+  <h2 class="text-lg font-bold text-white mb-5">{heading}</h2>
+  <dl class="space-y-4">
+    {
+      faqs.map((f) => (
+        <div class="rounded-xl bg-white/[0.03] ring-1 ring-white/10 p-4 sm:p-5">
+          <dt class="text-sm sm:text-[15px] font-semibold text-white">{f.q}</dt>
+          <dd class="mt-2 text-sm text-slate-300/80 leading-relaxed">{f.a}</dd>
+        </div>
+      ))
+    }
+  </dl>
+</section>

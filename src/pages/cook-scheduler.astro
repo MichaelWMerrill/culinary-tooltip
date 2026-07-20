@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import CookScheduler from '../components/calc/CookScheduler.astro';
+import FaqSection from '../components/calc/FaqSection.astro';
 
 const pageUrl = 'https://empiricalbbq.com/cook-scheduler';
 const publisher = {
@@ -66,4 +67,8 @@ const schema = [
   showBanner={false}
 >
   <CookScheduler />
+  <FaqSection
+    faqs={faqs}
+    intro="Serving barbecue at a set time means running the clock backward: start from when you want to eat, then subtract the rest, the cook, and the pit preheat to find when to light the fire. Guess wrong and you are either slicing three hours early or making hungry guests wait. This scheduler does the back-timing for brisket, pork, and ribs — accounting for the stall (or the fixed 3-2-1 rib method) — and hands you a full timeline plus a downloadable calendar file."
+  />
 </Layout>
