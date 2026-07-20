@@ -1,0 +1,67 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PartyPlanner from '../components/calc/PartyPlanner.astro';
+
+const pageUrl = 'https://empiricalbbq.com/party-planner';
+const publisher = {
+  '@type': 'Organization',
+  name: 'Empirical BBQ',
+  url: 'https://empiricalbbq.com/',
+  logo: 'https://empiricalbbq.com/android-chrome-512x512.png',
+};
+const faqs = [
+  {
+    q: 'How much barbecue do I need per person?',
+    a: 'As a main with sides, plan about 1/2 lb of cooked brisket or turkey per guest, or about 1/3 lb of pulled pork — more for hearty eaters or if you want leftovers. The planner converts that cooked target back into the raw weight to buy, accounting for cook shrinkage.',
+  },
+  {
+    q: 'How much raw meat should I buy for a party?',
+    a: 'More than the cooked amount, because low-and-slow cooking loses a large share of the raw weight to trimming and evaporation. A brisket yields only ~50%, so to serve 10 lb cooked you buy closer to 20 lb raw. The planner does this inversion for your exact cut and options.',
+  },
+  {
+    q: 'How do you calculate the raw weight to buy?',
+    a: 'Cooked needed = guests × per-guest serving × appetite. Then raw = cooked needed ÷ yield fraction, where the yield fraction comes from the same trim-and-shrinkage model as our yield calculators. Budget = raw weight × your price per pound.',
+  },
+  {
+    q: 'How much brisket for 20 people?',
+    a: 'At a standard 1/2 lb cooked per guest that is 10 lb cooked; at ~50% yield you would buy roughly 20 lb of raw packer brisket. Adjust the appetite and trim/wrap options in the planner to refine it.',
+  },
+  {
+    q: 'Does the planner account for bone-in vs boneless or brining?',
+    a: 'Yes. Pick the protein and its options (USDA grade and trim for brisket, bone-in vs boneless for pork, whole vs spatchcock and brined for turkey) and the yield fraction — and therefore the raw weight to buy — updates accordingly.',
+  },
+];
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'BBQ Party Planner',
+    url: pageUrl,
+    applicationCategory: 'UtilityApplication',
+    operatingSystem: 'Any',
+    description:
+      'Back-solve how much barbecue to buy: enter a guest count and protein to get the recommended raw purchase weight and budget, inverted from the trim-and-shrinkage yield model.',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout
+  title="Empirical BBQ | BBQ Party Planner — How Much Meat to Buy Per Person"
+  description="Enter your guest count and protein to get the raw weight to buy and the budget — back-solved from the trim-and-shrinkage yield model for brisket, pork shoulder, and turkey."
+  ogUrl="https://empiricalbbq.com/party-planner"
+  schema={schema}
+  bodyClass="page-party min-h-screen bg-smoke-900 text-smoke-300 font-display antialiased"
+>
+  <PartyPlanner />
+</Layout>

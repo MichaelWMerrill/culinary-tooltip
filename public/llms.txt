@@ -15,11 +15,15 @@ Empirical BBQ (empiricalbbq.com) is a suite of free, ad-supported pitmaster calc
 - [Smoker Fuel & Cost Estimator](https://empiricalbbq.com/fuel-estimator): fuel weight, bags, and cost from burn-rate thermodynamics — pit efficiency, ambient temperature, and wind load. Baselines: pellets ~1.2 lb/hr, charcoal ~1.5 lb/hr, hardwood splits ~3.5 lb/hr.
 - [BBQ Cook Scheduler](https://empiricalbbq.com/cook-scheduler): enter when you want to eat → back-calculated smoker fire-up time, wrap window, and rest period, with a downloadable .ics calendar file.
 - [Brisket Size Calculator — How Much Brisket Per Person](https://empiricalbbq.com/brisket-size-calculator): enter a guest count → the raw packer weight to buy and total budget, back-solved from the same trim and cook-shrinkage yield as the yield calculator. Standard serving ~0.5 lb cooked per guest.
+- [BBQ Party Planner](https://empiricalbbq.com/party-planner): generalized "how much to buy" across brisket, pork shoulder, and turkey — guest count + protein + appetite → raw purchase weight and budget, inverted from the trim-and-shrinkage yield model.
+- [Rest & Hold Calculator](https://empiricalbbq.com/rest-calculator): Newton's-law-of-cooling model of a rested/held cut — how long it stays above the 140°F food-safe floor by pull temperature and hold method (warm oven, faux cambro, bare cooler, counter).
 
 ## Blog — Field Notes
 - [The Science of Smoke: How to Get Perfect Brisket Bark](https://empiricalbbq.com/blog/science-of-smoke): the Maillard reaction, polymerization, rub granulation, and wrap strategy for bark.
 - [The Physics of the Stall](https://empiricalbbq.com/blog/physics-of-the-stall): evaporative cooling, the variables that control stall duration, and how to break it cleanly.
 - [The Chemistry of Wood Smoke: Clean Blue vs. Dirty White](https://empiricalbbq.com/blog/chemistry-of-wood-smoke): combustion phases, creosote, and chasing thin blue smoke.
+- [The Faux Cambro: How Long You Can Really Hold Barbecue](https://empiricalbbq.com/blog/faux-cambro-holding): Newton's law of cooling, the 140°F food-safe floor, and how a cooler full of towels buys you hours.
+- [How Much Barbecue Per Person](https://empiricalbbq.com/blog/how-much-bbq-per-person): cooked-per-guest servings, the shrinkage tax, and back-solving the raw weight to buy.
 - [Blog index](https://empiricalbbq.com/blog)
 
 ## About

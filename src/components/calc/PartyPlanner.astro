@@ -1,0 +1,225 @@
+---
+/*
+ * PartyPlanner — the yield engine run backward: guests → raw weight to buy +
+ * budget. Standalone tool; the protein is a dropdown, so we render the union of
+ * every yield protein's enum axes and the controller shows the active set.
+ * Client wiring lives in ./partyPlanner.controller.js.
+ */
+import { PROTEINS } from '../../utils/proteinRegistry.js';
+
+const yieldProteins = Object.values(PROTEINS).filter((p) => p.yield);
+const money2 = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+// Union of enum axes across yield proteins (first owner wins for markup/copy).
+const axisById = {};
+for (const p of yieldProteins)
+  for (const a of p.yield.axes)
+    if (a.type === 'enum' && !axisById[a.id]) axisById[a.id] = { axis: a, copy: p.yield.copy, init: p.yield.initialState[a.id] };
+const unionEnumAxes = Object.values(axisById);
+
+const brisket = PROTEINS.beef_brisket;
+const defaultVisible = new Set(brisket.yield.axes.filter((a) => a.type === 'enum').map((a) => a.id));
+const initPrice = brisket.yield.defaults.market_prices[brisket.yield.initialState[brisket.yield.lossKeys.primary]];
+const segCols = (c) => (c === 2 ? 'grid-cols-2' : 'grid-cols-3');
+const segPad = (c) => (c === 2 ? 'px-3' : 'px-2');
+const appetites = [
+  { value: 'light', label: 'Light' },
+  { value: 'standard', label: 'Standard' },
+  { value: 'hearty', label: 'Hearty' },
+];
+---
+
+<div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+  <header class="mb-8 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-ember-500/15 ring-1 ring-ember-500/40 text-2xl">🧮</div>
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">BBQ Party Planner</h1>
+        <p class="text-sm text-smoke-400 mt-0.5">How much to buy &mdash; raw weight &amp; budget back-solved from your guest count</p>
+      </div>
+    </div>
+    <button id="shareBtn" type="button" class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-smoke-800 ring-1 ring-smoke-700 hover:ring-ember-500/50 text-smoke-300 hover:text-white text-xs font-semibold px-3.5 py-2 transition-all">
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+      <span data-copy-label>Copy share link</span>
+    </button>
+  </header>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- ============ INPUT PANEL ============ -->
+    <section class="lg:col-span-5 rounded-2xl bg-smoke-850 ring-1 ring-smoke-700/70 shadow-xl shadow-black/40 p-5 sm:p-6">
+      <h2 class="text-xs font-semibold uppercase tracking-widest text-ember-400 mb-5">The Party</h2>
+
+      <div class="mb-6">
+        <label for="protein" class="block text-sm font-medium text-smoke-300 mb-2">Protein</label>
+        <div class="relative">
+          <select id="protein" class="w-full appearance-none rounded-lg bg-smoke-800 ring-1 ring-smoke-600 text-white text-sm font-medium px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-ember-500 cursor-pointer">
+            {yieldProteins.map((p) => <option value={p.meta.id} selected={p.meta.id === 'beef_brisket'}>{p.meta.name}</option>)}
+          </select>
+          <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-smoke-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <div class="flex items-baseline justify-between mb-2">
+          <label for="guests" class="text-sm font-medium text-smoke-300">Guest Count</label>
+          <span class="text-sm font-mono"><span id="guestVal" class="text-white font-semibold">12</span> <span class="text-smoke-400">guests</span></span>
+        </div>
+        <input id="guests" type="range" min="1" max="100" step="1" value="12" class="w-full" />
+        <div class="flex justify-between text-[10px] text-smoke-500 mt-1 font-mono"><span>1</span><span>100</span></div>
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-smoke-300 mb-2">Appetite</label>
+        <div id="appetiteToggle" aria-label="Appetite" class="grid grid-cols-3 gap-1 rounded-lg bg-smoke-800 ring-1 ring-smoke-600 p-1" role="group">
+          {
+            appetites.map((a) => (
+              <button data-value={a.value} class="appetite-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed={a.value === 'standard' ? 'true' : 'false'}>
+                {a.label}
+              </button>
+            ))
+          }
+        </div>
+        <p class="text-[11px] text-smoke-500 mt-1.5">Light snackers, a standard plate, or hearty eaters / leftovers.</p>
+      </div>
+
+      <div class="mb-6">
+        <div class="flex items-baseline justify-between mb-2">
+          <label for="price" class="text-sm font-medium text-smoke-300">Price Per Pound (raw)</label>
+          <span class="text-sm font-mono">$<span id="priceVal" class="text-white font-semibold">{money2(initPrice)}</span></span>
+        </div>
+        <input id="price" type="range" min="0.75" max="12" step="0.05" value={initPrice} class="w-full" />
+        <div class="flex justify-between items-center text-[10px] mt-1 font-mono">
+          <span class="text-smoke-500">$0.75</span>
+          <button id="useMarket" type="button" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">use market avg (<span id="marketHint">${money2(initPrice)}</span>)</button>
+          <span class="text-smoke-500">$12.00</span>
+        </div>
+      </div>
+
+      {
+        /* Union of yield-protein enum options; controller shows the active set. */
+        unionEnumAxes.map(({ axis, copy, init }) => (
+          <div data-yield-axis={axis.id} hidden={!defaultVisible.has(axis.id)} class="mb-6">
+            {axis.control === 'select' && (
+              <Fragment>
+                <label for={axis.id} class="block text-sm font-medium text-smoke-300 mb-2">{axis.label}</label>
+                <div class="relative">
+                  <select id={axis.id} class="w-full appearance-none rounded-lg bg-smoke-800 ring-1 ring-smoke-600 text-white text-sm font-medium px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-ember-500 cursor-pointer">
+                    {axis.options.map((o) => <option value={o.value} selected={o.value === init}>{o.label}</option>)}
+                  </select>
+                  <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-smoke-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </div>
+              </Fragment>
+            )}
+            {axis.control === 'segmented' && (
+              <Fragment>
+                <label class="block text-sm font-medium text-smoke-300 mb-2">{axis.label}</label>
+                <div aria-label={axis.label} class={`grid ${segCols(axis.cols)} gap-1 rounded-lg bg-smoke-800 ring-1 ring-smoke-600 p-1`} role="group">
+                  {axis.options.map((o) => (
+                    <button data-value={o.value} class={`${axis.id}-opt rounded-md ${segPad(axis.cols)} py-2 text-sm font-medium transition-colors`} aria-pressed={o.value === init ? 'true' : 'false'}>{o.label}</button>
+                  ))}
+                </div>
+                {axis.copy && <p id={`${axis.id}Desc`} class="text-[11px] text-smoke-500 mt-1.5" set:html={copy[axis.copy][init]} />}
+              </Fragment>
+            )}
+          </div>
+        ))
+      }
+    </section>
+
+    <!-- ============ OUTPUT PANEL ============ -->
+    <section class="lg:col-span-7 space-y-6">
+      <div class="rounded-2xl bg-gradient-to-br from-ember-600/20 via-smoke-850 to-smoke-850 ring-1 ring-ember-500/40 shadow-xl shadow-black/40 p-6 sm:p-7">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-ember-300/90">Raw Weight to Buy</p>
+            <div class="mt-2 flex items-end gap-2">
+              <span class="text-5xl sm:text-6xl font-extrabold text-white tabular-nums leading-none"><span id="rawWeight">0.0</span></span>
+              <span class="text-smoke-400 text-sm mb-1.5 font-mono">lb raw</span>
+            </div>
+            <p class="text-xs text-smoke-400 mt-2">Yields <span id="cookedWeight" class="text-smoke-300 font-mono">0.0</span> lb cooked &middot; <span id="yieldPct" class="text-ember-300 font-mono font-semibold">0</span>% yield</p>
+          </div>
+          <div class="hidden sm:flex h-14 w-14 items-center justify-center rounded-xl bg-ember-500/15 ring-1 ring-ember-500/40 text-3xl">🛒</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div class="rounded-xl bg-ember-500/10 ring-1 ring-ember-500/40 p-4">
+          <p class="text-[10px] font-semibold uppercase tracking-wider text-ember-300">Budget</p>
+          <p class="mt-1.5 text-xl font-bold text-white tabular-nums">$<span id="budget">0.00</span></p>
+          <p class="text-[10px] text-ember-300/70 mt-0.5">total raw cost</p>
+        </div>
+        <div class="rounded-xl bg-smoke-850 ring-1 ring-smoke-700/70 p-4">
+          <p class="text-[10px] font-semibold uppercase tracking-wider text-smoke-400">Per Guest</p>
+          <p class="mt-1.5 text-xl font-bold text-white tabular-nums"><span id="perGuest">0.00</span><span class="text-xs text-smoke-400 font-normal ml-0.5">lb cooked</span></p>
+          <p class="text-[10px] text-smoke-500 mt-0.5">at your appetite</p>
+        </div>
+        <div class="rounded-xl bg-smoke-850 ring-1 ring-smoke-700/70 p-4">
+          <p class="text-[10px] font-semibold uppercase tracking-wider text-smoke-400">Cost / Guest</p>
+          <p class="mt-1.5 text-xl font-bold text-white tabular-nums">$<span id="costPerGuest">0.00</span></p>
+          <p class="text-[10px] text-smoke-500 mt-0.5">raw spend</p>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-smoke-850 ring-1 ring-smoke-700/70 shadow-xl shadow-black/40 p-6">
+        <h3 class="text-sm font-semibold text-white flex items-center gap-2 mb-2"><span>💡</span> How this is calculated</h3>
+        <p class="text-[13px] text-smoke-400 leading-relaxed">
+          Cooked needed = guests × per-guest serving × appetite. Because low-and-slow cooking loses a big share of raw weight to trim
+          and evaporation, we divide by the yield fraction to get the raw weight to buy — the same shrinkage model as the
+          <a href="/brisket-calculator" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">yield calculators</a>, run backward.
+        </p>
+      </div>
+
+      <footer class="text-center text-[11px] text-smoke-500">
+        <p>Estimates for planning only. Round up when buying whole cuts, and build in a buffer for big eaters.</p>
+        <p class="mt-2">Read more: <a href="/blog/how-much-bbq-per-person" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">How Much Barbecue Per Person</a></p>
+        <p class="mt-2"><a href="/privacy" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">Privacy Policy</a></p>
+      </footer>
+    </section>
+  </div>
+</div>
+
+<style is:global>
+  body.page-party input[type='range'] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    border-radius: 9999px;
+    background: linear-gradient(to right, #ea580c var(--fill, 50%), #292524 var(--fill, 50%));
+    outline: none;
+  }
+  body.page-party input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #fb923c;
+    border: 3px solid #0c0a09;
+    box-shadow: 0 0 0 1px #ea580c, 0 2px 6px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+  }
+  body.page-party input[type='range']::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #fb923c;
+    border: 3px solid #0c0a09;
+    box-shadow: 0 0 0 1px #ea580c, 0 2px 6px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+  }
+  body.page-party::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(234, 88, 12, 0.1), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(234, 88, 12, 0.06), transparent 55%);
+  }
+</style>
+
+<script>
+  import { initPartyPlanner } from './partyPlanner.controller.js';
+  document.addEventListener('DOMContentLoaded', () => initPartyPlanner());
+</script>
