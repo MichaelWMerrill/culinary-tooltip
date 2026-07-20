@@ -8,6 +8,7 @@
  */
 import { PROTEINS } from '../../utils/proteinRegistry.js';
 import ProteinSelector from './ProteinSelector.astro';
+import GearModule from './GearModule.astro';
 
 export interface Props {
   protein?: (typeof PROTEINS)[keyof typeof PROTEINS];
@@ -151,6 +152,7 @@ const defaultVisible = new Set(['weight']);
                 <p class="text-xs font-semibold uppercase tracking-widest text-flame-300/90">Light the fire at</p>
                 <p id="fireUpBig" class="mt-2 text-3xl sm:text-4xl font-extrabold text-white leading-none">—</p>
                 <p id="totalSub" class="text-xs text-base-400 mt-2">—</p>
+                <p class="text-[10px] font-mono text-base-500 mt-1.5">Model v<span id="modelVer">{protein.meta.version}</span> · cook time shown as a &plusmn;5% window</p>
               </div>
               <div class="hidden sm:flex h-14 w-14 items-center justify-center rounded-xl bg-flame-500/15 ring-1 ring-flame-500/40 text-3xl">🔥</div>
             </div>
@@ -167,11 +169,14 @@ const defaultVisible = new Set(['weight']);
             </div>
             <ol id="timeline" class="relative border-l border-base-700 ml-2 space-y-6"></ol>
           </div>
+
+          <GearModule tool="scheduler" state={{ protein: protein.meta.id, pit: 'offset_smoker' }} />
         </section>
       </div>
 
       <footer class="mt-8 text-center text-[11px] text-base-500">
         <p>Schedule derives from the same phenomenological stall model as the <a href="/stall-predictor" class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">Stall Predictor</a>. Real cooks vary &mdash; build in a buffer and probe your meat.</p>
+        <p class="mt-2"><a href="/methodology" class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">Methodology &amp; sources</a></p>
       </footer>
     </div>
   </div>

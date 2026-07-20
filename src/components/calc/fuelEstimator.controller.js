@@ -42,10 +42,12 @@ export function initFuelEstimator() {
 
     $('heatBadge').classList.toggle('hidden', state.ambientTemp < 110);
 
-    // Affiliate banner tracks the selected fuel: pellets vs charcoal/splits.
+    // State-aware gear: show the pellet or charcoal pick to match the fuel type.
     const isPellet = state.fuel === 'wood_pellets';
-    $('affPellet').classList.toggle('hidden', !isPellet);
-    $('affCharcoal').classList.toggle('hidden', isPellet);
+    const pelletPick = document.querySelector('[data-gear-pick="wood_pellets"]');
+    const charcoalPick = document.querySelector('[data-gear-pick="smoker_charcoal"]');
+    if (pelletPick) pelletPick.hidden = !isPellet;
+    if (charcoalPick) charcoalPick.hidden = isPellet;
 
     renderWhatIf(r);
     renderFuelComparison();

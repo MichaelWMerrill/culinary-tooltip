@@ -27,6 +27,7 @@ Empirical BBQ (empiricalbbq.com) is a suite of free, ad-supported pitmaster calc
 - [Blog index](https://empiricalbbq.com/blog)
 
 ## About
+- [Methodology](https://empiricalbbq.com/methodology): the equations behind every calculator, the per-protein calibration constants (generated from the engine registry so they can't drift), engine/model versions, and the golden-test regression story in plain language.
 - [Contact](https://empiricalbbq.com/contact): feedback form for pitmasters.
 - [Privacy Policy](https://empiricalbbq.com/privacy): client-side local storage only, no accounts, anonymous analytics, and a cookie-consent banner (Google Consent Mode v2).
 

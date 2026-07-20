@@ -68,6 +68,9 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
     const mm = Math.round((h - hh) * 60);
     return (hh ? hh + 'h ' : '') + String(mm).padStart(2, '0') + 'm';
   };
+  // ±5% window around the point estimate (the estimate itself stays in the
+  // share link via the input params, so precision isn't lost — just honest).
+  const fmtHrsRange = (h) => (h > 0 ? fmtHrs(h * 0.95) + '–' + fmtHrs(h * 1.05) : fmtHrs(h));
 
   // Find the clock offset (hours from meat-on) at which the meat reaches wrapTemp.
   function wrapHoursFromPath(pts, wrapTemp) {
@@ -196,7 +199,7 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
     $('icsBtn').disabled = false;
     $('icsBtn').classList.remove('opacity-40', 'cursor-not-allowed');
     $('fireUpBig').textContent = fmtClock(sched.fireUp);
-    $('totalSub').textContent = `≈ ${fmtHrs(sched.model.totalTime)} cook + ${fmtHrs(state.rest)} rest + ${fmtHrs(PREHEAT_HRS)} preheat`;
+    $('totalSub').textContent = `≈ ${fmtHrsRange(sched.model.totalTime)} cook + ${fmtHrs(state.rest)} rest + ${fmtHrs(PREHEAT_HRS)} preheat`;
 
     if (sched.fireUp.getTime() < Date.now()) {
       warn.textContent =
@@ -330,6 +333,9 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
   function init() {
     hydrateFromParams();
     if (!state.serveAt) state.serveAt = defaultServe();
+
+    // Model-version badge reflects the client-selected protein.
+    if ($('modelVer')) $('modelVer').textContent = protein.meta.version;
 
     // hydrate controls
     $('serveAt').value = state.serveAt;
