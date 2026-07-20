@@ -1,42 +1,32 @@
 /*
  * Brisket trim, shrinkage & yield engine.
- * USDA grade multipliers, trim-style loss constants, wrap evaporation
- * percentages, and serving-size conversion metrics — extracted verbatim from
- * the legacy inline calculator so results are byte-for-byte identical.
+ * The USDA grade multipliers, trim-style loss constants, wrap evaporation
+ * percentages, and serving-size conversion metrics now live in the shared
+ * protein registry (src/utils/proteinRegistry.js). This module re-exports them
+ * in the legacy shape pages and golden tests import, so results stay
+ * byte-for-byte identical.
  */
+import { PROTEINS } from './proteinRegistry.js';
+
+const brisket = PROTEINS.beef_brisket;
 
 /* Empirical data matrix (decimal percentages = fraction of weight) */
 export const DATA = {
   meta: {
-    version: '2026.1',
+    version: brisket.meta.version,
     unit_basis: 'decimal_percentage',
     description: 'True Brisket Cost & Yield Mapping Engine Data Matrix',
   },
-  defaults: {
-    currency: 'USD',
-    mass_unit: 'lb',
-    market_prices: { PRIME: 5.49, CHOICE: 4.29, SELECT: 3.49 },
-  },
-  matrix: {
-    PRIME: { trim: { commercial: 0.28, competition: 0.42 }, cook: { naked: 0.4, paper: 0.35, foil: 0.31 } },
-    CHOICE: { trim: { commercial: 0.24, competition: 0.36 }, cook: { naked: 0.39, paper: 0.34, foil: 0.3 } },
-    SELECT: { trim: { commercial: 0.19, competition: 0.3 }, cook: { naked: 0.38, paper: 0.33, foil: 0.29 } },
-  },
+  defaults: brisket.yield.defaults,
+  matrix: brisket.yield.matrix,
 };
 
 /** lb cooked per person threshold used by the serving estimator. */
-export const THRESHOLD_PER_GUEST = 0.5;
+export const THRESHOLD_PER_GUEST = brisket.serving.lbPerGuestCooked;
 
-export const TRIM_COPY = {
-  commercial: 'Light retail trim &mdash; more fat cap left on.',
-  competition: 'Aggressive competition trim &mdash; squared &amp; defatted.',
-};
+export const TRIM_COPY = brisket.yield.copy.trim;
 
-export const WRAP_COPY = {
-  naked: 'No wrap &mdash; deepest bark, highest moisture loss.',
-  paper: 'Balanced bark and moisture retention.',
-  foil: 'Texas crutch &mdash; fastest cook, least shrinkage.',
-};
+export const WRAP_COPY = brisket.yield.copy.wrap;
 
 /**
  * Core brisket calculation. Pure: takes a state snapshot, returns derived

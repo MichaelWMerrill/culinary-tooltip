@@ -19,6 +19,7 @@
     "tailwindcss": "^3.4.17"
   },
   "devDependencies": {
+    "happy-dom": "^20.11.0",
     "vitest": "^4.1.10"
   }
 }
