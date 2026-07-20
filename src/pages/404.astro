@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { MATRIX_PROTEINS, MATRIX_TOOLS, STANDALONE_TOOLS } from '../utils/toolMatrix.js';
 ---
 
 <Layout
@@ -36,6 +37,37 @@ import Layout from '../layouts/Layout.astro';
           <p class="text-sm font-bold text-white group-hover:text-flame-300">Fuel Estimator</p>
           <p class="mt-1 text-xs text-base-500">Fuel weight, bags &amp; the true cost of the cook.</p>
         </a>
+      </div>
+
+      <div class="mt-10 rounded-2xl bg-base-800/50 ring-1 ring-base-700 p-5 text-left">
+        <p class="text-[11px] font-semibold uppercase tracking-widest text-flame-400 mb-4 text-center sm:text-left">Or jump straight to a calculator</p>
+        <div class="space-y-3">
+          {
+            MATRIX_PROTEINS.map((p) => (
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-white w-36 shrink-0">
+                  <span aria-hidden="true">{p.icon}</span>
+                  {p.name}
+                </span>
+                {MATRIX_TOOLS.filter((t) => t.urls[p.id]).map((t) => (
+                  <a href={t.urls[p.id]} class="rounded-lg bg-base-900/80 ring-1 ring-base-700 hover:ring-flame-500/50 hover:text-flame-200 text-flame-300 text-xs font-medium px-2.5 py-1 transition-all">
+                    {t.label}
+                  </a>
+                ))}
+              </div>
+            ))
+          }
+        </div>
+        <div class="mt-4 pt-4 border-t border-base-700/60 flex flex-wrap gap-2">
+          {
+            STANDALONE_TOOLS.map((t) => (
+              <a href={t.href} class="inline-flex items-center gap-1.5 rounded-lg bg-base-900/80 ring-1 ring-base-700 hover:ring-flame-500/50 hover:text-flame-200 text-base-300 text-xs font-medium px-2.5 py-1 transition-all">
+                <span aria-hidden="true">{t.icon}</span>
+                {t.label}
+              </a>
+            ))
+          }
+        </div>
       </div>
 
       <div class="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-medium">
