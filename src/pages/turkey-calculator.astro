@@ -1,0 +1,68 @@
+---
+import Layout from '../layouts/Layout.astro';
+import YieldCalculator from '../components/calc/YieldCalculator.astro';
+import { PROTEINS } from '../utils/proteinRegistry.js';
+
+const pageUrl = 'https://empiricalbbq.com/turkey-calculator';
+const publisher = {
+  '@type': 'Organization',
+  name: 'Empirical BBQ',
+  url: 'https://empiricalbbq.com/',
+  logo: 'https://empiricalbbq.com/android-chrome-512x512.png',
+};
+const faqs = [
+  {
+    q: 'How big a turkey do I need per person?',
+    a: 'Plan about 1 to 1.25 lb of raw turkey per guest for a whole bird — bone, skin, and cook loss mean carved meat lands near 0.5 lb per guest. The serving estimator converts your finished weight into how many guests it covers.',
+  },
+  {
+    q: 'What is the yield of a whole turkey?',
+    a: 'After removing giblets and neck and losing moisture during the cook, a whole turkey yields roughly 65–75% of its raw weight as carved meat (edible, including some you would not serve). Brining lifts the finished yield by retaining moisture.',
+  },
+  {
+    q: 'Does brining change the yield?',
+    a: 'Yes. Brined birds hold more moisture through the cook, so they lose less weight — roughly 20% cook loss brined versus about 28% unbrined in this model. The calculator applies your choice to the trimmed weight.',
+  },
+  {
+    q: 'Whole vs spatchcock — does it affect how much meat I get?',
+    a: 'Only slightly. Spatchcocking removes the backbone (a little more trim loss) but cooks faster and more evenly. Carved yield is close either way; spatchcock’s main advantage is a shorter, more even cook.',
+  },
+  {
+    q: 'How much does a turkey shrink when smoked?',
+    a: 'Beyond trimming giblets and neck, the cook removes roughly 20–28% of the trimmed weight as evaporated moisture and rendered fat, depending on whether the bird is brined.',
+  },
+];
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Turkey Yield & Cost Calculator',
+    url: pageUrl,
+    applicationCategory: 'UtilityApplication',
+    operatingSystem: 'Any',
+    description:
+      'Model turkey trim and cook shrinkage to find carved-meat yield and true cost per cooked pound by weight, whole vs spatchcock, and brined vs not.',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout
+  title="Empirical BBQ | Turkey Yield & Cost Calculator (How Much Turkey Per Person)"
+  description="Model turkey trim and cook shrinkage to find carved-meat yield and true cost per cooked pound by weight, whole vs spatchcock, and brined vs not."
+  ogUrl="https://empiricalbbq.com/turkey-calculator"
+  schema={schema}
+  bodyClass="page-turkey-yield min-h-screen bg-smoke-900 text-smoke-300 font-display antialiased"
+>
+  <YieldCalculator protein={PROTEINS.turkey} />
+</Layout>

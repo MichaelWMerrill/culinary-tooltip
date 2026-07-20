@@ -294,4 +294,244 @@ export const PROTEINS = {
       lbPerGuestCooked: 0.333, // lb pulled pork per guest (~1/3 lb sandwich portion)
     },
   },
+
+  pork_ribs: {
+    meta: {
+      id: 'pork_ribs',
+      name: 'Pork Ribs',
+      shortName: 'Ribs',
+      slug: 'ribs',
+      version: '2026.1',
+    },
+
+    // No yield/cost calculator: ribs are planned and served by the rack/bone,
+    // not by trim-and-shrinkage weight — so this protein has no `yield` block.
+    thermal: {
+      base_thermal_diffusivity_alpha: 0.0015, // m^2/hr
+      latent_heat_vaporization_Lv: 2260000, // J/kg
+      start_temp: 40, // °F
+      finish_temp: 203, // °F, bend/probe-tender
+      stalls: true,
+      // Ribs barely stall — thin cuts blow through the plateau (calibration
+      // estimate — see METHODOLOGY).
+      stall_hours_base: 0.12,
+
+      // Fixed 3-2-1 method block hours per cut (unwrapped smoke / wrapped /
+      // unwrapped-and-sauced); baby backs use the shorter 2-2-1. The scheduler
+      // uses these instead of the stall model to lay out the rib timeline.
+      method_321: { spare: [3, 2, 1], st_louis: [3, 2, 1], baby_back: [2, 2, 1] },
+
+      cook_temperatures: {
+        225: { target_fahrenheit: 225, base_hourly_climb_rate_initial: 30.0, stall_threshold_fahrenheit: 150.0 },
+        250: { target_fahrenheit: 250, base_hourly_climb_rate_initial: 38.0, stall_threshold_fahrenheit: 155.0 },
+        275: { target_fahrenheit: 275, base_hourly_climb_rate_initial: 46.0, stall_threshold_fahrenheit: 160.0 },
+      },
+
+      // Slab geometry: heat transfer is set by the (thin) rack thickness, so the
+      // cook time is independent of rack count — see stallEngine's shape branch.
+      geometry: {
+        shape: 'slab',
+        beta: 0.3, // nominal (unused for slabs)
+        exponent: -0.333,
+        weight_bounds: { min: 1, max: 8 }, // racks
+      },
+
+      // Cut sets the thin-dimension thickness, which drives the cook rate: baby
+      // backs are thinner/faster, spares thicker/slower (calibration estimate).
+      rate_modifiers: {
+        cut: { spare: 0.82, st_louis: 0.9, baby_back: 1.05 },
+      },
+
+      copy: {
+        cut: {
+          spare: 'Full spare rack &mdash; thickest, meatiest, longest cook.',
+          st_louis: 'St. Louis trim &mdash; squared spare, even cooking.',
+          baby_back: 'Baby back (loin) &mdash; thinnest and quickest.',
+        },
+      },
+
+      initialState: { cut: 'spare', racks: 3 },
+
+      // Stall-tool inputs: rib cut (drives the cook rate) and rack count (does
+      // not change the cook time — only servings/fuel).
+      axes: [
+        {
+          id: 'cut',
+          label: 'Rib Cut',
+          type: 'enum',
+          control: 'segmented',
+          cols: 3,
+          copy: 'cut',
+          param: 'ct',
+          options: [
+            { value: 'spare', label: 'Spare' },
+            { value: 'st_louis', label: 'St. Louis' },
+            { value: 'baby_back', label: 'Baby Back' },
+          ],
+        },
+        {
+          id: 'racks',
+          label: 'Racks',
+          type: 'slider',
+          param: 'rk',
+          range: { min: 1, max: 8, step: 1, unit: 'racks' },
+        },
+      ],
+    },
+
+    serving: {
+      bonesPerGuest: 4, // ~4 bones per guest as a main (calibration estimate)
+    },
+  },
+
+  turkey: {
+    meta: {
+      id: 'turkey',
+      name: 'Turkey',
+      shortName: 'Turkey',
+      slug: 'turkey',
+      version: '2026.1',
+    },
+
+    yield: {
+      defaults: {
+        currency: 'USD',
+        mass_unit: 'lb',
+        // Retail whole-turkey price (calibration estimate — see METHODOLOGY).
+        market_prices: { whole: 1.49, spatchcock: 1.49 },
+      },
+
+      // Loss matrix keyed by preparation. trim = giblets/neck (and, for
+      // spatchcock, the removed backbone) that are not carved meat; cook =
+      // fraction of trimmed weight lost to evaporation, lower when brined
+      // (retained moisture). Carved yields land ~65–75% of raw (calibration
+      // estimate — see METHODOLOGY; USDA poultry yield data).
+      matrix: {
+        whole: { trim: 0.05, cook: { no: 0.28, yes: 0.2 } },
+        spatchcock: { trim: 0.07, cook: { no: 0.28, yes: 0.2 } },
+      },
+
+      lossKeys: { primary: 'preparation', trim: null, cook: 'brined' },
+
+      initialState: { weight: 14, price: 1.49, preparation: 'whole', brined: 'no', guests: 12 },
+
+      copy: {
+        preparation: {
+          whole: 'Whole bird &mdash; classic presentation, slower cook.',
+          spatchcock: 'Spatchcock &mdash; backbone out, laid flat; cooks faster and more evenly.',
+        },
+        brined: {
+          no: 'No brine &mdash; more evaporative loss during the cook.',
+          yes: 'Brined &mdash; retains moisture, higher finished yield.',
+        },
+      },
+
+      axes: [
+        {
+          id: 'weight',
+          label: 'Turkey Weight',
+          type: 'slider',
+          range: { min: 8, max: 24, step: 0.5, unit: 'lb' },
+        },
+        {
+          id: 'price',
+          label: 'Price Per Pound',
+          type: 'slider',
+          control: 'price-market',
+          range: { min: 0.75, max: 4, step: 0.05, unit: 'USD' },
+        },
+        {
+          id: 'preparation',
+          label: 'Preparation',
+          type: 'enum',
+          control: 'segmented',
+          cols: 2,
+          copy: 'preparation',
+          options: [
+            { value: 'whole', label: 'Whole' },
+            { value: 'spatchcock', label: 'Spatchcock' },
+          ],
+        },
+        {
+          id: 'brined',
+          label: 'Brine',
+          type: 'enum',
+          control: 'segmented',
+          cols: 2,
+          copy: 'brined',
+          options: [
+            { value: 'no', label: 'No Brine' },
+            { value: 'yes', label: 'Brined' },
+          ],
+        },
+      ],
+    },
+
+    thermal: {
+      base_thermal_diffusivity_alpha: 0.0016, // m^2/hr
+      latent_heat_vaporization_Lv: 2260000, // J/kg
+      start_temp: 40, // °F
+      finish_temp: 160, // °F breast pull; carryover carries it to a safe 165°F
+      stalls: false, // poultry climbs monotonically — no evaporative plateau
+      stall_hours_base: 0, // unused (no stall)
+
+      cook_temperatures: {
+        225: { target_fahrenheit: 225, base_hourly_climb_rate_initial: 26.0, stall_threshold_fahrenheit: 160.0 },
+        250: { target_fahrenheit: 250, base_hourly_climb_rate_initial: 32.0, stall_threshold_fahrenheit: 160.0 },
+        275: { target_fahrenheit: 275, base_hourly_climb_rate_initial: 40.0, stall_threshold_fahrenheit: 160.0 },
+      },
+
+      geometry: {
+        shape: 'cylinder',
+        beta: 0.4,
+        exponent: -0.333,
+        weight_bounds: { min: 8, max: 24 },
+      },
+
+      // Spatchcocking opens the bird up for faster, more even heating.
+      rate_modifiers: {
+        preparation: { whole: 1.0, spatchcock: 1.35 },
+      },
+
+      // Food-safety note surfaced in the stall results (sourced).
+      safetyNote:
+        'Pull the breast at 160°F — carryover heat carries it to a safe 165°F. 165°F is the instant pasteurization point, but the USDA also recognizes equivalent time-at-temperature (e.g. ~3.7 min held at 160°F). Cook dark meat/thighs toward 175°F for texture. (USDA FSIS Appendix A / poultry guidance.)',
+
+      copy: {
+        preparation: {
+          whole: 'Whole bird &mdash; slower, more even climb.',
+          spatchcock: 'Spatchcock &mdash; flattened, so it heats faster.',
+        },
+      },
+
+      initialState: { preparation: 'whole', weight: 12 },
+
+      axes: [
+        {
+          id: 'preparation',
+          label: 'Preparation',
+          type: 'enum',
+          control: 'segmented',
+          cols: 2,
+          copy: 'preparation',
+          param: 'pp',
+          options: [
+            { value: 'whole', label: 'Whole' },
+            { value: 'spatchcock', label: 'Spatchcock' },
+          ],
+        },
+        {
+          id: 'weight',
+          label: 'Turkey Weight',
+          type: 'slider',
+          param: 'w',
+          range: { min: 8, max: 24, step: 0.5, unit: 'lb' },
+        },
+      ],
+    },
+
+    serving: {
+      lbPerGuestCooked: 0.5, // lb carved turkey per guest
+    },
+  },
 };

@@ -261,7 +261,8 @@ const segPad = (c) => (c === 2 ? 'px-3' : 'px-2');
 <style is:global>
   /* Custom slider styling for a cohesive pitmaster aesthetic */
   body.page-brisket input[type='range'],
-  body.page-pork-yield input[type='range'] {
+  body.page-pork-yield input[type='range'],
+  body.page-turkey-yield input[type='range'] {
     -webkit-appearance: none;
     appearance: none;
     height: 8px;
@@ -270,7 +271,8 @@ const segPad = (c) => (c === 2 ? 'px-3' : 'px-2');
     outline: none;
   }
   body.page-brisket input[type='range']::-webkit-slider-thumb,
-  body.page-pork-yield input[type='range']::-webkit-slider-thumb {
+  body.page-pork-yield input[type='range']::-webkit-slider-thumb,
+  body.page-turkey-yield input[type='range']::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 22px;
@@ -283,11 +285,13 @@ const segPad = (c) => (c === 2 ? 'px-3' : 'px-2');
     transition: transform 0.1s ease;
   }
   body.page-brisket input[type='range']::-webkit-slider-thumb:active,
-  body.page-pork-yield input[type='range']::-webkit-slider-thumb:active {
+  body.page-pork-yield input[type='range']::-webkit-slider-thumb:active,
+  body.page-turkey-yield input[type='range']::-webkit-slider-thumb:active {
     transform: scale(1.15);
   }
   body.page-brisket input[type='range']::-moz-range-thumb,
-  body.page-pork-yield input[type='range']::-moz-range-thumb {
+  body.page-pork-yield input[type='range']::-moz-range-thumb,
+  body.page-turkey-yield input[type='range']::-moz-range-thumb {
     width: 22px;
     height: 22px;
     border-radius: 9999px;
@@ -304,7 +308,8 @@ const segPad = (c) => (c === 2 ? 'px-3' : 'px-2');
   }
   /* subtle grain */
   body.page-brisket::before,
-  body.page-pork-yield::before {
+  body.page-pork-yield::before,
+  body.page-turkey-yield::before {
     content: '';
     position: fixed;
     inset: 0;

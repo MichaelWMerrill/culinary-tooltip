@@ -1,0 +1,68 @@
+---
+import Layout from '../layouts/Layout.astro';
+import StallPredictor from '../components/calc/StallPredictor.astro';
+import { PROTEINS } from '../utils/proteinRegistry.js';
+
+const pageUrl = 'https://empiricalbbq.com/turkey-stall';
+const publisher = {
+  '@type': 'Organization',
+  name: 'Empirical BBQ',
+  url: 'https://empiricalbbq.com/',
+  logo: 'https://empiricalbbq.com/android-chrome-512x512.png',
+};
+const faqs = [
+  {
+    q: 'Does turkey have a stall?',
+    a: 'No — poultry climbs steadily to temperature with no evaporative plateau, so the predictor plots a single monotonic curve rather than the stall-and-recover shape of brisket. Cook time is set by weight, preparation, and pit temperature.',
+  },
+  {
+    q: 'What temperature is smoked turkey done?',
+    a: 'Pull the breast at 160°F — carryover heat carries it to a safe 165°F. 165°F is the instant pasteurization point, but the USDA also recognizes equivalent time-at-temperature (about 3.7 minutes held at 160°F). Cook the thighs/dark meat toward 175°F for texture.',
+  },
+  {
+    q: 'How long does it take to smoke a turkey?',
+    a: 'Roughly 25–35 minutes per pound at 250–275°F for a whole bird; a 14 lb turkey runs about 4 hours. Spatchcocking (backbone removed, laid flat) cuts that meaningfully because the bird heats faster and more evenly.',
+  },
+  {
+    q: 'Is it safe to smoke a turkey at a low temperature?',
+    a: 'Keep the smoker at 250°F or above and do not let the bird linger in the 40–140°F danger zone for more than about four hours. Very low-and-slow poultry is risky; the predictor assumes 225°F and up and you should always verify with a probe.',
+  },
+  {
+    q: 'Does spatchcocking speed up the cook?',
+    a: 'Yes. Removing the backbone and flattening the bird exposes more surface area to the heat, so a spatchcocked turkey climbs faster and more evenly than a whole bird — often 25–35% quicker in this model.',
+  },
+];
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Turkey Cook-Time Predictor',
+    url: pageUrl,
+    applicationCategory: 'UtilityApplication',
+    operatingSystem: 'Any',
+    description:
+      'Model smoked-turkey cook time as a single monotonic climb (no stall) to a 160°F breast pull, by weight, preparation, and pit temperature, with a food-safety note.',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout
+  title="Empirical BBQ | Smoked Turkey Cook-Time Predictor"
+  description="Model smoked-turkey cook time as a single monotonic climb (no stall) to a 160°F breast pull, by weight, whole vs spatchcock, and pit temperature — with a sourced food-safety note."
+  ogUrl="https://empiricalbbq.com/turkey-stall"
+  schema={schema}
+  bodyClass="page-turkey-stall min-h-screen bg-slate-950 text-slate-300 font-display antialiased"
+>
+  <StallPredictor protein={PROTEINS.turkey} />
+</Layout>

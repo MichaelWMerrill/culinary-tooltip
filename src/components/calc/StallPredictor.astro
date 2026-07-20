@@ -14,10 +14,13 @@ export interface Props {
 }
 
 const { protein = PROTEINS.beef_brisket } = Astro.props;
-const wAxis = protein.thermal.axes.find((a) => a.id === 'weight');
-const wR = wAxis.range;
-const initWeight = 12;
-const finishTemp = protein.thermal.finish_temp;
+const thermal = protein.thermal;
+const stalls = thermal.stalls !== false;
+const tAxes = thermal.axes;
+const tInit = thermal.initialState ?? { weight: 12 };
+const tCopy = thermal.copy || {};
+const finishTemp = thermal.finish_temp;
+const segCols = (c) => (c === 2 ? 'grid-cols-2' : 'grid-cols-3');
 // Brisket keeps the bare "Stall Predictor" heading; other proteins are named.
 const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${protein.meta.shortName} Stall Predictor`;
 ---
@@ -49,15 +52,35 @@ const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${prot
     <section class="lg:col-span-4 rounded-2xl bg-slate-900 ring-1 ring-slate-800 shadow-xl shadow-black/40 p-5 sm:p-6 space-y-6">
       <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400">Cook Parameters</h2>
 
-      <!-- Weight (rendered from protein.thermal.axes) -->
-      <div>
-        <div class="flex items-baseline justify-between mb-2">
-          <label for="weight" class="text-sm font-medium text-slate-300">{wAxis.label}</label>
-          <span class="text-sm font-mono"><span id="weightVal" class="text-white font-semibold">{initWeight.toFixed(1)}</span> <span class="text-slate-400">{wR.unit}</span></span>
-        </div>
-        <input id="weight" type="range" min={wR.min} max={wR.max} step={wR.step} value={initWeight} class="w-full" />
-        <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-mono"><span>{wR.min} {wR.unit}</span><span>{wR.max} {wR.unit}</span></div>
-      </div>
+      {
+        /* Protein-specific inputs rendered from thermal.axes (weight, or ribs
+           cut+racks, or turkey preparation+weight). */
+        tAxes.map((axis) => (
+          <div>
+            {axis.type === 'slider' && (
+              <Fragment>
+                <div class="flex items-baseline justify-between mb-2">
+                  <label for={axis.id} class="text-sm font-medium text-slate-300">{axis.label}</label>
+                  <span class="text-sm font-mono"><span id={`${axis.id}Val`} class="text-white font-semibold">{Number(tInit[axis.id]).toFixed(1)}</span> <span class="text-slate-400">{axis.range.unit}</span></span>
+                </div>
+                <input id={axis.id} type="range" min={axis.range.min} max={axis.range.max} step={axis.range.step} value={tInit[axis.id]} class="w-full" />
+                <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-mono"><span>{axis.range.min} {axis.range.unit}</span><span>{axis.range.max} {axis.range.unit}</span></div>
+              </Fragment>
+            )}
+            {axis.type === 'enum' && axis.control === 'segmented' && (
+              <Fragment>
+                <label class="block text-sm font-medium text-slate-300 mb-2">{axis.label}</label>
+                <div id={`${axis.id}Toggle`} aria-label={axis.label} class={`grid ${segCols(axis.cols)} gap-1 rounded-lg bg-slate-800 ring-1 ring-slate-700 p-1`} role="group">
+                  {axis.options.map((o) => (
+                    <button data-value={o.value} data-axis={axis.id} class={`${axis.id}-opt rounded-md px-2 py-2 text-xs font-medium transition-colors`} aria-pressed={o.value === tInit[axis.id] ? 'true' : 'false'}>{o.label}</button>
+                  ))}
+                </div>
+                {axis.copy && <p id={`${axis.id}Desc`} class="text-[11px] text-slate-500 mt-1.5 leading-snug" set:html={tCopy[axis.copy][tInit[axis.id]]} />}
+              </Fragment>
+            )}
+          </div>
+        ))
+      }
 
       <!-- Target Pit Temp -->
       <div>
@@ -84,6 +107,8 @@ const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${prot
         <p id="pitDesc" class="text-[11px] text-slate-500 mt-1.5 leading-snug">High natural draft velocity balanced by radiant energy from heavy steel walls.</p>
       </div>
 
+      {stalls && (
+      <Fragment>
       <!-- Wrap Type -->
       <div>
         <label class="block text-sm font-medium text-slate-300 mb-2">Wrap Type</label>
@@ -116,6 +141,8 @@ const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${prot
         </div>
         <p id="climateDesc" class="text-[11px] text-slate-500 mt-1.5 leading-snug">Standard baseline stall behavior.</p>
       </div>
+      </Fragment>
+      )}
     </section>
 
     <!-- ============ OUTPUT ============ -->
@@ -133,6 +160,18 @@ const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${prot
           <p class="text-xs text-slate-400 mt-1.5" id="stallSub">plateau duration</p>
         </div>
       </div>
+
+      {
+        thermal.safetyNote && (
+          <div class="rounded-2xl bg-emerald-500/10 ring-1 ring-emerald-500/40 p-4 sm:p-5 flex gap-3">
+            <span class="text-xl leading-none mt-0.5" aria-hidden="true">🛡️</span>
+            <div>
+              <h3 class="text-sm font-semibold text-emerald-300">Food-safety note</h3>
+              <p class="text-[12px] text-emerald-100/90 mt-1 leading-relaxed">{thermal.safetyNote}</p>
+            </div>
+          </div>
+        )
+      }
 
       <!-- Chart -->
       <div class="rounded-2xl bg-slate-900 ring-1 ring-slate-800 shadow-xl shadow-black/40 p-4 sm:p-5">
@@ -185,7 +224,7 @@ const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${prot
 </div>
 
 <style is:global>
-  body.page-stall input, body.page-pork-stall input[type='range'] {
+  body.page-stall input, body.page-pork-stall input, body.page-ribs-stall input, body.page-turkey-stall input[type='range'] {
     -webkit-appearance: none;
     appearance: none;
     height: 8px;
@@ -193,7 +232,7 @@ const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${prot
     background: linear-gradient(to right, #f97316 var(--fill, 50%), #1e293b var(--fill, 50%));
     outline: none;
   }
-  body.page-stall input, body.page-pork-stall input[type='range']::-webkit-slider-thumb {
+  body.page-stall input, body.page-pork-stall input, body.page-ribs-stall input, body.page-turkey-stall input[type='range']::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 22px;
@@ -205,10 +244,10 @@ const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${prot
     cursor: pointer;
     transition: transform 0.1s ease;
   }
-  body.page-stall input, body.page-pork-stall input[type='range']::-webkit-slider-thumb:active {
+  body.page-stall input, body.page-pork-stall input, body.page-ribs-stall input, body.page-turkey-stall input[type='range']::-webkit-slider-thumb:active {
     transform: scale(1.15);
   }
-  body.page-stall input, body.page-pork-stall input[type='range']::-moz-range-thumb {
+  body.page-stall input, body.page-pork-stall input, body.page-ribs-stall input, body.page-turkey-stall input[type='range']::-moz-range-thumb {
     width: 22px;
     height: 22px;
     border-radius: 9999px;
@@ -220,7 +259,7 @@ const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${prot
   .curve-path {
     transition: stroke-dashoffset 0.1s linear;
   }
-  body.page-stall::before, body.page-pork-stall::before {
+  body.page-stall::before, body.page-pork-stall::before, body.page-ribs-stall::before, body.page-turkey-stall::before {
     content: '';
     position: fixed;
     inset: 0;

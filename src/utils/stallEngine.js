@@ -85,13 +85,43 @@ export function computeModel(state, protein = PROTEINS.beef_brisket) {
   const startTemp = thermal.start_temp;
   const finishTemp = thermal.finish_temp;
 
-  // Mass scaling: larger mass climbs slower / stalls longer. rate ∝ W^exponent (-0.333); duration ∝ 1/rate.
-  const massRateScale = Math.pow(state.weight / REF_WEIGHT, geo.exponent); // <1 for big meat
-  const massDurScale = 1 / massRateScale; // >1 for big meat
+  // Mass scaling. A compact cut (cylinder) climbs slower with mass: rate ∝
+  // W^exponent (-1/3 packer rule). A thin slab (ribs) is governed by its thin
+  // dimension, so total mass/rack count barely changes the time — base = 1.
+  // Optional per-state rate_modifiers scale the rate for cut- or prep-specific
+  // effects (e.g. spatchcock poultry, thinner rib cuts). Brisket/pork define
+  // neither, so their scaling is unchanged.
+  const base = geo.shape === 'slab' ? 1 : Math.pow(state.weight / REF_WEIGHT, geo.exponent);
+  const rateMod = thermal.rate_modifiers
+    ? Object.entries(thermal.rate_modifiers).reduce((acc, [field, map]) => acc * (map[state[field]] ?? 1), 1)
+    : 1;
+  const massRateScale = base * rateMod; // <1 slows the climb, >1 speeds it
+  const massDurScale = 1 / massRateScale;
 
   // Combined pit "drive": convective airflow + radiant flux.
   const pitPower = 0.7 * pit.convective_coefficient_hc + 0.5 * pit.radiative_multiplier_epsilon;
   const pitFactor = pitPower / REF_PIT_POWER;
+
+  // ---- No-stall proteins (e.g. poultry): a single monotonic climb, no
+  // evaporative plateau. The stall/plateau fields collapse onto the finish. ----
+  if (thermal.stalls === false) {
+    const climb = ct.base_hourly_climb_rate_initial * pitFactor * massRateScale; // °F/hr
+    const totalTime = ((finishTemp - startTemp) / climb) * 1.25; // natural easing toward finish
+    return {
+      noStall: true,
+      t1: totalTime,
+      stallDuration: 0,
+      t3: 0,
+      totalTime,
+      stallStart: finishTemp,
+      stallEndTemp: finishTemp,
+      climb1: climb,
+      climb3: climb,
+      postMod: 1,
+      startTemp,
+      finishTemp,
+    };
+  }
 
   // Climate shifts where the stall lands on the temperature scale.
   const stallStart = ct.stall_threshold_fahrenheit * cl.stallTempMult;
@@ -144,6 +174,17 @@ export function buildPath(m) {
   // brisket module constants for any legacy model object without them.
   const startTemp = m.startTemp ?? START_TEMP;
   const finishTemp = m.finishTemp ?? FINISH_TEMP;
+
+  // No-stall proteins: one monotonic climb, fast early and easing toward the
+  // finish (concave), ending exactly at finishTemp. No plateau.
+  if (m.noStall) {
+    const N = 120;
+    for (let i = 0; i <= N; i++) {
+      const f = i / N;
+      pts.push({ t: f * m.totalTime, temp: startTemp + (finishTemp - startTemp) * Math.pow(f, 0.8) });
+    }
+    return pts;
+  }
 
   // Phase 1: exponential approach (fast then easing into the stall)
   for (let i = 0; i <= N1; i++) {

@@ -21,9 +21,22 @@ const { tool, current, interactive = false } = Astro.props;
 // Canonical URL for each (tool, protein). Existing brisket routes are unchanged;
 // pork gets additive routes. The scheduler is a single route with a ?pr= param.
 const URLS = {
-  yield: { beef_brisket: '/brisket-calculator', pork_shoulder: '/pork-shoulder-calculator' },
-  stall: { beef_brisket: '/stall-predictor', pork_shoulder: '/pork-shoulder-stall' },
-  scheduler: { beef_brisket: '/cook-scheduler?pr=beef_brisket', pork_shoulder: '/cook-scheduler?pr=pork_shoulder' },
+  yield: {
+    beef_brisket: '/brisket-calculator',
+    pork_shoulder: '/pork-shoulder-calculator',
+    turkey: '/turkey-calculator',
+  },
+  stall: {
+    beef_brisket: '/stall-predictor',
+    pork_shoulder: '/pork-shoulder-stall',
+    pork_ribs: '/ribs-stall',
+    turkey: '/turkey-stall',
+  },
+  scheduler: {
+    beef_brisket: '/cook-scheduler?pr=beef_brisket',
+    pork_shoulder: '/cook-scheduler?pr=pork_shoulder',
+    pork_ribs: '/cook-scheduler?pr=pork_ribs',
+  },
 };
 
 const proteins = Object.values(PROTEINS).filter((p) => URLS[tool][p.meta.id]);
