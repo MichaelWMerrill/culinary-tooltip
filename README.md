@@ -1,10 +1,13 @@
 # Empirical BBQ
 
-Physics-based pitmaster calculators for [empiricalbbq.com](https://empiricalbbq.com) —
-brisket trim & yield, the thermodynamic stall, and smoker fuel & cost.
+Physics-flavored pitmaster calculators for [empiricalbbq.com](https://empiricalbbq.com) —
+yield & cost, the thermodynamic stall, cook scheduling, smoker fuel, and rest/hold — across
+four proteins (beef brisket, pork shoulder, pork ribs, turkey), plus a party planner, a
+brisket size calculator, a methodology page, and a science-focused blog.
 
 Built with [Astro](https://astro.build) (static output) and pre-compiled Tailwind CSS,
-deployed as static assets on Cloudflare Pages.
+deployed as static assets on Cloudflare's **Workers static-assets** model (see
+[Contact endpoint](#contact-endpoint) for why a Worker is in the mix at all).
 
 ## Development
 
@@ -24,25 +27,41 @@ tool/util pages `*.html`, blog index `/blog`, posts `/blog/<slug>`).
 
 ```
 src/
-  layouts/Layout.astro       Shared <head> (SEO + GA + AdSense), nav, footer banner
+  layouts/
+    Layout.astro           Shared <head> (SEO + GA + AdSense), nav, sticky banner, consent
+    BlogPostLayout.astro   Blog-post chrome
   components/
-    Nav.astro                Responsive navigation header
-    AdSlot.astro             Ad placement: dev mockup vs. production AdSense <ins>
-  pages/                     One .astro route per page (URLs preserved as *.html)
+    Nav.astro              Responsive navigation header
+    AdSlot.astro           Ad placement: dev mockup vs. production AdSense <ins>
+    calc/                  Calculator UI components + their client controllers
+                           (StallPredictor, YieldCalculator, FuelEstimator,
+                           CookScheduler, RestCalculator, PartyPlanner,
+                           ProteinSelector, GearModule, FaqSection)
+  pages/                   One .astro route per page (URLs preserved as *.html):
+                           per-protein yield & stall pages, cook-scheduler,
+                           fuel-estimator, rest-calculator, party-planner,
+                           brisket-size-calculator, methodology, contact,
+                           privacy, and the blog + posts
   utils/
-    brisketEngine.js         USDA/trim/wrap/serving constants + calc
-    stallEngine.js           Mass-scaling, pit, climate model + curve sampler
-    fuelEngine.js            Combustion/wind/insulation/ambient model
-    analytics.js             Shared PitmasterAnalytics telemetry object
-    shareLink.js             Validated URL-param (shareable-link) helpers
-  pages/cook-scheduler.astro Inverts the stall model: serve time -> fire-up + .ics
-server/contactHandler.ts     Shared contact-form handler (Workers + Pages)
-public/                      Static assets copied verbatim (favicon, ads.txt, llms.txt, _headers)
+    proteinRegistry.js     Single source of truth for per-protein data: yield
+                           matrices, thermal/stall constants, serving, input axes
+    brisketEngine.js       Yield/trim/shrinkage + cost calc (reads the registry)
+    stallEngine.js         Mass-scaling, pit, wrap & climate stall model + curve sampler
+    fuelEngine.js          Combustion/wind/insulation/ambient fuel model
+    restEngine.js          Newtonian-cooling rest/hold model
+    toolMatrix.js          Homepage protein × tool matrix + tool metadata
+    version.js             Site + stall-engine version strings (single source of truth)
+    shareLink.js           Validated URL-param (shareable-link) helpers
+    analytics.js           Shared PitmasterAnalytics telemetry object
+  content/blog/            Markdown blog posts
+server/contactHandler.ts   Shared contact-form handler (Workers + Pages)
+scripts/                   Build/generator scripts: sitemap, OG images, golden specs, ads.txt check
+public/                    Static assets copied verbatim (favicons, ads.txt, llms.txt, _headers)
 ```
 
-The site builds to `dist/`, which is what Cloudflare serves (see `wrangler.toml` /
-`wrangler.jsonc`). AdSense slots render as clean dashed placeholders in development and as
-live `<ins class="adsbygoogle">` units in production (`import.meta.env.PROD`).
+The site builds to `dist/`, which is what Cloudflare serves (see `wrangler.jsonc`). AdSense
+slots render as clean dashed placeholders in development and as live
+`<ins class="adsbygoogle">` units in production (`import.meta.env.PROD`).
 
 ## Contact endpoint
 
@@ -51,7 +70,7 @@ handler lives in `server/contactHandler.ts` and is wired for **both** Cloudflare
 deployment models:
 
 - **Workers static-assets (current deploy):** `worker.ts` is the Worker entry (`main`
-  in `wrangler.toml` / `wrangler.jsonc`). Static files in `dist/` are served by the
+  in `wrangler.jsonc`). Static files in `dist/` are served by the
   `ASSETS` binding; the Worker only runs for `/api/contact` and defers everything else
   (including `404.html`) to the assets.
 - **Cloudflare Pages:** `functions/api/contact.ts` is a thin adapter over the same
@@ -66,17 +85,21 @@ your project → Settings → Variables and Secrets):
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
-| `TURNSTILE_SECRET_KEY` | **Yes** | Cloudflare Turnstile *secret* key, used for server-side verification. |
+| `TURNSTILE_SECRET_KEY` | **Yes** (runtime) | Cloudflare Turnstile *secret* key, used for server-side verification. |
+| `TURNSTILE_SITE_KEY` | Optional (build time) | Public Turnstile *site* key for the widget. Overrides the committed production default; the build fails if it resolves to a Cloudflare test key. |
 | `RESEND_API_KEY` | Optional | If present, email is sent via Resend instead of MailChannels. |
 
-**Turnstile site key:** the widget's *site* key is a constant in `src/pages/contact.astro`
-(`TURNSTILE_SITE_KEY`). It currently uses Cloudflare's public "always passes" **test** key
-so the form works in dev/preview — replace it with your production site key (marked with a
-`// TODO: set real key` comment). Create the widget and both keys at Cloudflare dashboard →
-**Turnstile**.
+**Turnstile site key:** the widget's *site* key (public — it ships in the page HTML) lives in
+`src/pages/contact.astro` as `TURNSTILE_SITE_KEY`, which defaults to the committed production
+key and is overridable at build time via the `TURNSTILE_SITE_KEY` env var (see table below). A
+build-time guard throws if the resolved value is one of Cloudflare's documented **test** keys
+(e.g. the "always passes" `1x00000000000000000000AA`), so a test key — which issues tokens that
+always pass and would silently disable bot protection — can never ship to production. Create the
+widget and both keys at Cloudflare dashboard → **Turnstile**.
 
-> **Deployment note:** this repo deploys on the **Workers static-assets** model, and the
-> `/api/contact` route is wired via `worker.ts` (`main`) — no action needed to serve it.
+> **Deployment note:** this repo deploys on the **Workers static-assets** model (config in
+> `wrangler.jsonc`), and the `/api/contact` route is wired via `worker.ts` (`main`) — no
+> action needed to serve it.
 > `output: 'static'` in `astro.config.mjs` is unchanged; `npm run build` still just produces
 > `dist/`, and the Worker is bundled by `wrangler` at deploy time. The `functions/` adapter is
 > retained only for the alternative Pages deployment model.

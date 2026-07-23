@@ -1,9 +1,29 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-// Cloudflare Turnstile site key (public). The matching secret key is set in the
-// deploy environment as TURNSTILE_SECRET_KEY (see README "Contact endpoint").
-const TURNSTILE_SITE_KEY = '0x4AAAAAAD1as-yX0sKUn5Lk';
+// Cloudflare Turnstile *site* key (public — it ships in the page HTML). The
+// matching secret key is set in the deploy environment as TURNSTILE_SECRET_KEY
+// (see README "Contact endpoint"). This value is overridable at build time via
+// the TURNSTILE_SITE_KEY env var (mirroring how the secret is provided); it
+// falls back to the committed production key. Because the site key is public,
+// the env var is drift-prevention, not secret-hiding.
+//
+// Guard: fail the build loudly if the resolved key is one of Cloudflare's
+// documented *test* keys — a test site key issues tokens that always pass, so
+// shipping one silently disables the form's bot protection in production.
+const TURNSTILE_TEST_SITE_KEYS = new Set([
+  '1x00000000000000000000AA', // visible, always passes
+  '2x00000000000000000000AB', // visible, always blocks
+  '3x00000000000000000000FF', // forces an interactive challenge
+]);
+const TURNSTILE_SITE_KEY = process.env.TURNSTILE_SITE_KEY?.trim() || '0x4AAAAAAD1as-yX0sKUn5Lk';
+if (TURNSTILE_TEST_SITE_KEYS.has(TURNSTILE_SITE_KEY)) {
+  throw new Error(
+    'TURNSTILE_SITE_KEY is a Cloudflare test key — bot protection would be disabled in production. ' +
+      'Set a real production site key via the TURNSTILE_SITE_KEY build env var (Cloudflare dashboard → ' +
+      'Turnstile) or update the fallback in src/pages/contact.astro.'
+  );
+}
 ---
 
 <Layout

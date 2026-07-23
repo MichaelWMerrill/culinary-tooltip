@@ -2,11 +2,12 @@
 import Layout from '../layouts/Layout.astro';
 import AdSlot from '../components/AdSlot.astro';
 import { MATRIX_PROTEINS, MATRIX_TOOLS, STANDALONE_TOOLS, TOOL_COUNT } from '../utils/toolMatrix.js';
+import { SITE_VERSION } from '../utils/version.js';
 ---
 
 <Layout
   title="Empirical BBQ | Pitmaster Fuel & Yield Calculators"
-  description="A suite of physics-based BBQ calculators — brisket trim & yield, the thermodynamic stall, and smoker fuel & cost — for precision low-and-slow cooking."
+  description="Physics-based BBQ calculators for brisket, pork, ribs & turkey: yield, the thermodynamic stall, fuel, cost & cook scheduling for precise low-and-slow."
   ogUrl="https://empiricalbbq.com/"
   favicon="🔥"
   active="home"
@@ -25,7 +26,7 @@ import { MATRIX_PROTEINS, MATRIX_TOOLS, STANDALONE_TOOLS, TOOL_COUNT } from '../
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-flame-400 opacity-75"></span>
             <span class="relative inline-flex h-2 w-2 rounded-full bg-flame-500"></span>
           </span>
-          <span class="text-xs font-semibold tracking-wide text-flame-300 uppercase">v2026.3 Active Engine</span>
+          <span class="text-xs font-semibold tracking-wide text-flame-300 uppercase">Site v{SITE_VERSION} · Live</span>
         </div>
 
         <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.05]">
@@ -234,7 +235,7 @@ import { MATRIX_PROTEINS, MATRIX_TOOLS, STANDALONE_TOOLS, TOOL_COUNT } from '../
 
       <div class="mt-8 pt-6 border-t border-base-800 flex flex-col sm:flex-row items-center justify-between gap-3">
         <p class="text-xs text-base-500">
-          &copy; 2026 Pitmaster Science &amp; Mathematics Suite · Empirical Engine v2026.3 · <a href="/contact" class="text-flame-400 hover:text-flame-300 transition-colors">Contact</a> · <a href="/privacy" class="text-flame-400 hover:text-flame-300 transition-colors">Privacy Policy</a>
+          &copy; 2026 Pitmaster Science &amp; Mathematics Suite · Site v{SITE_VERSION} · <a href="/contact" class="text-flame-400 hover:text-flame-300 transition-colors">Contact</a> · <a href="/privacy" class="text-flame-400 hover:text-flame-300 transition-colors">Privacy Policy</a>
         </p>
         <p class="text-[11px] text-base-600 font-mono">
           Estimates for planning only — always probe to temperature.
