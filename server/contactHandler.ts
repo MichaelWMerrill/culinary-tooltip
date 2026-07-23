@@ -1,7 +1,9 @@
 /*
- * Shared contact-form handler used by both deployment models:
- *   - Cloudflare Workers  → worker.ts routes POST /api/contact here
- *   - Cloudflare Pages    → functions/api/contact.ts adapts onRequestPost here
+ * Contact-form handler. `worker.ts` (the Workers static-assets deploy) routes
+ * POST /api/contact here. The handler is deployment-agnostic — if the project
+ * ever moves to Cloudflare Pages, a thin `functions/api/contact.ts` adapter
+ * (`onRequestPost = (ctx) => handleContact(ctx.request, ctx.env)`) can wrap it
+ * without changes here.
  *
  * Validates the submission, verifies a Cloudflare Turnstile token server-side,
  * and forwards the message to contact@empiricalbbq.com via Resend (if
