@@ -2,6 +2,17 @@
 import Layout from '../layouts/Layout.astro';
 import StallPredictor from '../components/calc/StallPredictor.astro';
 import FaqSection from '../components/calc/FaqSection.astro';
+import { computeModel } from '../utils/stallEngine.js';
+import { PROTEINS } from '../utils/proteinRegistry.js';
+
+// Derive the "how long to smoke a brisket" figure from the engine so it can
+// never drift from what the predictor computes (previously hardcoded prose).
+const brisket12hTotal = computeModel(
+  { weight: 12, pitTemp: 225, wrap: 'none', pit: 'offset_smoker', climate: 'moderate', wrapTemp: 160 },
+  PROTEINS.beef_brisket
+).totalTime;
+const brisket12Lo = Math.round(brisket12hTotal * 0.9);
+const brisket12Hi = Math.round(brisket12hTotal * 1.1);
 
 const pageUrl = 'https://empiricalbbq.com/stall-predictor';
 const publisher = {
@@ -29,7 +40,7 @@ const faqs = [
   },
   {
     q: 'How long does it take to smoke a brisket?',
-    a: 'For a typical 12 lb brisket at 225°F on an offset smoker, expect roughly 8 to 10 hours to reach the 203°F finish, including the stall. Higher pit temperatures and wrapping shorten the total; the predictor plots the full internal-temperature curve.',
+    a: `For a typical 12 lb brisket at 225°F on an offset smoker, expect roughly ${brisket12Lo} to ${brisket12Hi} hours to reach the 203°F finish, including the stall. Higher pit temperatures and wrapping shorten the total; the predictor plots the full internal-temperature curve.`,
   },
   {
     q: 'At what temperature does the brisket stall start?',
