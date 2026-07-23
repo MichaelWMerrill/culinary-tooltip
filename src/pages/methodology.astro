@@ -23,6 +23,7 @@ const rows = proteins.map((p) => {
     version: p.meta.version,
     shape: g.shape,
     exponent: g.exponent,
+    stallExponent: g.stall_exponent, // present only on refit proteins (brisket, pork)
     // Slab cuts (ribs) are governed by their thin dimension: the engine's slab
     // branch ignores the weight exponent, so cook time is independent of weight
     // and rack count. Showing "W^…" for a slab would contradict that.
@@ -96,9 +97,16 @@ const schema = {
           <p class="mt-2 text-sm text-base-400 leading-relaxed">
             The internal-temperature climb is a phenomenological model driven by Newton's law of cooling
             (<span class="font-mono text-base-300">q = h<sub>c</sub>·A·(T<sub>pit</sub> − T<sub>meat</sub>)</span>)
-            balanced against evaporative flux during the stall, and scaled by a geometric mass term
-            <span class="font-mono text-base-300">W<sup>−1/3</sup></span> (thick cuts heat slower per pound).
-            Slab cuts like ribs scale by thickness, not weight, so rack count doesn't change the time.
+            balanced against evaporative flux during the stall. Cook time scales with weight through a
+            mass exponent that is <strong class="text-base-300">empirically fitted — not derived from an
+            idealized shape</strong> — to published field cook-time guidance (roughly 1.25–1.5 hr/lb; a
+            12&nbsp;lb packer at 225°F unwrapped lands near 16&nbsp;h). We fit rather than derive because a
+            packer doesn't get proportionally thicker as it gets heavier — brisket thickness is
+            anatomically capped around 3–4″, and time-to-core is governed by thickness, not total mass —
+            so cook time runs closer to linear in weight than an idealized <span class="font-mono text-base-300">W<sup>2/3</sup></span>
+            conduction law predicts. Stall <em>duration</em> carries its own, separate mass exponent, since
+            core heating and surface evaporation scale differently. Slab cuts like ribs are governed by
+            thickness, not weight, so rack count doesn't change the time.
           </p>
         </div>
 
@@ -141,7 +149,7 @@ const schema = {
                   <span class="text-[11px] font-mono font-semibold text-flame-400 bg-flame-500/10 ring-1 ring-flame-500/30 px-2 py-0.5 rounded-md">Model v{r.version}</span>
                 </div>
                 <dl class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 text-sm">
-                  <div><dt class="text-[11px] uppercase tracking-wider text-base-500">Geometry</dt><dd class="text-base-200 font-mono">{r.isSlab ? <Fragment>slab · thickness-driven</Fragment> : <Fragment>{r.shape} · W<sup>{r.exponent}</sup></Fragment>}</dd></div>
+                  <div><dt class="text-[11px] uppercase tracking-wider text-base-500">Geometry</dt><dd class="text-base-200 font-mono">{r.isSlab ? <Fragment>slab · thickness-driven</Fragment> : <Fragment>{r.shape} · rate W<sup>{r.exponent}</sup>{r.stallExponent != null && <Fragment> · stall W<sup>{r.stallExponent}</sup></Fragment>}</Fragment>}</dd></div>
                   <div><dt class="text-[11px] uppercase tracking-wider text-base-500">Start → Finish</dt><dd class="text-base-200 font-mono">{r.startTemp}°F → {r.finishTemp}°F</dd></div>
                   <div><dt class="text-[11px] uppercase tracking-wider text-base-500">Stall</dt><dd class="text-base-200 font-mono">{r.stalls ? `~${r.stallBase} h base` : 'none (monotonic)'}</dd></div>
                   {r.hasYield && <div><dt class="text-[11px] uppercase tracking-wider text-base-500">Yield model</dt><dd class="text-base-200 font-mono">trim + cook matrix</dd></div>}
@@ -166,6 +174,14 @@ const schema = {
       <section class="mb-12">
         <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400 mb-4">Versioning &amp; Regression Testing</h2>
         <div class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6 space-y-4 text-sm text-base-400 leading-relaxed">
+          <p class="rounded-lg bg-flame-500/10 ring-1 ring-flame-500/30 p-3 text-[13px] text-base-300">
+            <strong class="text-flame-300">Recalibration — July 2026 (Model v2026.2):</strong> brisket and
+            pork shoulder cook times were refit to published field cook-time consensus. The base climb rate
+            and the climb-rate mass exponent were fitted together to anchor a 12&nbsp;lb brisket near 16&nbsp;h
+            at 225°F unwrapped (previously ~9&nbsp;h — the old model ran roughly 45% fast), the base stall was
+            raised into the field's observed 2–6&nbsp;h range, and stall duration was given its own mass
+            exponent. Ribs and turkey are unchanged and still carry their earlier version.
+          </p>
           <p>
             Each protein model carries a <strong class="text-base-300">version</strong> (shown as
             "Model v{PROTEINS.beef_brisket.meta.version}" in the results panels). When we recalibrate a
