@@ -75,7 +75,7 @@ export const PROTEINS = {
           id: 'weight',
           label: 'Raw Brisket Weight',
           type: 'slider',
-          range: { min: 4, max: 30, step: 0.5, unit: 'lb' },
+          range: { min: 4, max: 20, step: 0.5, unit: 'lb' },
         },
         {
           id: 'price',
@@ -160,15 +160,17 @@ export const PROTEINS = {
       // Protein-specific input axis for the stall/scheduler tools. Only weight is
       // protein-driven here; wrap/pit/climate are equipment/environment and stay
       // component-local. Range matches the yield calculator's weight axis
-      // (4–30 lb) so the same brisket weight is valid across every tool; the
-      // phenomenological model scales continuously with weight and does not clamp
-      // to geometry.weight_bounds (which is informational only).
+      // (4–20 lb) so the same brisket weight is valid across every tool. Capped
+      // at 20 lb: whole packers top out there, and the cook-time model is fitted
+      // over 8–18 lb, so 30 lb was unsupported extrapolation. The phenomenological
+      // model scales continuously with weight and does not clamp to
+      // geometry.weight_bounds (which is informational only).
       axes: [
         {
           id: 'weight',
           label: 'Meat Weight',
           type: 'slider',
-          range: { min: 4, max: 30, step: 0.5, unit: 'lb' },
+          range: { min: 4, max: 20, step: 0.5, unit: 'lb' },
         },
       ],
     },
