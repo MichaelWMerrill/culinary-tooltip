@@ -54,7 +54,7 @@ src/
     shareLink.js           Validated URL-param (shareable-link) helpers
     analytics.js           Shared PitmasterAnalytics telemetry object
   content/blog/            Markdown blog posts
-server/contactHandler.ts   Shared contact-form handler (Workers + Pages)
+server/contactHandler.ts   Contact-form handler (called by worker.ts)
 scripts/                   Build/generator scripts: sitemap, OG images, golden specs, ads.txt check
 public/                    Static assets copied verbatim (favicons, ads.txt, llms.txt, _headers)
 ```
@@ -66,15 +66,17 @@ slots render as clean dashed placeholders in development and as live
 ## Contact endpoint
 
 The contact form (`src/pages/contact.astro`) POSTs JSON to `/api/contact`. The request
-handler lives in `server/contactHandler.ts` and is wired for **both** Cloudflare
-deployment models:
+handler lives in `server/contactHandler.ts`, wired for the live deployment model:
 
 - **Workers static-assets (current deploy):** `worker.ts` is the Worker entry (`main`
   in `wrangler.jsonc`). Static files in `dist/` are served by the
   `ASSETS` binding; the Worker only runs for `/api/contact` and defers everything else
   (including `404.html`) to the assets.
-- **Cloudflare Pages:** `functions/api/contact.ts` is a thin adapter over the same
-  handler, for the `functions/` convention.
+
+The handler itself is deployment-agnostic: if the project ever moves back to Cloudflare
+Pages, add a thin `functions/api/contact.ts` adapter
+(`export const onRequestPost = (ctx) => handleContact(ctx.request, ctx.env)`) — no change to
+`server/contactHandler.ts` required.
 
 The handler validates the message, verifies a Cloudflare Turnstile token server-side, and
 forwards the submission to `contact@empiricalbbq.com` via **Resend** (if `RESEND_API_KEY`
@@ -101,8 +103,8 @@ widget and both keys at Cloudflare dashboard → **Turnstile**.
 > `wrangler.jsonc`), and the `/api/contact` route is wired via `worker.ts` (`main`) — no
 > action needed to serve it.
 > `output: 'static'` in `astro.config.mjs` is unchanged; `npm run build` still just produces
-> `dist/`, and the Worker is bundled by `wrangler` at deploy time. The `functions/` adapter is
-> retained only for the alternative Pages deployment model.
+> `dist/`, and the Worker is bundled by `wrangler` at deploy time. (The Pages `functions/`
+> adapter was removed — see above for how to re-add it if the deploy model ever changes.)
 >
 > MailChannels now requires account setup (their free Workers integration was retired), so
 > **Resend is the recommended path** — set `RESEND_API_KEY` and verify your sending domain.
