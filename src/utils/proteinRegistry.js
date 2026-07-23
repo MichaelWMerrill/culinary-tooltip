@@ -136,11 +136,14 @@ export const PROTEINS = {
       // (calibration estimate — see METHODOLOGY).
       stall_hours_base: 3.0,
 
-      // Per-pit-temperature initial climb rate + stall onset temperature.
+      // Per-pit-temperature initial climb rate + stall onset temperature. The
+      // climb rates were fitted (with the mass exponent below) to published
+      // field cook-time consensus at 225°F; 250°F/275°F keep their original
+      // ratio to 225°F. See METHODOLOGY.
       cook_temperatures: {
-        225: { target_fahrenheit: 225, base_hourly_climb_rate_initial: 25.0, stall_threshold_fahrenheit: 155.0 },
-        250: { target_fahrenheit: 250, base_hourly_climb_rate_initial: 32.0, stall_threshold_fahrenheit: 162.0 },
-        275: { target_fahrenheit: 275, base_hourly_climb_rate_initial: 40.0, stall_threshold_fahrenheit: 170.0 },
+        225: { target_fahrenheit: 225, base_hourly_climb_rate_initial: 15.95, stall_threshold_fahrenheit: 155.0 },
+        250: { target_fahrenheit: 250, base_hourly_climb_rate_initial: 20.41, stall_threshold_fahrenheit: 162.0 },
+        275: { target_fahrenheit: 275, base_hourly_climb_rate_initial: 25.51, stall_threshold_fahrenheit: 170.0 },
       },
 
       // Mass-scaling geometry: `exponent` scales the climb *rate* (core heating,
@@ -149,7 +152,7 @@ export const PROTEINS = {
       geometry: {
         shape: 'cylinder',
         beta: 0.42, // geometric constant
-        exponent: -0.333, // climb-rate mass exponent (empirically fitted — see METHODOLOGY)
+        exponent: -1.073, // climb-rate mass exponent (empirically fitted — see METHODOLOGY)
         stall_exponent: 0.333, // stall-duration mass exponent (decoupled from rate)
         weight_bounds: { min: 4.0, max: 18.0 },
       },
@@ -273,10 +276,12 @@ export const PROTEINS = {
       // (calibration estimate — see METHODOLOGY).
       stall_hours_base: 2.5,
 
+      // Climb rates fitted (with the mass exponent below) to published pork-butt
+      // cook-time consensus at 225°F; 250°F/275°F keep their ratio to 225°F.
       cook_temperatures: {
-        225: { target_fahrenheit: 225, base_hourly_climb_rate_initial: 24.0, stall_threshold_fahrenheit: 158.0 },
-        250: { target_fahrenheit: 250, base_hourly_climb_rate_initial: 30.0, stall_threshold_fahrenheit: 165.0 },
-        275: { target_fahrenheit: 275, base_hourly_climb_rate_initial: 38.0, stall_threshold_fahrenheit: 172.0 },
+        225: { target_fahrenheit: 225, base_hourly_climb_rate_initial: 13.26, stall_threshold_fahrenheit: 158.0 },
+        250: { target_fahrenheit: 250, base_hourly_climb_rate_initial: 16.58, stall_threshold_fahrenheit: 165.0 },
+        275: { target_fahrenheit: 275, base_hourly_climb_rate_initial: 21.0, stall_threshold_fahrenheit: 172.0 },
       },
 
       // Boston butt ≈ a squat, thick cylinder; a touch blockier than a packer.
@@ -285,7 +290,7 @@ export const PROTEINS = {
       geometry: {
         shape: 'cylinder',
         beta: 0.45, // geometric constant (calibration estimate — see METHODOLOGY)
-        exponent: -0.333, // climb-rate mass exponent (empirically fitted — see METHODOLOGY)
+        exponent: -1.086, // climb-rate mass exponent (empirically fitted — see METHODOLOGY)
         stall_exponent: 0.333, // stall-duration mass exponent (decoupled from rate)
         weight_bounds: { min: 4.0, max: 12.0 },
       },
