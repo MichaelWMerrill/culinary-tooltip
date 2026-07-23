@@ -12,6 +12,7 @@ import { clampNum, enumParam, getParams, writeParams, wireCopyButton } from '../
 export function initCookScheduler(protein = PROTEINS.beef_brisket) {
   const thermal = protein.thermal;
   const finishTemp = thermal.finish_temp;
+  const pitTemps = Object.keys(thermal.cook_temperatures); // registry-driven, per-protein
   const method321 = thermal.method_321 || null; // ribs use fixed 3-2-1 blocks
   const usesStall = !method321; // brisket/pork use the stall/curve back-calc
   const tAxes = thermal.axes;
@@ -298,7 +299,7 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
       const key = PARAM[a.id];
       if (key && p.has(key)) state[a.id] = enumParam(p.get(key), a.options.map((o) => o.value), state[a.id]);
     }
-    if (p.has('pt')) state.pitTemp = enumParam(p.get('pt'), ['225', '250', '275'], state.pitTemp);
+    if (p.has('pt')) state.pitTemp = enumParam(p.get('pt'), pitTemps, state.pitTemp);
     if (p.has('pit'))
       state.pit = enumParam(p.get('pit'), ['pellet_cooker', 'offset_smoker', 'ceramic_kamado', 'charcoal_kettle'], state.pit);
     if (usesStall) {

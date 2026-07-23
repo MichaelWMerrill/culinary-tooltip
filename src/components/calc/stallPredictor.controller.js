@@ -18,6 +18,7 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
   const thermal = protein.thermal;
   const stalls = thermal.stalls !== false;
   const finishTemp = thermal.finish_temp;
+  const pitTemps = Object.keys(thermal.cook_temperatures); // registry-driven, per-protein
   const tAxes = thermal.axes;
   const tCopy = thermal.copy || {};
   const tSliders = tAxes.filter((a) => a.type === 'slider');
@@ -318,7 +319,7 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
       const key = PARAM[a.id];
       if (key && p.has(key)) state[a.id] = enumParam(p.get(key), a.options.map((o) => o.value), state[a.id]);
     }
-    if (p.has('pt')) state.pitTemp = enumParam(p.get('pt'), ['225', '250', '275'], state.pitTemp);
+    if (p.has('pt')) state.pitTemp = enumParam(p.get('pt'), pitTemps, state.pitTemp);
     if (p.has('pit'))
       state.pit = enumParam(p.get('pit'), ['pellet_cooker', 'offset_smoker', 'ceramic_kamado', 'charcoal_kettle'], state.pit);
     if (stalls) {
@@ -351,7 +352,7 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
       if (rig && RIG_TO_PIT[rig]) state.pit = RIG_TO_PIT[rig];
       const target = parseFloat(localStorage.getItem('pitmaster_target_temp'));
       if (isFinite(target)) {
-        state.pitTemp = ['225', '250', '275'].reduce((a, b) => (Math.abs(b - target) < Math.abs(a - target) ? b : a));
+        state.pitTemp = pitTemps.reduce((a, b) => (Math.abs(b - target) < Math.abs(a - target) ? b : a));
       }
     } catch (e) {
       /* ignore */

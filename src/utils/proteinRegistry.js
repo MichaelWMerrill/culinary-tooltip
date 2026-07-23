@@ -492,10 +492,16 @@ export const PROTEINS = {
       stalls: false, // poultry climbs monotonically — no evaporative plateau
       stall_hours_base: 0, // unused (no stall)
 
+      // Poultry is safely roasted at 325°F (FSIS: oven no lower than 325°F) and
+      // smoked at 225–300°F, so turkey offers five pit temps. Rates here extend
+      // the prior three by the registry's ~1.24 per-25°F ratio; Part C then
+      // refits all five to the USDA roasting timetable.
       cook_temperatures: {
         225: { target_fahrenheit: 225, base_hourly_climb_rate_initial: 26.0, stall_threshold_fahrenheit: 160.0 },
         250: { target_fahrenheit: 250, base_hourly_climb_rate_initial: 32.0, stall_threshold_fahrenheit: 160.0 },
         275: { target_fahrenheit: 275, base_hourly_climb_rate_initial: 40.0, stall_threshold_fahrenheit: 160.0 },
+        300: { target_fahrenheit: 300, base_hourly_climb_rate_initial: 49.6, stall_threshold_fahrenheit: 160.0 },
+        325: { target_fahrenheit: 325, base_hourly_climb_rate_initial: 61.5, stall_threshold_fahrenheit: 160.0 },
       },
 
       geometry: {

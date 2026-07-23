@@ -17,6 +17,7 @@ export interface Props {
 
 const { protein = PROTEINS.beef_brisket } = Astro.props;
 const thermal = protein.thermal;
+const pitTemps = Object.keys(thermal.cook_temperatures); // registry-driven pit-temp options
 const stalls = thermal.stalls !== false;
 const tAxes = thermal.axes;
 const tInit = thermal.initialState ?? { weight: 12 };
@@ -87,10 +88,10 @@ const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${prot
       <!-- Target Pit Temp -->
       <div>
         <label class="block text-sm font-medium text-slate-300 mb-2">Target Pit Temp</label>
-        <div id="pitTempToggle" aria-label="Target pit temperature" class="grid grid-cols-3 gap-1 rounded-lg bg-slate-800 ring-1 ring-slate-700 p-1" role="group">
-          <button data-temp="225" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="true">225&deg;F</button>
-          <button data-temp="250" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="false">250&deg;F</button>
-          <button data-temp="275" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="false">275&deg;F</button>
+        <div id="pitTempToggle" aria-label="Target pit temperature" class={`grid ${pitTemps.length > 3 ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-3'} gap-1 rounded-lg bg-slate-800 ring-1 ring-slate-700 p-1`} role="group">
+          {pitTemps.map((t, i) => (
+            <button data-temp={t} class="temp-opt rounded-md px-1 py-2 text-sm font-medium transition-colors" aria-pressed={i === 0 ? 'true' : 'false'}>{t}&deg;F</button>
+          ))}
         </div>
       </div>
 
