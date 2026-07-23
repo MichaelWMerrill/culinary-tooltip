@@ -327,10 +327,25 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
       if (p.has('wt')) state.wrapTemp = Math.round(clampNum(p.get('wt'), 150, 170, state.wrapTemp));
       if (p.has('cl')) state.climate = enumParam(p.get('cl'), ['arid', 'moderate', 'humid'], state.climate);
     }
+    maybeNoticeVersion(p);
+  }
+
+  // Notify (don't pin): if a shared link was made under a different model
+  // version, the numbers may have moved since. Absent `v` = pre-v2026.2 link.
+  function maybeNoticeVersion(p) {
+    const el = document.getElementById('versionNotice');
+    if (!el) return;
+    const cameFromLink = p.has('pt') || p.has('pr') || p.has('w');
+    if (!cameFromLink) return;
+    const shared = p.get('v');
+    if (shared === protein.meta.version) return;
+    const was = shared || 'v2026.1 or earlier';
+    el.textContent = `Heads up: this link was shared under Model ${was.startsWith('v') ? was : 'v' + was}; you're viewing Model v${protein.meta.version}, which may produce different times.`;
+    el.classList.remove('hidden');
   }
 
   function updateShareUrl() {
-    const params = { pr: protein.meta.id, pt: state.pitTemp, pit: state.pit };
+    const params = { pr: protein.meta.id, pt: state.pitTemp, pit: state.pit, v: protein.meta.version };
     for (const a of tAxes) if (PARAM[a.id]) params[PARAM[a.id]] = state[a.id];
     if (stalls) {
       params.wr = state.wrap;
