@@ -18,6 +18,7 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
   const thermal = protein.thermal;
   const stalls = thermal.stalls !== false;
   const finishTemp = thermal.finish_temp;
+  const pitTemps = Object.keys(thermal.cook_temperatures); // registry-driven, per-protein
   const tAxes = thermal.axes;
   const tCopy = thermal.copy || {};
   const tSliders = tAxes.filter((a) => a.type === 'slider');
@@ -318,7 +319,7 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
       const key = PARAM[a.id];
       if (key && p.has(key)) state[a.id] = enumParam(p.get(key), a.options.map((o) => o.value), state[a.id]);
     }
-    if (p.has('pt')) state.pitTemp = enumParam(p.get('pt'), ['225', '250', '275'], state.pitTemp);
+    if (p.has('pt')) state.pitTemp = enumParam(p.get('pt'), pitTemps, state.pitTemp);
     if (p.has('pit'))
       state.pit = enumParam(p.get('pit'), ['pellet_cooker', 'offset_smoker', 'ceramic_kamado', 'charcoal_kettle'], state.pit);
     if (stalls) {
@@ -326,10 +327,25 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
       if (p.has('wt')) state.wrapTemp = Math.round(clampNum(p.get('wt'), 150, 170, state.wrapTemp));
       if (p.has('cl')) state.climate = enumParam(p.get('cl'), ['arid', 'moderate', 'humid'], state.climate);
     }
+    maybeNoticeVersion(p);
+  }
+
+  // Notify (don't pin): if a shared link was made under a different model
+  // version, the numbers may have moved since. Absent `v` = pre-v2026.2 link.
+  function maybeNoticeVersion(p) {
+    const el = document.getElementById('versionNotice');
+    if (!el) return;
+    const cameFromLink = p.has('pt') || p.has('pr') || p.has('w');
+    if (!cameFromLink) return;
+    const shared = p.get('v');
+    if (shared === protein.meta.version) return;
+    const was = shared || 'v2026.1 or earlier';
+    el.textContent = `Heads up: this link was shared under Model ${was.startsWith('v') ? was : 'v' + was}; you're viewing Model v${protein.meta.version}, which may produce different times.`;
+    el.classList.remove('hidden');
   }
 
   function updateShareUrl() {
-    const params = { pr: protein.meta.id, pt: state.pitTemp, pit: state.pit };
+    const params = { pr: protein.meta.id, pt: state.pitTemp, pit: state.pit, v: protein.meta.version };
     for (const a of tAxes) if (PARAM[a.id]) params[PARAM[a.id]] = state[a.id];
     if (stalls) {
       params.wr = state.wrap;
@@ -351,7 +367,7 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
       if (rig && RIG_TO_PIT[rig]) state.pit = RIG_TO_PIT[rig];
       const target = parseFloat(localStorage.getItem('pitmaster_target_temp'));
       if (isFinite(target)) {
-        state.pitTemp = ['225', '250', '275'].reduce((a, b) => (Math.abs(b - target) < Math.abs(a - target) ? b : a));
+        state.pitTemp = pitTemps.reduce((a, b) => (Math.abs(b - target) < Math.abs(a - target) ? b : a));
       }
     } catch (e) {
       /* ignore */

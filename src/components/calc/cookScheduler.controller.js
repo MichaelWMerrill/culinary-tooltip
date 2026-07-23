@@ -12,6 +12,7 @@ import { clampNum, enumParam, getParams, writeParams, wireCopyButton } from '../
 export function initCookScheduler(protein = PROTEINS.beef_brisket) {
   const thermal = protein.thermal;
   const finishTemp = thermal.finish_temp;
+  const pitTemps = Object.keys(thermal.cook_temperatures); // registry-driven, per-protein
   const method321 = thermal.method_321 || null; // ribs use fixed 3-2-1 blocks
   const usesStall = !method321; // brisket/pork use the stall/curve back-calc
   const tAxes = thermal.axes;
@@ -298,7 +299,7 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
       const key = PARAM[a.id];
       if (key && p.has(key)) state[a.id] = enumParam(p.get(key), a.options.map((o) => o.value), state[a.id]);
     }
-    if (p.has('pt')) state.pitTemp = enumParam(p.get('pt'), ['225', '250', '275'], state.pitTemp);
+    if (p.has('pt')) state.pitTemp = enumParam(p.get('pt'), pitTemps, state.pitTemp);
     if (p.has('pit'))
       state.pit = enumParam(p.get('pit'), ['pellet_cooker', 'offset_smoker', 'ceramic_kamado', 'charcoal_kettle'], state.pit);
     if (usesStall) {
@@ -312,9 +313,22 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
       const s = p.get('s');
       if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s) && !isNaN(new Date(s).getTime())) state.serveAt = s;
     }
+    maybeNoticeVersion(p);
+  }
+  // Notify (don't pin): a shared link made under a different model version may
+  // now compute different times. Absent `v` = pre-v2026.2 link.
+  function maybeNoticeVersion(p) {
+    const el = document.getElementById('versionNotice');
+    if (!el) return;
+    if (!(p.has('pt') || p.has('pr') || p.has('w'))) return;
+    const shared = p.get('v');
+    if (shared === protein.meta.version) return;
+    const was = shared || 'v2026.1 or earlier';
+    el.textContent = `Heads up: this link was shared under Model ${was.startsWith('v') ? was : 'v' + was}; you're viewing Model v${protein.meta.version}, which may produce different times.`;
+    el.classList.remove('hidden');
   }
   function updateShareUrl() {
-    const params = { pr: protein.meta.id, pt: state.pitTemp, pit: state.pit, r: state.rest };
+    const params = { pr: protein.meta.id, pt: state.pitTemp, pit: state.pit, r: state.rest, v: protein.meta.version };
     for (const a of tAxes) if (PARAM[a.id]) params[PARAM[a.id]] = state[a.id];
     if (usesStall) {
       params.wr = state.wrap;

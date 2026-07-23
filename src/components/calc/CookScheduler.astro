@@ -24,6 +24,11 @@ const schedulerIds = ['beef_brisket', 'pork_shoulder', 'pork_ribs'];
 const axisById = {};
 for (const id of schedulerIds) for (const a of PROTEINS[id].thermal.axes) if (!axisById[a.id]) axisById[a.id] = a;
 const unionAxes = Object.values(axisById);
+// Pit temps offered = union of the scheduler proteins' registry temps (turkey is
+// not a scheduler protein, so its 300/325 don't appear here). Rendered, not hardcoded.
+const pitTemps = [...new Set(schedulerIds.flatMap((id) => Object.keys(PROTEINS[id].thermal.cook_temperatures)))].sort(
+  (a, b) => a - b
+);
 const tInit = { weight: 12, cut: 'spare', racks: 3 };
 const tCopy = { ...(PROTEINS.pork_ribs.thermal.copy || {}) };
 const segCols = (c) => (c === 2 ? 'grid-cols-2' : 'grid-cols-3');
@@ -90,10 +95,10 @@ const defaultVisible = new Set(['weight']);
 
           <div>
             <label class="block text-sm font-medium text-base-300 mb-2">Target Pit Temp</label>
-            <div id="pitTempToggle" class="grid grid-cols-3 gap-1 rounded-lg bg-base-900 ring-1 ring-base-700 p-1" role="group">
-              <button data-temp="225" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="true">225&deg;F</button>
-              <button data-temp="250" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="false">250&deg;F</button>
-              <button data-temp="275" class="temp-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="false">275&deg;F</button>
+            <div id="pitTempToggle" class={`grid ${pitTemps.length > 3 ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-3'} gap-1 rounded-lg bg-base-900 ring-1 ring-base-700 p-1`} role="group">
+              {pitTemps.map((t, i) => (
+                <button data-temp={t} class="temp-opt rounded-md px-1 py-2 text-sm font-medium transition-colors" aria-pressed={i === 0 ? 'true' : 'false'}>{t}&deg;F</button>
+              ))}
             </div>
           </div>
 
@@ -154,6 +159,7 @@ const defaultVisible = new Set(['weight']);
                 <p id="totalSub" class="text-xs text-base-400 mt-2">—</p>
                 <p class="text-[10px] font-mono text-base-500 mt-1.5">Model v<span id="modelVer">{protein.meta.version}</span> · cook time shown as a &plusmn;15&ndash;25% window (narrower with foil, wider unwrapped)</p>
                 <p class="text-[11px] text-base-500 mt-1 leading-snug">These times are fitted to published field cook-time guidance, not logged from our own pit &mdash; a planning estimate, not a guarantee. Probe to temperature.</p>
+                <p id="versionNotice" class="hidden text-[11px] text-amber-400/90 mt-1 leading-snug"></p>
               </div>
               <div class="hidden sm:flex h-14 w-14 items-center justify-center rounded-xl bg-flame-500/15 ring-1 ring-flame-500/40 text-3xl">🔥</div>
             </div>
