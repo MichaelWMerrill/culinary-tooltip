@@ -48,11 +48,19 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
     if (!isFinite(h) || h <= 0) return '0.0 h';
     return h.toFixed(1) + ' h';
   }
-  // ±5% window around a point estimate — honest imprecision without losing the
-  // underlying number (which stays in the share link via the input params).
-  function fmtHrsRange(h) {
+  // Confidence band around the point estimate — honest imprecision without
+  // losing the underlying number (which stays in the share link via the input
+  // params). Real spread across cut variation, probe placement, pit behavior,
+  // and ambient conditions is wide, and it is wrap-dependent: foil crushes the
+  // stall and is the most predictable; an unwrapped cook spreads the widest.
+  function bandFraction(wrap) {
+    if (wrap === 'aluminum_foil') return 0.15;
+    if (wrap === 'peach_butcher_paper') return 0.2;
+    return 0.25; // no wrap, or proteins without a wrap variable (e.g. turkey)
+  }
+  function fmtHrsRange(h, frac) {
     if (!isFinite(h) || h <= 0) return fmtHrs(h);
-    return fmtHrs(h * 0.95) + '–' + fmtHrs(h * 1.05);
+    return fmtHrs(h * (1 - frac)) + '–' + fmtHrs(h * (1 + frac));
   }
 
   /* SVG chart rendering */
@@ -242,7 +250,9 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
     renderChart(m, pts);
 
     $('totalTime').textContent = fmtHrs(m.totalTime);
-    $('totalTimeSub').textContent = fmtHrsRange(m.totalTime) + ' window to ' + finishTemp + '°F (±5%)';
+    const frac = bandFraction(state.wrap);
+    $('totalTimeSub').textContent =
+      fmtHrsRange(m.totalTime, frac) + ' window to ' + finishTemp + '°F (±' + Math.round(frac * 100) + '%)';
 
     if (stalls) {
       $('stallTime').textContent = fmtHrs(m.stallDuration);
