@@ -22,7 +22,7 @@ export const PROTEINS = {
       name: 'Beef Brisket',
       shortName: 'Brisket', // used in calculator H1s ("<shortName> Yield & Cost Calculator")
       slug: 'brisket',
-      version: '2026.1',
+      version: '2026.2', // 2026.2: cook-time recalibration (climb rate, mass exponent, stall base)
     },
 
     yield: {
@@ -186,7 +186,7 @@ export const PROTEINS = {
       name: 'Pork Shoulder',
       shortName: 'Pork Shoulder',
       slug: 'pork-shoulder',
-      version: '2026.1',
+      version: '2026.2', // 2026.2: cook-time recalibration (climb rate, mass exponent, stall base)
     },
 
     yield: {
