@@ -66,14 +66,17 @@ your project → Settings → Variables and Secrets):
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
-| `TURNSTILE_SECRET_KEY` | **Yes** | Cloudflare Turnstile *secret* key, used for server-side verification. |
+| `TURNSTILE_SECRET_KEY` | **Yes** (runtime) | Cloudflare Turnstile *secret* key, used for server-side verification. |
+| `TURNSTILE_SITE_KEY` | Optional (build time) | Public Turnstile *site* key for the widget. Overrides the committed production default; the build fails if it resolves to a Cloudflare test key. |
 | `RESEND_API_KEY` | Optional | If present, email is sent via Resend instead of MailChannels. |
 
-**Turnstile site key:** the widget's *site* key is a constant in `src/pages/contact.astro`
-(`TURNSTILE_SITE_KEY`). It currently uses Cloudflare's public "always passes" **test** key
-so the form works in dev/preview — replace it with your production site key (marked with a
-`// TODO: set real key` comment). Create the widget and both keys at Cloudflare dashboard →
-**Turnstile**.
+**Turnstile site key:** the widget's *site* key (public — it ships in the page HTML) lives in
+`src/pages/contact.astro` as `TURNSTILE_SITE_KEY`, which defaults to the committed production
+key and is overridable at build time via the `TURNSTILE_SITE_KEY` env var (see table below). A
+build-time guard throws if the resolved value is one of Cloudflare's documented **test** keys
+(e.g. the "always passes" `1x00000000000000000000AA`), so a test key — which issues tokens that
+always pass and would silently disable bot protection — can never ship to production. Create the
+widget and both keys at Cloudflare dashboard → **Turnstile**.
 
 > **Deployment note:** this repo deploys on the **Workers static-assets** model, and the
 > `/api/contact` route is wired via `worker.ts` (`main`) — no action needed to serve it.
