@@ -346,6 +346,9 @@ const turkeyStallStates = [
   { preparation: 'whole', weight: 14, pitTemp: '275', pit: 'offset_smoker', wrap: 'none', wrapTemp: 160, climate: 'moderate' },
   { preparation: 'spatchcock', weight: 12, pitTemp: '250', pit: 'pellet_cooker', wrap: 'none', wrapTemp: 160, climate: 'moderate' },
   { preparation: 'whole', weight: 20, pitTemp: '225', pit: 'ceramic_kamado', wrap: 'none', wrapTemp: 160, climate: 'humid' },
+  // lock the two new pit temps (Part B/C)
+  { preparation: 'whole', weight: 16, pitTemp: '325', pit: 'offset_smoker', wrap: 'none', wrapTemp: 160, climate: 'moderate' },
+  { preparation: 'whole', weight: 12, pitTemp: '300', pit: 'charcoal_kettle', wrap: 'none', wrapTemp: 160, climate: 'moderate' },
 ];
 const turkeyStallGolden = turkeyStallStates.map((s) => {
   const m = computeModel(s, turkey);

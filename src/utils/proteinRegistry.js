@@ -318,7 +318,7 @@ export const PROTEINS = {
       name: 'Pork Ribs',
       shortName: 'Ribs',
       slug: 'ribs',
-      version: '2026.1',
+      version: '2026.2', // 2026.2: shifted only by the shared climate-humidity fix at Humid/Arid
     },
 
     // No yield/cost calculator: ribs are planned and served by the rack/bone,
