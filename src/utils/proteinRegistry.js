@@ -143,11 +143,14 @@ export const PROTEINS = {
         275: { target_fahrenheit: 275, base_hourly_climb_rate_initial: 40.0, stall_threshold_fahrenheit: 170.0 },
       },
 
-      // Mass-scaling geometry: packer brisket ≈ thick cylinder, rate ∝ W^exponent.
+      // Mass-scaling geometry: `exponent` scales the climb *rate* (core heating,
+      // conduction-limited); `stall_exponent` scales *stall duration* (surface-
+      // evaporation-limited) independently — see stallEngine's mass-scaling block.
       geometry: {
         shape: 'cylinder',
         beta: 0.42, // geometric constant
-        exponent: -0.333, // W^(-1/3) heat-transfer scaling
+        exponent: -0.333, // climb-rate mass exponent (empirically fitted — see METHODOLOGY)
+        stall_exponent: 0.333, // stall-duration mass exponent (decoupled from rate)
         weight_bounds: { min: 4.0, max: 18.0 },
       },
 
@@ -275,10 +278,13 @@ export const PROTEINS = {
       },
 
       // Boston butt ≈ a squat, thick cylinder; a touch blockier than a packer.
+      // `exponent` scales the climb rate; `stall_exponent` scales stall duration
+      // independently (see stallEngine's mass-scaling block).
       geometry: {
         shape: 'cylinder',
         beta: 0.45, // geometric constant (calibration estimate — see METHODOLOGY)
-        exponent: -0.333, // W^(-1/3) heat-transfer scaling
+        exponent: -0.333, // climb-rate mass exponent (empirically fitted — see METHODOLOGY)
+        stall_exponent: 0.333, // stall-duration mass exponent (decoupled from rate)
         weight_bounds: { min: 4.0, max: 12.0 },
       },
 
