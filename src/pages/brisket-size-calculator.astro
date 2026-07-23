@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import GearModule from '../components/calc/GearModule.astro';
 import FaqSection from '../components/calc/FaqSection.astro';
+import { PROTEINS } from '../utils/proteinRegistry.js';
 
 const pageUrl = 'https://empiricalbbq.com/brisket-size-calculator';
 const publisher = {
@@ -245,7 +246,7 @@ const schema = [
     <GearModule tool="yield" state={{ protein: 'beef_brisket' }} />
 
     <footer class="mt-8 text-center text-[11px] text-smoke-500">
-      <p>Sizing back-solves the same empirical trim &amp; shrinkage matrix (v2026.1) as the yield calculator. Actual yields vary by cut, cooker, and pitmaster — buy a little long for a crowd.</p>
+      <p>Sizing back-solves the same empirical trim &amp; shrinkage matrix (Model v{PROTEINS.beef_brisket.meta.version}) as the yield calculator. Actual yields vary by cut, cooker, and pitmaster — buy a little long for a crowd.</p>
       <p class="mt-2"><a href="/methodology" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">Methodology &amp; sources</a> · <a href="/privacy" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">Privacy Policy</a></p>
     </footer>
   </div>

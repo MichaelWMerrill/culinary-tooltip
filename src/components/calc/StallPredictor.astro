@@ -7,6 +7,7 @@
  * lives in ./stallPredictor.controller.js.
  */
 import { PROTEINS } from '../../utils/proteinRegistry.js';
+import { ENGINE_VERSION } from '../../utils/version.js';
 import ProteinSelector from './ProteinSelector.astro';
 import GearModule from './GearModule.astro';
 
@@ -211,7 +212,7 @@ const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${prot
   </div>
 
   <footer class="mt-8 text-center text-[11px] text-slate-500">
-    <p>Phenomenological model (engine v1.0.0) using convective, radiative &amp; evaporative boundary conditions. Real cooks vary &mdash; probe your meat.</p>
+    <p>Phenomenological model (stall engine v{ENGINE_VERSION}) using convective, radiative &amp; evaporative boundary conditions. Real cooks vary &mdash; probe your meat.</p>
     <p class="mt-2"><a href="/methodology" class="text-amber-400 hover:text-amber-300 underline decoration-dotted underline-offset-2">Methodology &amp; sources</a> · <a href="/privacy" class="text-amber-400 hover:text-amber-300 underline decoration-dotted underline-offset-2">Privacy Policy</a></p>
   </footer>
 </div>
