@@ -132,9 +132,9 @@ export const PROTEINS = {
       finish_temp: 203, // °F, probe-tender packer target
       stalls: true,
       // Base naked-cook stall length (hours) before mass/pit/climate scaling.
-      // Calibrated so a 10 lb packer on an offset smoker stalls ~1.5–2 h
+      // Set to the middle of the field's observed 2–6 h brisket stall range
       // (calibration estimate — see METHODOLOGY).
-      stall_hours_base: 1.9,
+      stall_hours_base: 3.0,
 
       // Per-pit-temperature initial climb rate + stall onset temperature.
       cook_temperatures: {
@@ -267,9 +267,11 @@ export const PROTEINS = {
       start_temp: 40, // °F, fridge-cold meat
       finish_temp: 202, // °F, probe-tender / bone wobbles for pulling
       stalls: true,
-      // Shorter, softer plateau than brisket — a fattier, more compact cut renders
-      // through the stall faster (calibration estimate — see METHODOLOGY).
-      stall_hours_base: 1.3,
+      // Slightly shorter plateau than brisket — a fattier, more compact cut
+      // renders through the stall a touch faster, but a Boston butt still stalls
+      // hard; set below brisket's 3.0 h within the field's pork range
+      // (calibration estimate — see METHODOLOGY).
+      stall_hours_base: 2.5,
 
       cook_temperatures: {
         225: { target_fahrenheit: 225, base_hourly_climb_rate_initial: 24.0, stall_threshold_fahrenheit: 158.0 },
