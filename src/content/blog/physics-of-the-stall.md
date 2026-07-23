@@ -27,9 +27,11 @@ Once the meat hits roughly 150°F, the rate of moisture evaporating from the sur
 
 The duration of your stall depends heavily on your cooking environment:
 
-*   **Airflow:** High convection airflow (like in a well-drafted offset smoker) sweeps away moisture faster, meaning a shorter but intense stall.
-*   **Humidity:** If your smoker environment is highly humid (because you have a massive water pan or are constantly spritzing), evaporation slows down. This will lengthen your stall significantly.
+*   **Airflow:** More convective airflow — a well-drafted offset, or a fan-forced pellet cooker — drives faster surface evaporation, and faster evaporation means stronger cooling. That *deepens and lengthens* the stall. A low-airflow, high-thermal-mass cooker like a ceramic kamado evaporates less, so its stall is shorter and milder (even though its gentler heat makes the overall cook the longest).
+*   **Humidity:** Evaporation is driven by the vapor-pressure gap between the wet surface and the surrounding air. Humid cooker air — a sealed kamado, a heavy water pan — shrinks that gap, so the meat evaporates and cools *less*, giving a shorter, milder stall. (Actively spritzing is the exception: it adds surface water that must itself boil off, which can stretch the plateau back out.)
 *   **Meat Surface Area:** A flat, wide brisket has more surface area for evaporation than a compact, round pork butt, meaning its stall characteristics will differ.
+
+Our [stall predictor](https://empiricalbbq.com/stall-predictor) models exactly these effects — pit airflow, cooker humidity, wrap, and regional climate — separating the length of the stall from the total cook time.
 
 ## 3. How to Break the Stall Cleanly
 
