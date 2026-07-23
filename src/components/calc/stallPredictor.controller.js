@@ -7,7 +7,17 @@
  * beef_brisket the behavior is identical to the prior version.
  */
 import { PROTEINS } from '../../utils/proteinRegistry.js';
-import { DATA, START_TEMP, FINISH_TEMP, WRAP_COPY, CLIMATE_COPY, computeModel, buildPath } from '../../utils/stallEngine.js';
+import {
+  DATA,
+  START_TEMP,
+  FINISH_TEMP,
+  WRAP_COPY,
+  CLIMATE_COPY,
+  computeModel,
+  buildPath,
+  dangerZoneHours,
+  dangerZoneNote,
+} from '../../utils/stallEngine.js';
 import { PitmasterAnalytics } from '../../utils/analytics.js';
 import { clampNum, enumParam, getParams, writeParams, wireCopyButton } from '../../utils/shareLink.js';
 
@@ -254,6 +264,14 @@ export function initStallPredictor(protein = PROTEINS.beef_brisket) {
     const frac = bandFraction(state.wrap);
     $('totalTimeSub').textContent =
       fmtHrsRange(m.totalTime, frac) + ' window to ' + finishTemp + '°F (±' + Math.round(frac * 100) + '%)';
+
+    // Food-safety danger-zone readout (poultry only; element present iff thermal.dangerZone).
+    const dzEl = $('dangerZone');
+    if (dzEl) {
+      const note = dangerZoneNote(dangerZoneHours(m));
+      dzEl.textContent = note.text;
+      dzEl.className = 'text-[11px] leading-snug mt-1 ' + (note.escalated ? 'text-amber-400/90' : 'text-slate-500');
+    }
 
     if (stalls) {
       $('stallTime').textContent = fmtHrs(m.stallDuration);

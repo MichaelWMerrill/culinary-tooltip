@@ -171,6 +171,9 @@ const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${prot
         These times are fitted to published field cook-time guidance, not logged from our own pit &mdash; a planning estimate, not a guarantee. Probe to temperature.
       </p>
       <p id="versionNotice" class="hidden text-[11px] text-amber-400/90 leading-snug text-right"></p>
+      {thermal.dangerZone && (
+        <p id="dangerZone" class="text-[11px] text-slate-500 leading-snug mt-1"></p>
+      )}
 
       {
         thermal.safetyNote && (
