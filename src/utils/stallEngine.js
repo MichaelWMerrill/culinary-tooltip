@@ -96,7 +96,14 @@ export function computeModel(state, protein = PROTEINS.beef_brisket) {
     ? Object.entries(thermal.rate_modifiers).reduce((acc, [field, map]) => acc * (map[state[field]] ?? 1), 1)
     : 1;
   const massRateScale = base * rateMod; // <1 slows the climb, >1 speeds it
-  const massDurScale = 1 / massRateScale;
+  // Stall duration scales with mass on a *separate* exponent: core heating is
+  // conduction-limited (steep) while stall length is surface-evaporation-limited
+  // (much shallower), so one exponent cannot serve both. `stall_exponent` is the
+  // stall-duration mass exponent; when a protein omits it we fall back to the
+  // legacy coupling (massDurScale = 1/massRateScale) so untouched proteins
+  // (ribs, turkey) are byte-for-byte unchanged.
+  const massDurScale =
+    geo.stall_exponent != null ? Math.pow(state.weight / REF_WEIGHT, geo.stall_exponent) : 1 / massRateScale;
 
   // Combined pit "drive": convective airflow + radiant flux.
   const pitPower = 0.7 * pit.convective_coefficient_hc + 0.5 * pit.radiative_multiplier_epsilon;

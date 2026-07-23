@@ -22,7 +22,7 @@ export const PROTEINS = {
       name: 'Beef Brisket',
       shortName: 'Brisket', // used in calculator H1s ("<shortName> Yield & Cost Calculator")
       slug: 'brisket',
-      version: '2026.1',
+      version: '2026.2', // 2026.2: cook-time recalibration (climb rate, mass exponent, stall base)
     },
 
     yield: {
@@ -75,7 +75,7 @@ export const PROTEINS = {
           id: 'weight',
           label: 'Raw Brisket Weight',
           type: 'slider',
-          range: { min: 4, max: 30, step: 0.5, unit: 'lb' },
+          range: { min: 4, max: 20, step: 0.5, unit: 'lb' },
         },
         {
           id: 'price',
@@ -132,37 +132,45 @@ export const PROTEINS = {
       finish_temp: 203, // °F, probe-tender packer target
       stalls: true,
       // Base naked-cook stall length (hours) before mass/pit/climate scaling.
-      // Calibrated so a 10 lb packer on an offset smoker stalls ~1.5–2 h
+      // Set to the middle of the field's observed 2–6 h brisket stall range
       // (calibration estimate — see METHODOLOGY).
-      stall_hours_base: 1.9,
+      stall_hours_base: 3.0,
 
-      // Per-pit-temperature initial climb rate + stall onset temperature.
+      // Per-pit-temperature initial climb rate + stall onset temperature. The
+      // climb rates were fitted (with the mass exponent below) to published
+      // field cook-time consensus at 225°F; 250°F/275°F keep their original
+      // ratio to 225°F. See METHODOLOGY.
       cook_temperatures: {
-        225: { target_fahrenheit: 225, base_hourly_climb_rate_initial: 25.0, stall_threshold_fahrenheit: 155.0 },
-        250: { target_fahrenheit: 250, base_hourly_climb_rate_initial: 32.0, stall_threshold_fahrenheit: 162.0 },
-        275: { target_fahrenheit: 275, base_hourly_climb_rate_initial: 40.0, stall_threshold_fahrenheit: 170.0 },
+        225: { target_fahrenheit: 225, base_hourly_climb_rate_initial: 15.95, stall_threshold_fahrenheit: 155.0 },
+        250: { target_fahrenheit: 250, base_hourly_climb_rate_initial: 20.41, stall_threshold_fahrenheit: 162.0 },
+        275: { target_fahrenheit: 275, base_hourly_climb_rate_initial: 25.51, stall_threshold_fahrenheit: 170.0 },
       },
 
-      // Mass-scaling geometry: packer brisket ≈ thick cylinder, rate ∝ W^exponent.
+      // Mass-scaling geometry: `exponent` scales the climb *rate* (core heating,
+      // conduction-limited); `stall_exponent` scales *stall duration* (surface-
+      // evaporation-limited) independently — see stallEngine's mass-scaling block.
       geometry: {
         shape: 'cylinder',
         beta: 0.42, // geometric constant
-        exponent: -0.333, // W^(-1/3) heat-transfer scaling
+        exponent: -1.073, // climb-rate mass exponent (empirically fitted — see METHODOLOGY)
+        stall_exponent: 0.333, // stall-duration mass exponent (decoupled from rate)
         weight_bounds: { min: 4.0, max: 18.0 },
       },
 
       // Protein-specific input axis for the stall/scheduler tools. Only weight is
       // protein-driven here; wrap/pit/climate are equipment/environment and stay
       // component-local. Range matches the yield calculator's weight axis
-      // (4–30 lb) so the same brisket weight is valid across every tool; the
-      // phenomenological model scales continuously with weight and does not clamp
-      // to geometry.weight_bounds (which is informational only).
+      // (4–20 lb) so the same brisket weight is valid across every tool. Capped
+      // at 20 lb: whole packers top out there, and the cook-time model is fitted
+      // over 8–18 lb, so 30 lb was unsupported extrapolation. The phenomenological
+      // model scales continuously with weight and does not clamp to
+      // geometry.weight_bounds (which is informational only).
       axes: [
         {
           id: 'weight',
           label: 'Meat Weight',
           type: 'slider',
-          range: { min: 4, max: 30, step: 0.5, unit: 'lb' },
+          range: { min: 4, max: 20, step: 0.5, unit: 'lb' },
         },
       ],
     },
@@ -178,7 +186,7 @@ export const PROTEINS = {
       name: 'Pork Shoulder',
       shortName: 'Pork Shoulder',
       slug: 'pork-shoulder',
-      version: '2026.1',
+      version: '2026.2', // 2026.2: cook-time recalibration (climb rate, mass exponent, stall base)
     },
 
     yield: {
@@ -264,21 +272,28 @@ export const PROTEINS = {
       start_temp: 40, // °F, fridge-cold meat
       finish_temp: 202, // °F, probe-tender / bone wobbles for pulling
       stalls: true,
-      // Shorter, softer plateau than brisket — a fattier, more compact cut renders
-      // through the stall faster (calibration estimate — see METHODOLOGY).
-      stall_hours_base: 1.3,
+      // Slightly shorter plateau than brisket — a fattier, more compact cut
+      // renders through the stall a touch faster, but a Boston butt still stalls
+      // hard; set below brisket's 3.0 h within the field's pork range
+      // (calibration estimate — see METHODOLOGY).
+      stall_hours_base: 2.5,
 
+      // Climb rates fitted (with the mass exponent below) to published pork-butt
+      // cook-time consensus at 225°F; 250°F/275°F keep their ratio to 225°F.
       cook_temperatures: {
-        225: { target_fahrenheit: 225, base_hourly_climb_rate_initial: 24.0, stall_threshold_fahrenheit: 158.0 },
-        250: { target_fahrenheit: 250, base_hourly_climb_rate_initial: 30.0, stall_threshold_fahrenheit: 165.0 },
-        275: { target_fahrenheit: 275, base_hourly_climb_rate_initial: 38.0, stall_threshold_fahrenheit: 172.0 },
+        225: { target_fahrenheit: 225, base_hourly_climb_rate_initial: 13.26, stall_threshold_fahrenheit: 158.0 },
+        250: { target_fahrenheit: 250, base_hourly_climb_rate_initial: 16.58, stall_threshold_fahrenheit: 165.0 },
+        275: { target_fahrenheit: 275, base_hourly_climb_rate_initial: 21.0, stall_threshold_fahrenheit: 172.0 },
       },
 
       // Boston butt ≈ a squat, thick cylinder; a touch blockier than a packer.
+      // `exponent` scales the climb rate; `stall_exponent` scales stall duration
+      // independently (see stallEngine's mass-scaling block).
       geometry: {
         shape: 'cylinder',
         beta: 0.45, // geometric constant (calibration estimate — see METHODOLOGY)
-        exponent: -0.333, // W^(-1/3) heat-transfer scaling
+        exponent: -1.086, // climb-rate mass exponent (empirically fitted — see METHODOLOGY)
+        stall_exponent: 0.333, // stall-duration mass exponent (decoupled from rate)
         weight_bounds: { min: 4.0, max: 12.0 },
       },
 

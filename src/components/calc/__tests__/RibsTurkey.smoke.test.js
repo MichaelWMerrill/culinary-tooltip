@@ -117,14 +117,23 @@ describe('Ribs 3-2-1 CookScheduler', () => {
     // Wrap/wrap-temp/climate are stall-only and hidden for the fixed-method ribs.
     document.querySelectorAll('[data-stall-only]').forEach((c) => expect(c.hidden).toBe(true));
 
+    // The cook time is shown as a ±band range, so assert on the midpoint of the
+    // "≈ lo–hi cook + …" window (band-width independent) rather than a literal.
+    const cookMidpointMin = (text) => {
+      const m = text.match(/(\d+)h\s*(\d+)m[–-](\d+)h\s*(\d+)m/);
+      const lo = +m[1] * 60 + +m[2];
+      const hi = +m[3] * 60 + +m[4];
+      return (lo + hi) / 2;
+    };
+
     // init() seeds a default serve time, so a schedule computes immediately.
     // Spare (default) uses 3-2-1 = 6 h and six milestones.
     expect(document.getElementById('fireUpBig').textContent).not.toBe('Pick a serving time');
     expect(document.getElementById('timeline').children.length).toBe(6);
-    expect(document.getElementById('totalSub').textContent).toContain('6h');
+    expect(cookMidpointMin(document.getElementById('totalSub').textContent)).toBe(360); // 6 h
 
     // Baby back uses the shorter 2-2-1 = 5 h.
     document.querySelector('.cut-opt[data-value="baby_back"]').click();
-    expect(document.getElementById('totalSub').textContent).toContain('5h');
+    expect(cookMidpointMin(document.getElementById('totalSub').textContent)).toBe(300); // 5 h
   });
 });
