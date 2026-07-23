@@ -493,21 +493,27 @@ export const PROTEINS = {
       stall_hours_base: 0, // unused (no stall)
 
       // Poultry is safely roasted at 325°F (FSIS: oven no lower than 325°F) and
-      // smoked at 225–300°F, so turkey offers five pit temps. Rates here extend
-      // the prior three by the registry's ~1.24 per-25°F ratio; Part C then
-      // refits all five to the USDA roasting timetable.
+      // smoked at 225–300°F, so turkey offers five pit temps. The 325°F rate and
+      // the mass exponent below were fitted to the USDA unstuffed roasting
+      // timetable (adjusted down ~5% from 165°F-done to the 160°F pull the engine
+      // models); the other four rates step down from 325°F by the registry's
+      // ~1.24 per-25°F ratio. See METHODOLOGY.
       cook_temperatures: {
-        225: { target_fahrenheit: 225, base_hourly_climb_rate_initial: 26.0, stall_threshold_fahrenheit: 160.0 },
-        250: { target_fahrenheit: 250, base_hourly_climb_rate_initial: 32.0, stall_threshold_fahrenheit: 160.0 },
-        275: { target_fahrenheit: 275, base_hourly_climb_rate_initial: 40.0, stall_threshold_fahrenheit: 160.0 },
-        300: { target_fahrenheit: 300, base_hourly_climb_rate_initial: 49.6, stall_threshold_fahrenheit: 160.0 },
-        325: { target_fahrenheit: 325, base_hourly_climb_rate_initial: 61.5, stall_threshold_fahrenheit: 160.0 },
+        225: { target_fahrenheit: 225, base_hourly_climb_rate_initial: 22.83, stall_threshold_fahrenheit: 160.0 },
+        250: { target_fahrenheit: 250, base_hourly_climb_rate_initial: 28.32, stall_threshold_fahrenheit: 160.0 },
+        275: { target_fahrenheit: 275, base_hourly_climb_rate_initial: 35.12, stall_threshold_fahrenheit: 160.0 },
+        300: { target_fahrenheit: 300, base_hourly_climb_rate_initial: 43.56, stall_threshold_fahrenheit: 160.0 },
+        325: { target_fahrenheit: 325, base_hourly_climb_rate_initial: 54.03, stall_threshold_fahrenheit: 160.0 },
       },
 
       geometry: {
         shape: 'cylinder',
         beta: 0.4,
-        exponent: -0.333,
+        // Climb-rate mass exponent, empirically fitted to the USDA roasting
+        // timetable (−0.63; conduction predicts −0.67). A bird is roughly
+        // isotropic, so it scales like conduction — unlike a thickness-capped
+        // brisket flat (−1.07). No stall_exponent: poultry doesn't stall.
+        exponent: -0.63,
         weight_bounds: { min: 8, max: 24 },
       },
 

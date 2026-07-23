@@ -3,6 +3,19 @@ import Layout from '../layouts/Layout.astro';
 import StallPredictor from '../components/calc/StallPredictor.astro';
 import FaqSection from '../components/calc/FaqSection.astro';
 import { PROTEINS } from '../utils/proteinRegistry.js';
+import { computeModel } from '../utils/stallEngine.js';
+
+// Cook-time figures derived from the engine so the FAQ can't drift from the model.
+const tk = (w, pt) =>
+  computeModel(
+    { weight: w, preparation: 'whole', pitTemp: String(pt), pit: 'offset_smoker', wrap: 'none', climate: 'moderate', wrapTemp: 160 },
+    PROTEINS.turkey
+  ).totalTime;
+const t14at275 = tk(14, 275); // faster end of 250–275°F
+const t14at250 = tk(14, 250); // slower end
+const tkMplLo = Math.round((t14at275 / 14) * 60);
+const tkMplHi = Math.round((t14at250 / 14) * 60);
+const tkSpatchcockPct = Math.round((1 - 1 / PROTEINS.turkey.thermal.rate_modifiers.preparation.spatchcock) * 100);
 
 const pageUrl = 'https://empiricalbbq.com/turkey-stall';
 const publisher = {
@@ -22,15 +35,15 @@ const faqs = [
   },
   {
     q: 'How long does it take to smoke a turkey?',
-    a: 'Roughly 25–35 minutes per pound at 250–275°F for a whole bird; a 14 lb turkey runs about 4 hours. Spatchcocking (backbone removed, laid flat) cuts that meaningfully because the bird heats faster and more evenly.',
+    a: `Roughly ${tkMplLo}–${tkMplHi} minutes per pound at 250–275°F for a whole bird; a 14 lb turkey runs about ${t14at275.toFixed(1)}–${t14at250.toFixed(1)} hours. Spatchcocking (backbone removed, laid flat) cuts that meaningfully because the bird heats faster and more evenly.`,
   },
   {
     q: 'Is it safe to smoke a turkey at a low temperature?',
-    a: 'Keep the smoker at 250°F or above and do not let the bird linger in the 40–140°F danger zone for more than about four hours. Very low-and-slow poultry is risky; the predictor assumes 225°F and up and you should always verify with a probe.',
+    a: 'FSIS permits smoking poultry at 225–300°F (and roasting at 325°F), so the tool offers all five. The real concern is time in the 40–140°F danger zone: a large whole bird at 225°F can spend many hours there. Spatchcocking or a hotter pit clears the zone much faster, and poultry — treated as potentially contaminated throughout, unlike intact beef — is less forgiving of a long low cook. Always verify with a probe.',
   },
   {
     q: 'Does spatchcocking speed up the cook?',
-    a: 'Yes. Removing the backbone and flattening the bird exposes more surface area to the heat, so a spatchcocked turkey climbs faster and more evenly than a whole bird — often 25–35% quicker in this model.',
+    a: `Yes. Removing the backbone and flattening the bird exposes more surface area to the heat, so a spatchcocked turkey climbs faster and more evenly than a whole bird — about ${tkSpatchcockPct}% quicker in this model.`,
   },
 ];
 const schema = [
