@@ -23,6 +23,10 @@ const rows = proteins.map((p) => {
     version: p.meta.version,
     shape: g.shape,
     exponent: g.exponent,
+    // Slab cuts (ribs) are governed by their thin dimension: the engine's slab
+    // branch ignores the weight exponent, so cook time is independent of weight
+    // and rack count. Showing "W^…" for a slab would contradict that.
+    isSlab: g.shape === 'slab',
     startTemp: t.start_temp,
     finishTemp: t.finish_temp,
     stalls: t.stalls !== false,
@@ -132,7 +136,7 @@ const schema = {
                   <span class="text-[11px] font-mono font-semibold text-flame-400 bg-flame-500/10 ring-1 ring-flame-500/30 px-2 py-0.5 rounded-md">Model v{r.version}</span>
                 </div>
                 <dl class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 text-sm">
-                  <div><dt class="text-[11px] uppercase tracking-wider text-base-500">Geometry</dt><dd class="text-base-200 font-mono">{r.shape} · W<sup>{r.exponent}</sup></dd></div>
+                  <div><dt class="text-[11px] uppercase tracking-wider text-base-500">Geometry</dt><dd class="text-base-200 font-mono">{r.isSlab ? <Fragment>slab · thickness-driven</Fragment> : <Fragment>{r.shape} · W<sup>{r.exponent}</sup></Fragment>}</dd></div>
                   <div><dt class="text-[11px] uppercase tracking-wider text-base-500">Start → Finish</dt><dd class="text-base-200 font-mono">{r.startTemp}°F → {r.finishTemp}°F</dd></div>
                   <div><dt class="text-[11px] uppercase tracking-wider text-base-500">Stall</dt><dd class="text-base-200 font-mono">{r.stalls ? `~${r.stallBase} h base` : 'none (monotonic)'}</dd></div>
                   {r.hasYield && <div><dt class="text-[11px] uppercase tracking-wider text-base-500">Yield model</dt><dd class="text-base-200 font-mono">trim + cook matrix</dd></div>}
