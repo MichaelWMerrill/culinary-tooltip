@@ -178,6 +178,16 @@ const schema = {
             <h3 class="text-[11px] font-semibold uppercase tracking-widest text-flame-300 mb-2.5">Model changelog</h3>
             <ul class="space-y-2.5 text-[13px] text-base-300 leading-relaxed">
               <li>
+                <span class="font-mono font-semibold text-flame-300">2026-07 · turkey v2026.2, brisket/pork v2026.3</span> —
+                <strong class="text-base-200">Turkey recalibration &amp; climate-humidity fix.</strong>
+                Turkey cook time was refit to the USDA unstuffed roasting timetable (mass exponent −0.333 → −0.63,
+                matching conduction physics for a roughly isotropic bird), and two pit temps — 300°F and 325°F — were
+                added so a by-the-book poultry cook can be modelled at all. Separately, the regional-climate humidity
+                term was corrected: humid air now shortens the stall (it had wrongly lengthened it) and arid lengthens
+                it, symmetric about neutral — this moves brisket &amp; pork outputs at the <em>Humid/Arid</em> settings
+                only, hence their v2026.3 bump. Ribs unchanged.
+              </li>
+              <li>
                 <span class="font-mono font-semibold text-flame-300">2026-07 · v2026.2</span> —
                 <strong class="text-base-200">Brisket &amp; pork shoulder cook-time recalibration.</strong>
                 Refit to published field cook-time consensus (≈1.25–1.5&nbsp;hr/lb): a 12&nbsp;lb brisket now
