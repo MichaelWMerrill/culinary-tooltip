@@ -110,30 +110,64 @@ const stallStates = [
     "wrap": "none",
     "wrapTemp": 160,
     "climate": "humid"
+  },
+  {
+    "preparation": "whole",
+    "weight": 16,
+    "pitTemp": "325",
+    "pit": "offset_smoker",
+    "wrap": "none",
+    "wrapTemp": 160,
+    "climate": "moderate"
+  },
+  {
+    "preparation": "whole",
+    "weight": 12,
+    "pitTemp": "300",
+    "pit": "charcoal_kettle",
+    "wrap": "none",
+    "wrapTemp": 160,
+    "climate": "moderate"
   }
 ];
 const stallGolden = [
   {
-    "t1": 4.1946130494767955,
+    "t1": 5.27955616433919,
     "stallDuration": 0,
     "t3": 0,
-    "totalTime": 4.1946130494767955,
+    "totalTime": 5.27955616433919,
     "noStall": true,
     "finishTemp": 160
   },
   {
-    "t1": 3.5787172386082506,
+    "t1": 4.2687521982796595,
     "stallDuration": 0,
     "t3": 0,
-    "totalTime": 3.5787172386082506,
+    "totalTime": 4.2687521982796595,
     "noStall": true,
     "finishTemp": 160
   },
   {
-    "t1": 9.07383262223052,
+    "t1": 12.695918010635179,
     "stallDuration": 0,
     "t3": 0,
-    "totalTime": 9.07383262223052,
+    "totalTime": 12.695918010635179,
+    "noStall": true,
+    "finishTemp": 160
+  },
+  {
+    "t1": 3.7329474872603314,
+    "stallDuration": 0,
+    "t3": 0,
+    "totalTime": 3.7329474872603314,
+    "noStall": true,
+    "finishTemp": 160
+  },
+  {
+    "t1": 4.060294662523577,
+    "stallDuration": 0,
+    "t3": 0,
+    "totalTime": 4.060294662523577,
     "noStall": true,
     "finishTemp": 160
   }
