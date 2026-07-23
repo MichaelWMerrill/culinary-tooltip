@@ -27,6 +27,11 @@ const rows = proteins.map((p) => {
     // branch ignores the weight exponent, so cook time is independent of weight
     // and rack count. Showing "W^…" for a slab would contradict that.
     isSlab: g.shape === 'slab',
+    // Proteins whose finish temp is a pull temp that relies on carryover to
+    // reach the food-safe target carry a safetyNote (turkey: pull 160°F →
+    // carryover → 165°F). Surfaced as an explicit note so the 160°F finish in
+    // the table isn't read as a done-cooking temperature.
+    hasSafetyNote: !!t.safetyNote,
     startTemp: t.start_temp,
     finishTemp: t.finish_temp,
     stalls: t.stalls !== false,
@@ -144,6 +149,13 @@ const schema = {
                   {r.serving?.bonesPerGuest != null && <div><dt class="text-[11px] uppercase tracking-wider text-base-500">Serving</dt><dd class="text-base-200 font-mono">{r.serving.bonesPerGuest} bones/guest</dd></div>}
                 </dl>
                 <p class="mt-3 text-[12px] text-base-500 leading-relaxed"><span class="text-base-400 font-semibold">Stall onset by pit temp:</span> {r.thresholds}</p>
+                {r.hasSafetyNote && (
+                  <p class="mt-2 text-[12px] text-base-500 leading-relaxed">
+                    <span class="text-base-400 font-semibold">Carryover:</span> the {r.finishTemp}°F finish is a
+                    breast-pull temp, not the safe-to-eat temp — carryover heat then carries it up to the
+                    USDA-safe 165°F off the pit. Cook thighs/dark meat further for texture.
+                  </p>
+                )}
               </div>
             ))
           }
