@@ -52,20 +52,24 @@ export const WRAP_COPY = {
   aluminum_foil: 'The Texas Crutch — halts evaporation, powers through the stall.',
 };
 
-// Regional climate modifiers applied on top of the base curve.
-//   stallTempMult     — shifts the stall onset temperature (arid lower, humid higher)
-//   stallDurationMult — scales plateau length (humid extends it)
-//   postClimbMult     — scales post-wrap climb rate (arid accelerates)
+// Regional climate modifiers applied on top of the base curve. Humidity acts
+// through the vapor-pressure deficit that drives evaporative cooling: drier air
+// (arid) evaporates faster → MORE cooling → a lower onset and a LONGER stall;
+// humid air is the reverse. Both onset and duration are estimates (±5%/±10%),
+// not measurements — kept modest and symmetric about the neutral `moderate`.
+//   stallTempMult     — shifts stall onset (arid lower, humid higher)
+//   stallDurationMult — scales plateau length (arid longer, humid shorter)
+//   postClimbMult     — scales post-wrap climb rate (arid's dry surface accelerates)
 export const CLIMATE = {
-  arid: { stallTempMult: 0.935, stallDurationMult: 1.0, postClimbMult: 1.2 },
+  arid: { stallTempMult: 0.95, stallDurationMult: 1.1, postClimbMult: 1.2 },
   moderate: { stallTempMult: 1.0, stallDurationMult: 1.0, postClimbMult: 1.0 },
-  humid: { stallTempMult: 1.045, stallDurationMult: 1.15, postClimbMult: 1.0 },
+  humid: { stallTempMult: 1.05, stallDurationMult: 0.9, postClimbMult: 1.0 },
 };
 
 export const CLIMATE_COPY = {
-  arid: 'Arid desert air — intense evaporative cooling drops the stall onset (~145°F) but races ~20% faster to the finish once wrapped.',
+  arid: 'Arid desert air — intense evaporative cooling drops the stall onset (~147°F) and lengthens the plateau ~10%, though the dry surface races ~20% faster to the finish once wrapped.',
   moderate: 'Standard baseline stall behavior.',
-  humid: 'Humid coastal air — suppressed evaporation lifts the stall onset (~162°F) and stretches the plateau ~15% longer.',
+  humid: 'Humid coastal air — suppressed evaporation lifts the stall onset (~163°F) and, with less evaporative cooling, shortens the plateau ~10%.',
 };
 
 /**
