@@ -174,14 +174,20 @@ const schema = {
       <section class="mb-12">
         <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400 mb-4">Versioning &amp; Regression Testing</h2>
         <div class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6 space-y-4 text-sm text-base-400 leading-relaxed">
-          <p class="rounded-lg bg-flame-500/10 ring-1 ring-flame-500/30 p-3 text-[13px] text-base-300">
-            <strong class="text-flame-300">Recalibration — July 2026 (Model v2026.2):</strong> brisket and
-            pork shoulder cook times were refit to published field cook-time consensus. The base climb rate
-            and the climb-rate mass exponent were fitted together to anchor a 12&nbsp;lb brisket near 16&nbsp;h
-            at 225°F unwrapped (previously ~9&nbsp;h — the old model ran roughly 45% fast), the base stall was
-            raised into the field's observed 2–6&nbsp;h range, and stall duration was given its own mass
-            exponent. Ribs and turkey are unchanged and still carry their earlier version.
-          </p>
+          <div class="rounded-lg bg-flame-500/10 ring-1 ring-flame-500/30 p-4">
+            <h3 class="text-[11px] font-semibold uppercase tracking-widest text-flame-300 mb-2.5">Model changelog</h3>
+            <ul class="space-y-2.5 text-[13px] text-base-300 leading-relaxed">
+              <li>
+                <span class="font-mono font-semibold text-flame-300">2026-07 · v2026.2</span> —
+                <strong class="text-base-200">Brisket &amp; pork shoulder cook-time recalibration.</strong>
+                Refit to published field cook-time consensus (≈1.25–1.5&nbsp;hr/lb): a 12&nbsp;lb brisket now
+                lands near 16&nbsp;h at 225°F unwrapped, up from ~9&nbsp;h — the previous model ran roughly 45%
+                fast. The base climb rate and the climb-rate mass exponent were fitted together, stall duration
+                was given its own mass exponent, and the base stall was raised into the field's observed
+                2–6&nbsp;h range. Ribs and turkey unchanged.
+              </li>
+            </ul>
+          </div>
           <p>
             Each protein model carries a <strong class="text-base-300">version</strong> (shown as
             "Model v{PROTEINS.beef_brisket.meta.version}" in the results panels). When we recalibrate a
