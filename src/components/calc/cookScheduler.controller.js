@@ -6,7 +6,7 @@
  * component-local.
  */
 import { PROTEINS } from '../../utils/proteinRegistry.js';
-import { computeModel, buildPath, FINISH_TEMP, dangerZoneHours, dangerZoneNote } from '../../utils/stallEngine.js';
+import { computeModel, buildPath, FINISH_TEMP, dangerZoneHours, dangerZoneNote, cookDuration } from '../../utils/stallEngine.js';
 import { clampNum, enumParam, getParams, writeParams, wireCopyButton } from '../../utils/shareLink.js';
 
 export function initCookScheduler(protein = PROTEINS.beef_brisket) {
@@ -83,25 +83,26 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
   }
 
   // Compute the schedule; returns milestones or null if no valid serve time.
+  // The cook-time model selection (stall vs fixed 3-2-1) is delegated to the
+  // shared, pure cookDuration(); this controller only lays out the milestones.
   function computeSchedule() {
     const serve = state.serveAt ? new Date(state.serveAt) : null;
     if (!serve || isNaN(serve.getTime())) return null;
-    return method321 ? computeSchedule321(serve) : computeScheduleStall(serve);
+    const d = cookDuration(protein, {
+      weight: state.weight,
+      pitTemp: state.pitTemp,
+      pit: state.pit,
+      wrap: state.wrap,
+      wrapTemp: state.wrapTemp,
+      climate: state.climate,
+      cut: state.cut,
+    });
+    return d.method === 'method_321' ? build321(serve, d) : buildStall(serve, d);
   }
 
   // Stall-model back-calc (brisket / pork).
-  function computeScheduleStall(serve) {
-    const m = computeModel(
-      {
-        weight: state.weight,
-        pitTemp: state.pitTemp,
-        pit: state.pit,
-        wrap: state.wrap,
-        wrapTemp: state.wrapTemp,
-        climate: state.climate,
-      },
-      protein
-    );
+  function buildStall(serve, d) {
+    const m = d.model;
     const pts = buildPath(m);
 
     const pull = new Date(serve.getTime() - state.rest * HR); // rest starts (pull off pit)
@@ -138,9 +139,9 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
   }
 
   // Fixed 3-2-1 (or 2-2-1) method for ribs: unwrapped smoke → wrapped → sauced.
-  function computeSchedule321(serve) {
-    const [smoke, wrapH, sauce] = method321[state.cut];
-    const total = smoke + wrapH + sauce;
+  function build321(serve, d) {
+    const { smoke, wrapH, sauce } = d.phases321;
+    const total = d.totalTime;
     const label = `${smoke}-${wrapH}-${sauce}`;
 
     const pull = new Date(serve.getTime() - state.rest * HR);

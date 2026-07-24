@@ -258,3 +258,29 @@ export function dangerZoneNote(hours) {
     escalated: true,
   };
 }
+
+/**
+ * The cook scheduler's cook-time model SELECTION, as a pure function (extracted
+ * from the DOM-bound computeScheduleStall/computeSchedule321). Given a protein
+ * and the shared {weight, pitTemp, pit, wrap, climate, cut} state, it returns
+ * the duration and the shape each milestone builder needs:
+ *   - stall proteins (brisket/pork/turkey) → { totalTime, method:'stall', model }
+ *     where `model` is the full computeModel result (for buildPath/wrap milestones).
+ *   - ribs → { totalTime, method:'method_321', phases321:{smoke,wrapH,sauce} }
+ *     the fixed 3-2-1 / 2-2-1 block schedule; pit temp / wrap / climate ignored.
+ *
+ * NOTE: this deliberately preserves the ribs divergence. The stall predictor does
+ * NOT call this — it calls computeModel directly — so ribs still read differently
+ * on the two pages (predictor via computeModel, scheduler via method_321). The
+ * cross-path consistency test asserts these two entry points agree, with ribs
+ * declared a known failure until ribs is unified onto computeModel.
+ */
+export function cookDuration(protein, state) {
+  const m321 = protein.thermal.method_321;
+  if (m321) {
+    const [smoke, wrapH, sauce] = m321[state.cut];
+    return { totalTime: smoke + wrapH + sauce, method: 'method_321', phases321: { smoke, wrapH, sauce } };
+  }
+  const model = computeModel(state, protein);
+  return { totalTime: model.totalTime, method: 'stall', model };
+}
