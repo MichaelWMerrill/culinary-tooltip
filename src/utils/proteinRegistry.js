@@ -491,6 +491,10 @@ export const PROTEINS = {
       finish_temp: 160, // °F breast pull; carryover carries it to a safe 165°F
       stalls: false, // poultry climbs monotonically — no evaporative plateau
       stall_hours_base: 0, // unused (no stall)
+      // Surface the 40–140°F danger-zone readout: poultry is treated as
+      // potentially contaminated throughout, so long low cooks carry a risk that
+      // intact beef/pork muscle does not.
+      dangerZone: true,
 
       // Poultry is safely roasted at 325°F (FSIS: oven no lower than 325°F) and
       // smoked at 225–300°F, so turkey offers five pit temps. The 325°F rate and

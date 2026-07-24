@@ -6,6 +6,12 @@
  */
 
 export const CONFIG = {
+  // NOTE: `btu_per_lb` and `loss_coefficient_u` are DISPLAY-ONLY — the fuel
+  // description labels in fuelEstimator.controller.js print them ("8,000 BTU/lb",
+  // "U-loss 1.5"), but estimate() does NOT use them. The model is base_burn_ideal
+  // × duration × ambient × wind × (efficiency ratio); there is no BTU balance or
+  // heat-loss term. Do not wire these into the calculation without a real model
+  // change (and a version bump) — they are informational, not calibrated inputs.
   fuel_metrics: {
     wood_pellets: { btu_per_lb: 8000, base_burn_ideal: 1.2 },
     charcoal_briquettes: { btu_per_lb: 9500, base_burn_ideal: 1.5 },

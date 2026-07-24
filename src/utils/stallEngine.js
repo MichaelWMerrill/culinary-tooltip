@@ -221,3 +221,40 @@ export function buildPath(m) {
   }
   return pts;
 }
+
+// Food-safety danger zone: bacteria multiply fastest between 40°F and 140°F
+// (USDA FSIS). The ~4 h limit is the common smoking-guide application of that
+// principle, not a verbatim FSIS number — kept here as a named threshold so the
+// copy and the conditional read the same source.
+export const DANGER_ZONE_FLOOR = 140; // °F, top of the danger zone
+export const DANGER_ZONE_HOURS_LIMIT = 4; // h, exposure beyond which we escalate the note
+
+/**
+ * Hours a cook spends climbing from the start temp to DANGER_ZONE_FLOOR (the
+ * time in the 40–140°F band), read off the engine's own temperature path so the
+ * UI never recomputes it. Pure.
+ */
+export function dangerZoneHours(m, floor = DANGER_ZONE_FLOOR) {
+  const pts = buildPath(m);
+  for (const pt of pts) if (pt.temp >= floor) return pt.t;
+  return m.totalTime; // never reaches the floor (finish is above it, so this is a safety net)
+}
+
+/**
+ * Two-tier danger-zone note for a given exposure (hours in the 40–140°F band).
+ * Under the threshold it states the exposure; over it, it escalates with the
+ * ~4 h guidance and the poultry caveat. Returns { text, escalated }. The 4 h
+ * value comes from DANGER_ZONE_HOURS_LIMIT so copy and conditional share one source.
+ */
+export function dangerZoneNote(hours) {
+  const base = `Time in the 40–140°F range: about ${hours.toFixed(1)} h. Bacteria multiply fastest in that band (USDA FSIS).`;
+  if (hours <= DANGER_ZONE_HOURS_LIMIT) return { text: base, escalated: false };
+  return {
+    text:
+      base +
+      ` Many smoking guides advise clearing it within about ${DANGER_ZONE_HOURS_LIMIT} hours — an application of that ` +
+      `principle rather than a stated FSIS limit. Poultry is treated as potentially contaminated throughout, unlike ` +
+      `intact beef, so it's less forgiving of a long low cook. Spatchcocking or raising the pit temperature shortens it.`,
+    escalated: true,
+  };
+}

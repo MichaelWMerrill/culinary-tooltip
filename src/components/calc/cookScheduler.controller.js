@@ -6,7 +6,7 @@
  * component-local.
  */
 import { PROTEINS } from '../../utils/proteinRegistry.js';
-import { computeModel, buildPath, FINISH_TEMP } from '../../utils/stallEngine.js';
+import { computeModel, buildPath, FINISH_TEMP, dangerZoneHours, dangerZoneNote } from '../../utils/stallEngine.js';
 import { clampNum, enumParam, getParams, writeParams, wireCopyButton } from '../../utils/shareLink.js';
 
 export function initCookScheduler(protein = PROTEINS.beef_brisket) {
@@ -204,6 +204,20 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
     $('icsBtn').classList.remove('opacity-40', 'cursor-not-allowed');
     $('fireUpBig').textContent = fmtClock(sched.fireUp);
     $('totalSub').textContent = `≈ ${fmtHrsRange(sched.model.totalTime, bandFraction(state.wrap))} cook + ${fmtHrs(state.rest)} rest + ${fmtHrs(PREHEAT_HRS)} preheat`;
+
+    // Food-safety danger-zone readout — poultry only. No scheduler protein is
+    // flagged today (turkey isn't schedulable), so this stays hidden; wired here
+    // so it works the moment a danger-zone protein joins the scheduler.
+    const dzEl = $('dangerZone');
+    if (dzEl) {
+      if (thermal.dangerZone && usesStall) {
+        const note = dangerZoneNote(dangerZoneHours(sched.model));
+        dzEl.textContent = note.text;
+        dzEl.className = 'text-[11px] mt-1 leading-snug ' + (note.escalated ? 'text-amber-400/90' : 'text-base-500');
+      } else {
+        dzEl.classList.add('hidden');
+      }
+    }
 
     if (sched.fireUp.getTime() < Date.now()) {
       warn.textContent =
