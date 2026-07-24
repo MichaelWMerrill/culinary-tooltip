@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 /*
  * DOM smoke test: render CookScheduler (weight input from thermal.axes), drive
- * the axes, and assert computeModel was called with the right parameter names
- * and a schedule landed in the results panel.
+ * the axes, and assert cookDuration (the scheduler's model entry point) was
+ * called with the right parameter names and a schedule landed in the results panel.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import CookScheduler from '../CookScheduler.astro';
@@ -10,10 +10,10 @@ import { mountComponent } from './mount.js';
 
 vi.mock('../../../utils/stallEngine.js', async (importOriginal) => {
   const actual = await importOriginal();
-  return { ...actual, computeModel: vi.fn(actual.computeModel), buildPath: vi.fn(actual.buildPath) };
+  return { ...actual, cookDuration: vi.fn(actual.cookDuration), buildPath: vi.fn(actual.buildPath) };
 });
 
-import { computeModel } from '../../../utils/stallEngine.js';
+import { cookDuration } from '../../../utils/stallEngine.js';
 import { initCookScheduler } from '../cookScheduler.controller.js';
 
 const mount = () => mountComponent(CookScheduler);
@@ -25,7 +25,7 @@ describe('CookScheduler smoke', () => {
     vi.clearAllMocks();
   });
 
-  it('renders controls, drives them, calls computeModel with axis params, lands a schedule', async () => {
+  it('renders controls, drives them, calls cookDuration with axis params, lands a schedule', async () => {
     await mount();
 
     for (const id of ['serveAt', 'weight', 'wrapToggle', 'climateToggle', 'rest', 'timeline', 'fireUpBig']) {
@@ -35,10 +35,11 @@ describe('CookScheduler smoke', () => {
     initCookScheduler();
 
     // init seeds a default serve time, so a schedule computes immediately.
-    expect(computeModel).toHaveBeenCalled();
-    const firstArg = computeModel.mock.calls.at(-1)[0];
+    // cookDuration(protein, state) — the state (2nd arg) carries the axis params.
+    expect(cookDuration).toHaveBeenCalled();
+    const firstState = cookDuration.mock.calls.at(-1)[1];
     for (const key of ['weight', 'pitTemp', 'pit', 'wrap', 'wrapTemp', 'climate']) {
-      expect(firstArg, `arg has ${key}`).toHaveProperty(key);
+      expect(firstState, `arg has ${key}`).toHaveProperty(key);
     }
 
     const weight = document.getElementById('weight');
@@ -52,7 +53,7 @@ describe('CookScheduler smoke', () => {
     rest.value = '2';
     rest.dispatchEvent(new Event('input'));
 
-    const last = computeModel.mock.calls.at(-1)[0];
+    const last = cookDuration.mock.calls.at(-1)[1];
     expect(last.weight).toBe(18);
     expect(last.wrap).toBe('aluminum_foil');
     expect(last.pitTemp).toBe('250');
