@@ -1,8 +1,9 @@
 /*
  * Thermodynamic stall engine.
- * Geometric mass-scaling formulas (W^(-1/3) rule), pit thermal modifiers, and
- * climate relative-humidity coefficient arrays — plus the phase model and
- * curve sampler — extracted verbatim from the legacy inline predictor.
+ * Mass-scaling on per-protein fitted exponents (see the registry; the old
+ * uniform W^(-1/3) rule was replaced by fitted values in the 2026.2/2026.3
+ * recalibrations), pit thermal modifiers, and climate coefficient arrays — plus
+ * the phase model and curve sampler.
  *
  * Protein-specific thermal constants (diffusivity, per-cook-temp stall
  * thresholds, mass geometry, start/finish temps) now live in the shared
@@ -90,8 +91,9 @@ export function computeModel(state, protein = PROTEINS.beef_brisket) {
   const finishTemp = thermal.finish_temp;
 
   // Mass scaling. A compact cut (cylinder) climbs slower with mass: rate ∝
-  // W^exponent (-1/3 packer rule). A thin slab (ribs) is governed by its thin
-  // dimension, so total mass/rack count barely changes the time — base = 1.
+  // W^exponent, where `exponent` is fitted per protein (brisket ≈ −1.07, turkey
+  // ≈ −0.63 — not the old uniform −1/3). A thin slab (ribs) is governed by its
+  // thin dimension, so total mass/rack count barely changes the time — base = 1.
   // Optional per-state rate_modifiers scale the rate for cut- or prep-specific
   // effects (e.g. spatchcock poultry, thinner rib cuts). Brisket/pork define
   // neither, so their scaling is unchanged.

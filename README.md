@@ -47,7 +47,7 @@ src/
                            matrices, thermal/stall constants, serving, input axes
     brisketEngine.js       Yield/trim/shrinkage + cost calc (reads the registry)
     stallEngine.js         Mass-scaling, pit, wrap & climate stall model + curve sampler
-    fuelEngine.js          Combustion/wind/insulation/ambient fuel model
+    fuelEngine.js          Fuel model: base burn rate × ambient/wind/insulation factors
     restEngine.js          Newtonian-cooling rest/hold model
     toolMatrix.js          Homepage protein × tool matrix + tool metadata
     version.js             Site + stall-engine version strings (single source of truth)
@@ -93,7 +93,7 @@ your project → Settings → Variables and Secrets):
 
 **Turnstile site key:** the widget's *site* key (public — it ships in the page HTML) lives in
 `src/pages/contact.astro` as `TURNSTILE_SITE_KEY`, which defaults to the committed production
-key and is overridable at build time via the `TURNSTILE_SITE_KEY` env var (see table below). A
+key and is overridable at build time via the `TURNSTILE_SITE_KEY` env var (see table above). A
 build-time guard throws if the resolved value is one of Cloudflare's documented **test** keys
 (e.g. the "always passes" `1x00000000000000000000AA`), so a test key — which issues tokens that
 always pass and would silently disable bot protection — can never ship to production. Create the
@@ -118,11 +118,20 @@ Engine calculations are locked with golden-value regression tests (Vitest) in
 npm run test
 ```
 
-Each spec hard-codes expected outputs captured from the current engine (grade × trim × wrap
-for brisket; six representative states plus curve monotonicity for the stall; every anchor,
-midpoint, and fuel × insulation × wind combo for fuel). Any accidental change to an engine
-constant fails the tests. The specs are regenerated only on an **intentional** engine change
-via `node scripts/gen-golden.mjs` (then commit the updated specs).
+Each golden spec hard-codes expected outputs captured from the current engine — one per
+protein (`brisketEngine`, `porkShoulderEngine`, `turkeyEngine`, `ribsEngine`), plus
+`stallEngine` (representative pit/wrap/climate states + curve monotonicity), `fuelEngine`
+(every anchor, midpoint, and fuel × insulation × wind combo), and `restEngine` (Newtonian
+cooling curve + safe-hold window). Any accidental change to an engine constant fails the tests.
+The specs are regenerated only on an **intentional** engine change via
+`node scripts/gen-golden.mjs` (then commit the updated specs).
+
+`crossPathConsistency.spec.js` is different — not a golden. It asserts the stall predictor
+(`computeModel`) and the cook scheduler (`cookDuration`) return the same cook duration for
+identical inputs across protein × pit temp × wrap × climate, so the two pages can't silently
+diverge. Ribs are a declared known failure (`test.fails`): the scheduler runs the fixed
+3-2-1 / 2-2-1 method while the predictor uses `computeModel`, so they disagree until ribs is
+unified — at which point the declaration turns the suite red and must be removed.
 
 ## Security
 
