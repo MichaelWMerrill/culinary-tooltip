@@ -30,14 +30,22 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
   <rect width="${W}" height="${H}" fill="url(#glowB)"/>
 
   <!-- pill -->
-  <rect x="90" y="150" rx="22" ry="22" width="360" height="46" fill="#f97316" fill-opacity="0.12" stroke="#f97316" stroke-opacity="0.4"/>
-  <text x="118" y="181" font-family="DejaVu Sans, Verdana, Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="3" fill="#fdba74">🔥 PITMASTER SCIENCE</text>
+  <rect x="90" y="150" rx="22" ry="22" width="392" height="46" fill="#f97316" fill-opacity="0.12" stroke="#f97316" stroke-opacity="0.4"/>
+  <text x="118" y="181" font-family="DejaVu Sans, Verdana, Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="3" fill="#fdba74">FITTED TO FIELD GUIDANCE</text>
 
-  <text x="88" y="330" font-family="DejaVu Sans, Verdana, Arial, sans-serif" font-size="118" font-weight="800" letter-spacing="-2" fill="url(#title)">EMPIRICAL BBQ</text>
+  <text x="88" y="318" font-family="DejaVu Sans, Verdana, Arial, sans-serif" font-size="96" font-weight="800" letter-spacing="-2" fill="url(#title)">EMPIRICAL BBQ</text>
 
-  <text x="92" y="405" font-family="DejaVu Sans, Verdana, Arial, sans-serif" font-size="40" font-weight="500" fill="#aeb8d0">Physics-based pitmaster calculators</text>
+  <text x="92" y="386" font-family="DejaVu Sans, Verdana, Arial, sans-serif" font-size="38" font-weight="500" fill="#aeb8d0">Cook-time, yield &amp; fuel calculators</text>
 
-  <text x="92" y="470" font-family="DejaVu Sans, Verdana, Arial, sans-serif" font-size="26" font-weight="400" fill="#7c8aab">Brisket yield · The stall · Fuel &amp; cost</text>
+  <text x="92" y="446" font-family="DejaVu Sans, Verdana, Arial, sans-serif" font-size="26" font-weight="400" fill="#7c8aab">Brisket · Pork shoulder · Ribs · Turkey</text>
+
+  <g transform="translate(896,196) scale(0.46)">
+    <rect width="512" height="512" rx="112" fill="#1a2233"/>
+    <g>
+      <path d="M 106 404 C 136 404, 148 302, 174 270 Q 194 246, 238 244 L 306 244 Q 350 243, 366 202 C 382 162, 390 140, 408 106" fill="none" stroke="#fbbf24" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 174 270 Q 194 246, 238 244 L 306 244 Q 350 243, 366 202" fill="none" stroke="#f97316" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
 
   <rect x="0" y="618" width="${W}" height="12" fill="url(#title)"/>
 </svg>`;
