@@ -4,6 +4,15 @@
  * Owns the shared <head> (SEO + Google Analytics + AdSense loader), the global
  * navigation header, the persistent bottom banner ad, and the page chrome that
  * was previously copy-pasted across all the standalone HTML files.
+ *
+ * <head> ORDER MATTERS: document/SEO metadata comes first, third-party scripts
+ * after. `<meta charset>` is only honored inside the first 1024 bytes, and the
+ * analytics + AdSense block is ~1.5 KB of inline script — leading with it (as
+ * this file used to) pushed the charset, title, and canonical past that window
+ * and left the encoding to be sniffed. Keep new <head> additions above the
+ * "Google tag" comment unless they're third-party loaders. The scripts keep
+ * their original relative order, so Consent Mode still initializes before the
+ * AdSense loader.
  */
 import Nav from '../components/Nav.astro';
 import AdSlot from '../components/AdSlot.astro';
@@ -23,6 +32,12 @@ export interface Props {
   ogImage?: string;
   /** Page-specific JSON-LD structured data — a single object or an array of objects. */
   schema?: Record<string, unknown> | Record<string, unknown>[];
+  /**
+   * Keep the page out of the search index. Emits `robots: noindex, follow` and
+   * suppresses the canonical — a self-referencing canonical on a page that
+   * shouldn't be indexed (the 404) just nominates it as the preferred URL.
+   */
+  noindex?: boolean;
 }
 
 const {
@@ -34,6 +49,7 @@ const {
   showBanner = true,
   ogImage = 'https://empiricalbbq.com/og-default.png',
   schema,
+  noindex = false,
 } = Astro.props;
 
 // Site-wide WebSite schema, always present; page schema (if any) is appended.
@@ -62,6 +78,28 @@ const jsonLd = (block) =>
 <!DOCTYPE html>
 <html lang="en" class="dark">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    {!noindex && <link rel="canonical" href={ogUrl} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={ogUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImage} />
+    <!-- Hosted brand favicon set (Google Search, browser tabs, iOS/Android home screens). -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#121824" />
+    <link rel="alternate" type="application/rss+xml" title="Empirical BBQ Blog" href="https://empiricalbbq.com/rss.xml" />
+
     <!-- Google tag (gtag.js) + Consent Mode v2 -->
     <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-Q5WHQ3GPHC"></script>
     <script is:inline>
@@ -100,26 +138,6 @@ const jsonLd = (block) =>
       src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4455664783992058"
       crossorigin="anonymous"></script>
     <meta name="google-adsense-account" content="ca-pub-4455664783992058" />
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title}</title>
-    <meta name="description" content={description} />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={ogUrl} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <link rel="canonical" href={ogUrl} />
-    <meta property="og:image" content={ogImage} />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content={ogImage} />
-    <!-- Hosted brand favicon set (Google Search, browser tabs, iOS/Android home screens). -->
-    <link rel="icon" href="/favicon.ico" sizes="any" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
-    <meta name="theme-color" content="#121824" />
-    <link rel="alternate" type="application/rss+xml" title="Empirical BBQ Blog" href="https://empiricalbbq.com/rss.xml" />
     {schemaBlocks.map((block) => (
       <script type="application/ld+json" set:html={jsonLd(block)} />
     ))}

@@ -9,6 +9,10 @@ const blog = defineCollection({
     title: z.string(),
     description: z.string(),
     pubDate: z.coerce.date(),
+    // Set when a published post is materially revised: drives `dateModified` in
+    // the Article schema and <lastmod> in the sitemap, so a rewrite is a real
+    // recrawl signal rather than a silent edit.
+    updatedDate: z.coerce.date().optional(),
     heroImage: z.string().optional(),
   }),
 });
