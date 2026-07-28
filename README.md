@@ -20,8 +20,17 @@ npm run test     # run the engine regression tests (Vitest)
 ```
 
 `npm run build` runs `astro build` and then `scripts/generate-sitemap.mjs`, which
-writes `dist/sitemap.xml` using the site's canonical URL forms (homepage `/`,
-tool/util pages `*.html`, blog index `/blog`, posts `/blog/<slug>`).
+writes `dist/sitemap.xml` using the site's canonical URL forms — all
+extensionless (homepage `/`, tool/util pages `/<name>`, blog index `/blog`,
+posts `/blog/<slug>`).
+
+`<lastmod>` reflects when a page's **source** last changed, never the build
+date: blog posts use `updatedDate ?? pubDate` from their frontmatter, other
+pages use the last commit date of their `.astro` route. A URL whose date can't
+be resolved is emitted without `<lastmod>` rather than with a guessed one —
+stamping every URL with "today" on every deploy trains Google to ignore the
+field. This needs real git history, so **CI must not use a shallow clone**
+(`git clone --depth 1`); the build warns when it detects one.
 
 ## Project structure
 

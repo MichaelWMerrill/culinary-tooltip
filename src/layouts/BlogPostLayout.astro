@@ -10,7 +10,7 @@
 import Layout from './Layout.astro';
 
 const { frontmatter } = Astro.props;
-const { title, description, pubDate, heroImage } = frontmatter ?? Astro.props;
+const { title, description, pubDate, updatedDate, heroImage } = frontmatter ?? Astro.props;
 
 const formattedDate = pubDate
   ? new Date(pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
@@ -27,6 +27,7 @@ const absHero = heroImage
     : 'https://empiricalbbq.com' + heroImage
   : 'https://empiricalbbq.com/og-default.png';
 const isoDate = pubDate ? new Date(pubDate).toISOString().slice(0, 10) : undefined;
+const isoUpdated = updatedDate ? new Date(updatedDate).toISOString().slice(0, 10) : undefined;
 
 const articleSchema = {
   '@context': 'https://schema.org',
@@ -34,6 +35,7 @@ const articleSchema = {
   headline: title,
   description,
   ...(isoDate ? { datePublished: isoDate } : {}),
+  ...((isoUpdated ?? isoDate) ? { dateModified: isoUpdated ?? isoDate } : {}),
   image: absHero,
   mainEntityOfPage: ogUrl,
   publisher: {

@@ -13,16 +13,86 @@
  *
  * @astrojs/sitemap is not used because it produces sitemap-index.xml rather than
  * the single /sitemap.xml that robots.txt references.
+ *
+ * <lastmod> describes when the page's SOURCE actually changed, not when we last
+ * built. Stamping every URL with "today" on every deploy tells Google the whole
+ * site changed every time we ship; once lastmod is demonstrably wrong Google
+ * stops trusting the field site-wide, and we lose the one signal that flags
+ * genuinely-new pages as worth crawling. Two sources, in order:
+ *   1. Blog posts: `updatedDate` (or `pubDate`) from the Markdown frontmatter —
+ *      author-declared, and independent of how the repo was cloned.
+ *   2. Everything else: the last commit date of the .astro route.
+ * When neither resolves (no git, or a shallow CI clone where every file reports
+ * the tip commit) we omit <lastmod> for that URL — an absent date is ignored, a
+ * wrong one is actively harmful.
  */
-import { readdirSync, statSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const SITE = 'https://empiricalbbq.com';
 const DIST = 'dist';
-const LASTMOD = new Date().toISOString().slice(0, 10);
 
 // Pages that should never appear in the sitemap.
 const EXCLUDE = new Set(['404.html']);
+
+/** Run a git command, returning trimmed stdout or null if git can't answer. */
+function git(...args) {
+  try {
+    return execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  } catch {
+    return null;
+  }
+}
+
+// A shallow clone (e.g. `git clone --depth 1` in CI) collapses all history onto
+// one commit, so per-file commit dates would all be identical — exactly the
+// churn this is meant to avoid. Detect it and fall back to omitting lastmod.
+const HAS_GIT_HISTORY = git('rev-parse', '--is-inside-work-tree') === 'true' && git('rev-parse', '--is-shallow-repository') === 'false';
+
+/** Map a dist-relative html path back to the source file that produced it. */
+function toSource(relPath) {
+  const slug = relPath.replace(/\.html$/, '');
+  // Blog posts come from Markdown in the content collection; every other page
+  // is a .astro route of the same name.
+  if (slug.startsWith('blog/')) return `src/content/${slug}.md`;
+  return `src/pages/${slug}.astro`;
+}
+
+/**
+ * Author-declared date from a blog post's frontmatter: `updatedDate` if the post
+ * has been revised, else `pubDate`. Returns null for non-posts or on any parse
+ * miss (the git fallback then applies).
+ */
+function frontmatterDate(source) {
+  if (!source.endsWith('.md')) return null;
+  let raw;
+  try {
+    raw = readFileSync(source, 'utf8');
+  } catch {
+    return null;
+  }
+  const block = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!block) return null;
+  for (const key of ['updatedDate', 'pubDate']) {
+    // Dates are plain or quoted YYYY-MM-DD (schema coerces them to Date); take
+    // just the date part so the value is a valid W3C date for the sitemap.
+    const hit = block[1].match(new RegExp(`^${key}:\\s*['"]?(\\d{4}-\\d{2}-\\d{2})`, 'm'));
+    if (hit) return hit[1];
+  }
+  return null;
+}
+
+/** Best available modification date (YYYY-MM-DD) for a page, or null if unknown. */
+function lastModified(relPath) {
+  const source = toSource(relPath);
+  const declared = frontmatterDate(source);
+  if (declared) return declared;
+  if (!HAS_GIT_HISTORY) return null;
+  // %cs = committer date, already formatted as YYYY-MM-DD (W3C date, which is
+  // what the sitemap protocol wants).
+  return git('log', '-1', '--format=%cs', '--', source) || null;
+}
 
 /** Recursively collect all .html files under dir, as dist-relative POSIX paths. */
 function walk(dir) {
@@ -55,19 +125,24 @@ function meta(url) {
   return { priority: '0.8', changefreq: 'weekly' }; // tool/util pages
 }
 
-const urls = walk(DIST)
-  .map(toUrl)
-  .filter((u) => u !== null)
-  .sort((a, b) => (a === `${SITE}/` ? -1 : b === `${SITE}/` ? 1 : a.localeCompare(b)));
+const entries = walk(DIST)
+  .map((relPath) => ({ url: toUrl(relPath), lastmod: lastModified(relPath) }))
+  .filter((e) => e.url !== null)
+  .sort((a, b) => (a.url === `${SITE}/` ? -1 : b.url === `${SITE}/` ? 1 : a.url.localeCompare(b.url)));
 
-const body = urls
-  .map((url) => {
+const body = entries
+  .map(({ url, lastmod }) => {
     const { priority, changefreq } = meta(url);
-    return `  <url>\n    <loc>${url}</loc>\n    <lastmod>${LASTMOD}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+    const lastmodTag = lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : '';
+    return `  <url>\n    <loc>${url}</loc>${lastmodTag}\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
   })
   .join('\n');
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
 
 writeFileSync(join(DIST, 'sitemap.xml'), xml);
-console.log(`[sitemap] wrote dist/sitemap.xml with ${urls.length} URLs`);
+const dated = entries.filter((e) => e.lastmod).length;
+console.log(`[sitemap] wrote dist/sitemap.xml with ${entries.length} URLs (${dated} with <lastmod>)`);
+if (dated < entries.length) {
+  console.warn(`[sitemap] ${entries.length - dated} URL(s) have no <lastmod> — git history unavailable or file untracked.`);
+}
