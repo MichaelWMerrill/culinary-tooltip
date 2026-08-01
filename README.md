@@ -49,7 +49,7 @@ src/
   pages/                   One .astro route per page (URLs preserved as *.html):
                            per-protein yield & stall pages, cook-scheduler,
                            fuel-estimator, rest-calculator, party-planner,
-                           brisket-size-calculator, methodology, contact,
+                           brisket-size-calculator, methodology, about, contact,
                            privacy, and the blog + posts
   utils/
     proteinRegistry.js     Single source of truth for per-protein data: yield
@@ -62,6 +62,8 @@ src/
     version.js             Site + stall-engine version strings (single source of truth)
     shareLink.js           Validated URL-param (shareable-link) helpers
     analytics.js           Shared PitmasterAnalytics telemetry object
+    author.js              Site author identity (name, role, Person schema) —
+                           single source for bylines, /about, and JSON-LD
   content/blog/            Markdown blog posts
 server/contactHandler.ts   Contact-form handler (called by worker.ts)
 scripts/                   Build/generator scripts: sitemap, OG images, golden specs, ads.txt check
@@ -117,6 +119,23 @@ widget and both keys at Cloudflare dashboard → **Turnstile**.
 >
 > MailChannels now requires account setup (their free Workers integration was retired), so
 > **Resend is the recommended path** — set `RESEND_API_KEY` and verify your sending domain.
+
+## Authorship & E-E-A-T
+
+`src/utils/author.js` is the single source of truth for who wrote the site:
+`AUTHOR_NAME` / `AUTHOR_ROLE` for visible bylines and `AUTHOR_SCHEMA` (a
+schema.org `Person`) for structured data. It feeds the `/about` bio page, the
+blog post bylines and end-of-post author box, the `author` field on blog
+`Article` and methodology `TechArticle` schema, and `Organization.founder` in
+the site-wide `WebSite` block. Because the visible text and the JSON-LD read
+from the same module, a byline can never claim something the structured data
+contradicts — which is the failure mode search and ad-quality crawlers punish.
+
+Editorial rule for author-facing copy: **claim only what's true.** The bio
+states plainly that the author is a software/data professional rather than a
+chef, food scientist, or competition pitmaster, and points at `/methodology`
+for the sourcing. The site's credibility is meant to rest on published sources
+and inspectable math, so inflating credentials here would undercut it.
 
 ## Testing
 

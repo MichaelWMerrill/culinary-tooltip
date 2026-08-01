@@ -11,7 +11,7 @@
  * up the Yield tab without touching them.)
  */
 export interface Props {
-  active?: 'home' | 'yield' | 'brisket' | 'stall' | 'fuel' | 'scheduler' | 'blog' | 'contact' | null;
+  active?: 'home' | 'yield' | 'brisket' | 'stall' | 'fuel' | 'scheduler' | 'blog' | 'about' | 'contact' | null;
 }
 const { active = null } = Astro.props;
 
@@ -25,6 +25,9 @@ const links = [
   { key: 'scheduler', href: '/cook-scheduler', label: 'Scheduler' },
   { key: 'fuel', href: '/fuel-estimator', label: 'Fuel' },
   { key: 'blog', href: '/blog', label: 'Blog' },
+  // About is in the top nav (not just the footer) so the site's authorship is
+  // one click from every page — for readers and for crawlers weighing E-E-A-T.
+  { key: 'about', href: '/about', label: 'About' },
   { key: 'contact', href: '/contact', label: 'Contact' },
 ];
 

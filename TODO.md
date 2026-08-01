@@ -27,6 +27,31 @@ Leverage: how much it compounds traffic, list, or data assets
       stall doesn't. Altitude affects evaporative cooling; no competitor
       models it.
 
+## AdSense "Low value content" remediation
+AdSense rejected the site for "Low value content" (see the policy-violations
+panel in the AdSense Sites view). Three contributing factors, only one of which
+is a code problem:
+- [x] **Authorship / E-E-A-T** — no named, accountable author anywhere on the
+      site; the only author signal was `Organization: Empirical BBQ`. Shipped
+      `/about` plus site-wide `Person` attribution (see README "Authorship &
+      E-E-A-T").
+- [ ] **Crawl freshness (manual, blocking)** — 9 of 22 canonical URLs were
+      stuck at "Discovered – currently not indexed" before commit 864e039 fixed
+      the crawl signals. As of the last GSC check they had *not* yet been
+      recrawled, so AdSense very likely evaluated a smaller site than exists.
+      Re-check Search Console coverage before requesting another review.
+- [ ] **Site age** — the domain is weeks old. Nothing to implement; trust
+      signals (age, backlinks, organic traffic) accrue with time.
+
+**Do not click "Request review" until** the previously-unindexed URLs show as
+Indexed in Search Console. Resubmitting against stale crawl state burns a
+review cycle and extends the penalty window.
+
+Optional depth work if a second rejection lands: the seven blog posts run
+341–757 words each, which is thin for a content-quality assessment. Expanding
+the shortest ones (`how-much-bbq-per-person`, `faux-cambro-holding`,
+`science-of-smoke`) is the highest-leverage next lever.
+
 ## Post-deploy — extensionless URL migration (manual, one-time)
 After the extensionless-canonical migration deploys, do these by hand:
 - [ ] Resubmit `sitemap.xml` in Google Search Console and request re-indexing of the

@@ -16,6 +16,7 @@
  */
 import Nav from '../components/Nav.astro';
 import AdSlot from '../components/AdSlot.astro';
+import { AUTHOR_SCHEMA } from '../utils/author.js';
 
 export interface Props {
   title: string;
@@ -23,7 +24,7 @@ export interface Props {
   ogUrl: string;
   /** @deprecated No longer used — the site now serves the hosted brand favicon. Kept so existing page props don't error. */
   favicon?: string;
-  active?: 'home' | 'brisket' | 'stall' | 'fuel' | 'scheduler' | 'blog' | 'contact' | null;
+  active?: 'home' | 'brisket' | 'stall' | 'fuel' | 'scheduler' | 'blog' | 'about' | 'contact' | null;
   /** Classes applied to <body> so each page keeps its background/text scheme. */
   bodyClass?: string;
   /** Render the sticky 728x90 bottom banner (all tools; off for the privacy page). */
@@ -63,6 +64,9 @@ const siteSchema = {
     name: 'Empirical BBQ',
     url: 'https://empiricalbbq.com/',
     logo: 'https://empiricalbbq.com/android-chrome-512x512.png',
+    // Ties the site entity to a named person site-wide, matching the visible
+    // bylines and the /about bio (all from src/utils/author.js).
+    founder: AUTHOR_SCHEMA,
   },
 };
 const schemaBlocks = [siteSchema, ...(schema ? (Array.isArray(schema) ? schema : [schema]) : [])];

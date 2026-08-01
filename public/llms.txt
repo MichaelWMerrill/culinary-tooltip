@@ -24,9 +24,12 @@ Empirical BBQ (empiricalbbq.com) is a suite of free, ad-supported pitmaster calc
 - [The Chemistry of Wood Smoke: Clean Blue vs. Dirty White](https://empiricalbbq.com/blog/chemistry-of-wood-smoke): combustion phases, creosote, and chasing thin blue smoke.
 - [The Faux Cambro: How Long You Can Really Hold Barbecue](https://empiricalbbq.com/blog/faux-cambro-holding): Newton's law of cooling, the 140°F food-safe floor, and how a cooler full of towels buys you hours.
 - [How Much Barbecue Per Person](https://empiricalbbq.com/blog/how-much-bbq-per-person): cooked-per-guest servings, the shrinkage tax, and back-solving the raw weight to buy.
+- [Why Turkey Doesn't Stall](https://empiricalbbq.com/blog/turkey-doesnt-stall): why poultry climbs monotonically to temperature while brisket plateaus, and what that means for scheduling a bird.
+- [Cold-Weather Fuel Math](https://empiricalbbq.com/blog/cold-weather-fuel-math): how ambient temperature and wind load drive burn rate, and how much extra fuel a winter cook actually costs.
 - [Blog index](https://empiricalbbq.com/blog)
 
 ## About
+- [About / the author](https://empiricalbbq.com/about): Empirical BBQ is built and maintained by Mike Merrill, a software and data professional (B.S. Computer Science; ~10 years in senior public-sector technical roles) who built sourced, version-controlled cook models after repeatedly missing on timing, quantity, and quality. Explicitly not a chef, food scientist, or competition pitmaster — the site's authority rests on published sources and inspectable math, not credentials. Also covers how the site is funded (display ads + Amazon affiliate links, kept strictly separate from model outputs).
 - [Methodology](https://empiricalbbq.com/methodology): the equations behind every calculator, the per-protein calibration constants (generated from the engine registry so they can't drift), engine/model versions, and the golden-test regression story in plain language.
 - [Contact](https://empiricalbbq.com/contact): feedback form for pitmasters.
 - [Privacy Policy](https://empiricalbbq.com/privacy): client-side local storage only, no accounts, anonymous analytics, and a cookie-consent banner (Google Consent Mode v2).
