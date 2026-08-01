@@ -8,6 +8,7 @@
  */
 import Layout from '../layouts/Layout.astro';
 import { PROTEINS } from '../utils/proteinRegistry.js';
+import { AUTHOR_NAME, AUTHOR_SCHEMA } from '../utils/author.js';
 
 const proteins = Object.values(PROTEINS);
 
@@ -49,7 +50,16 @@ const schema = {
   headline: 'Methodology — the models, constants & versioning behind Empirical BBQ',
   description:
     'The equations, calibration constants, engine versions, and golden-test regression story behind the Empirical BBQ calculators.',
-  author: { '@type': 'Organization', name: 'Empirical BBQ' },
+  // Named author (shared with the blog bylines and /about via src/utils/author.js)
+  // rather than a faceless Organization — the models are one person's work and
+  // the page should say whose.
+  author: AUTHOR_SCHEMA,
+  publisher: {
+    '@type': 'Organization',
+    name: 'Empirical BBQ',
+    url: 'https://empiricalbbq.com/',
+    logo: 'https://empiricalbbq.com/android-chrome-512x512.png',
+  },
   mainEntityOfPage: 'https://empiricalbbq.com/methodology',
 };
 ---
@@ -74,6 +84,11 @@ const schema = {
           This page lays out the equations, the constants behind each protein, the engine versions, and
           how we keep the numbers from silently changing. All outputs are planning estimates:
           <strong class="text-base-300">always probe to temperature.</strong>
+        </p>
+        <p class="mt-4 text-sm text-base-500">
+          Models built and maintained by
+          <a href="/about" rel="author" class="font-semibold text-flame-400 hover:text-flame-300 transition-colors">{AUTHOR_NAME}</a>
+          — <a href="/about" class="underline underline-offset-2 hover:text-base-300 transition-colors">who I am and why I built this</a>.
         </p>
       </header>
 
@@ -223,6 +238,7 @@ const schema = {
 
       <nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-medium">
         <a href="/" class="text-flame-400 hover:text-flame-300 transition-colors">← Home</a>
+        <a href="/about" class="text-base-400 hover:text-white transition-colors">About</a>
         <a href="/brisket-calculator" class="text-base-400 hover:text-white transition-colors">Calculators</a>
         <a href="/blog" class="text-base-400 hover:text-white transition-colors">Blog</a>
         <a href="/privacy" class="text-base-400 hover:text-white transition-colors">Privacy</a>

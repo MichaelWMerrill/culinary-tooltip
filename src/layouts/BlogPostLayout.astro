@@ -8,6 +8,7 @@
  * to direct props so the layout can be used standalone.
  */
 import Layout from './Layout.astro';
+import { AUTHOR_NAME, AUTHOR_ROLE, AUTHOR_SCHEMA } from '../utils/author.js';
 
 const { frontmatter } = Astro.props;
 const { title, description, pubDate, updatedDate, heroImage } = frontmatter ?? Astro.props;
@@ -38,6 +39,9 @@ const articleSchema = {
   ...((isoUpdated ?? isoDate) ? { dateModified: isoUpdated ?? isoDate } : {}),
   image: absHero,
   mainEntityOfPage: ogUrl,
+  // Named, linkable author — matches the visible byline below and the Person
+  // schema on /about (both read from src/utils/author.js, so they can't drift).
+  author: AUTHOR_SCHEMA,
   publisher: {
     '@type': 'Organization',
     name: 'Empirical BBQ',
@@ -74,7 +78,13 @@ const articleSchema = {
         <header class="mb-8">
           <p class="text-xs font-semibold uppercase tracking-widest text-flame-400 mb-3">Empirical BBQ · Field Notes</p>
           <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.1]">{title}</h1>
-          {formattedDate && <p class="mt-4 text-sm text-base-500 font-mono">{formattedDate}</p>}
+          <div class="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm">
+            <span class="text-base-400">
+              By <a href="/about" rel="author" class="font-semibold text-flame-400 hover:text-flame-300 transition-colors">{AUTHOR_NAME}</a>
+              <span class="text-base-500"> · {AUTHOR_ROLE}</span>
+            </span>
+            {formattedDate && <span class="text-base-500 font-mono text-xs">{formattedDate}</span>}
+          </div>
           {description && <p class="mt-4 text-lg text-base-400 leading-relaxed">{description}</p>}
         </header>
 
@@ -93,7 +103,19 @@ const articleSchema = {
           <slot />
         </div>
 
-        <div class="mt-12 pt-8 border-t border-base-800">
+        {/* Author bio — attaches a real, accountable person to every post. */}
+        <aside class="mt-12 rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-flame-400 mb-2.5">About the author</p>
+          <p class="text-sm text-base-400 leading-relaxed">
+            <a href="/about" rel="author" class="font-bold text-white hover:text-flame-300 transition-colors">{AUTHOR_NAME}</a>
+            is the {AUTHOR_ROLE.replace(/^Creator of /, 'creator of ')} — a software and data professional who
+            got tired of guessing at cook times and serving sizes, and built a set of sourced, version-controlled
+            models instead. Every constant behind these posts is published on the
+            <a href="/methodology" class="text-flame-400 hover:text-flame-300 underline underline-offset-2">methodology page</a>.
+          </p>
+        </aside>
+
+        <div class="mt-8 pt-8 border-t border-base-800">
           <a
             href="/blog"
             class="inline-flex items-center gap-1.5 text-sm font-semibold text-flame-400 hover:text-flame-300 transition-colors"
@@ -116,6 +138,8 @@ const articleSchema = {
         <a href="/stall-predictor" class="hover:text-white transition-colors">Stall Predictor</a>
         <a href="/fuel-estimator" class="hover:text-white transition-colors">Fuel Estimator</a>
         <a href="/blog" class="hover:text-white transition-colors">Blog</a>
+        <a href="/about" class="hover:text-white transition-colors">About</a>
+        <a href="/methodology" class="hover:text-white transition-colors">Methodology</a>
         <a href="/contact" class="hover:text-white transition-colors">Contact</a>
         <a href="/privacy" class="text-flame-400 hover:text-flame-300 transition-colors">Privacy Policy</a>
       </nav>

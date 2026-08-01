@@ -1,0 +1,240 @@
+---
+/*
+ * /about — who builds Empirical BBQ and why.
+ *
+ * This page exists to attach a real, named, accountable person to the numbers
+ * the calculators publish. It carries the site's `Person` schema (from
+ * src/utils/author.js, shared with the blog bylines and /methodology) so the
+ * visible bio and the structured data always agree.
+ *
+ * Editorial rule for this page: claim only what's true. The author is a
+ * software/data professional who cooks — not a chef, food scientist, or
+ * competition pitmaster — and the page says so plainly. The site's credibility
+ * rests on citing published sources and showing the math on /methodology, so
+ * overstating credentials here would undercut the very thing that makes the
+ * tools trustworthy.
+ */
+import Layout from '../layouts/Layout.astro';
+import { AUTHOR_NAME, AUTHOR_ROLE, AUTHOR_SCHEMA, AUTHOR_URL } from '../utils/author.js';
+import { PROTEINS } from '../utils/proteinRegistry.js';
+import { TOOL_COUNT } from '../utils/toolMatrix.js';
+
+const proteinCount = Object.keys(PROTEINS).length;
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: 'About Empirical BBQ',
+    description:
+      'Who builds Empirical BBQ, why the calculators exist, how the models are sourced and tested, and how the site is funded.',
+    url: AUTHOR_URL,
+    mainEntity: AUTHOR_SCHEMA,
+  },
+  {
+    '@context': 'https://schema.org',
+    ...AUTHOR_SCHEMA,
+  },
+];
+---
+
+<Layout
+  title="About | Who Builds Empirical BBQ"
+  description="Empirical BBQ is built by Mike Merrill — a software and data professional who got tired of guessing at cook times and serving sizes. Who's behind the models, how they're sourced and tested, and how the site is funded."
+  ogUrl={AUTHOR_URL}
+  active="about"
+  bodyClass="page-about min-h-screen flex flex-col bg-base-850 text-base-300 font-display antialiased selection:bg-flame-500/30"
+  schema={schema}
+>
+  <div class="relative z-10 flex-1 w-full">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <header class="mb-10">
+        <div class="inline-flex items-center gap-2 rounded-full bg-flame-500/10 ring-1 ring-flame-500/40 px-3.5 py-1.5 mb-5">
+          <span class="text-sm">👋</span>
+          <span class="text-xs font-semibold tracking-wide text-flame-300 uppercase">About</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-[1.08]">
+          Who builds Empirical BBQ
+        </h1>
+        <p class="mt-5 text-base sm:text-lg text-base-400 leading-relaxed">
+          Empirical BBQ is built and maintained by one person: <strong class="text-base-300">{AUTHOR_NAME}</strong>.
+          Not an agency, not a content farm, and not a chef with a cookbook to sell — just someone who
+          kept missing the mark on his own cooks and decided to go find the actual numbers.
+        </p>
+      </header>
+
+      <!-- ============ THE PERSON ============ -->
+      <section class="mb-12">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400 mb-4">The person behind it</h2>
+        <div class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6 space-y-4 text-sm sm:text-[15px] text-base-400 leading-relaxed">
+          <p>
+            I'm {AUTHOR_NAME}, the {AUTHOR_ROLE.replace(/^Creator of /, 'creator of ')}. I hold a
+            <strong class="text-base-300">B.S. in Computer Science</strong> and have spent about
+            <strong class="text-base-300">ten years in a senior technical role in the public sector</strong>
+            in Las&nbsp;Vegas, Nevada. Most of that career has come down to the same task over and over:
+            take a system that isn't working, find the data nobody has bothered to look at, and use it to
+            fix the thing for real instead of guessing at it.
+          </p>
+          <p>
+            Outside of work I'm a husband and a father of three, which is its own lesson in cooking for a
+            deadline. I've been <strong class="text-base-300">seriously cooking, grilling, and smoking for
+            about two years</strong> — long enough to have made most of the classic mistakes, and recently
+            enough that I still remember exactly how it feels to have guests arriving at six with a brisket
+            that has been sitting at 160°F for three hours.
+          </p>
+          <p>
+            I want to be straightforward about that, because it matters for how you should read this site:
+            <strong class="text-base-300">I'm not a chef, a food scientist, or a competition pitmaster.</strong>
+            What I am is someone who is good at finding, modeling, and stress-testing data — and who applied
+            that to a hobby where an unusual amount of the advice turns out to be folklore repeated with
+            confidence.
+          </p>
+        </div>
+      </section>
+
+      <!-- ============ WHY ============ -->
+      <section class="mb-12">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400 mb-4">Why this site exists</h2>
+        <div class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6 space-y-4 text-sm sm:text-[15px] text-base-400 leading-relaxed">
+          <p>
+            I've always been more interested in <em class="text-base-300">why</em> something works than in
+            being told that it does. When I started cooking for people, I kept missing on the three things
+            that actually determine whether a cook succeeds: <strong class="text-base-300">timing</strong>
+            (the meat wasn't ready when people were), <strong class="text-base-300">quantity</strong> (I bought
+            the wrong amount and either ran short or ate leftovers for a week), and
+            <strong class="text-base-300">quality</strong> (the result was inconsistent in ways I couldn't explain).
+          </p>
+          <p>
+            Every time I went looking for an answer, I got the same thing back: a rule of thumb with no
+            reasoning attached. "About an hour and a quarter per pound." "Half a pound per person." "Wrap it
+            at 165." Some of that folklore is roughly right. Some of it is off by hours. None of it tells you
+            <em class="text-base-300">which</em> — or what changes when your brisket is 18&nbsp;lb instead of 12,
+            when it's 40°F and windy, or when you're running a kamado instead of an offset.
+          </p>
+          <p>
+            So I went into the raw data and the food science behind it: USDA yield figures, published
+            heat-transfer and evaporative-cooling work, and field cook-time consensus from people who cook far
+            more than I do. Then I did the thing I do professionally — turned it into models, wrote down every
+            constant and where it came from, and locked the outputs with regression tests so the numbers can't
+            quietly drift. That's what these {TOOL_COUNT} calculators are, across {proteinCount} proteins.
+          </p>
+          <p>
+            The goal isn't to replace your judgment or your thermometer. It's to replace
+            <em class="text-base-300">guessing</em> with a stated estimate you can see the reasoning behind —
+            so when you plan a cook, you know what the model assumed and where it might be wrong.
+          </p>
+        </div>
+      </section>
+
+      <!-- ============ HOW YOU CAN CHECK ME ============ -->
+      <section class="mb-12">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400 mb-4">How to check my work</h2>
+        <div class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6 space-y-4 text-sm sm:text-[15px] text-base-400 leading-relaxed">
+          <p>
+            Because I'm not asking you to trust my credentials, the site is built so you don't have to.
+            Everything is inspectable:
+          </p>
+          <ul class="space-y-3 pl-1">
+            <li class="flex gap-3">
+              <span class="text-flame-400 shrink-0" aria-hidden="true">→</span>
+              <span>
+                <strong class="text-base-300">Every equation and constant is published.</strong> The
+                <a href="/methodology" class="text-flame-400 hover:text-flame-300 underline underline-offset-2">methodology page</a>
+                lists the models, the per-protein calibration constants, and their sources. Those tables are
+                generated from the same registry the calculators run on, so the published numbers cannot drift
+                from the computed ones.
+              </span>
+            </li>
+            <li class="flex gap-3">
+              <span class="text-flame-400 shrink-0" aria-hidden="true">→</span>
+              <span>
+                <strong class="text-base-300">Estimates are labeled as estimates.</strong> Where a constant is a
+                calibration guess rather than a sourced figure, it's marked as one. Where the honest answer is a
+                range, the tools show a range instead of inventing precision.
+              </span>
+            </li>
+            <li class="flex gap-3">
+              <span class="text-flame-400 shrink-0" aria-hidden="true">→</span>
+              <span>
+                <strong class="text-base-300">Model changes are versioned and logged.</strong> Each protein model
+                carries a version number shown in the results panel, and material recalibrations are written up in
+                the changelog on the methodology page — including the time I found the model was running roughly
+                45% fast and had to refit it.
+              </span>
+            </li>
+            <li class="flex gap-3">
+              <span class="text-flame-400 shrink-0" aria-hidden="true">→</span>
+              <span>
+                <strong class="text-base-300">Nothing leaves your browser.</strong> Every calculation runs
+                client-side. There are no accounts, and your cook details aren't sent anywhere.
+              </span>
+            </li>
+          </ul>
+          <p class="text-[13px] text-base-500 pt-1">
+            If you find a number that doesn't match your results, I genuinely want to hear it — that's the
+            fastest way these models get better. <a href="/contact" class="text-flame-400 hover:text-flame-300 underline underline-offset-2">Tell me what happened</a>,
+            including your cut, weight, pit, and what actually took how long.
+          </p>
+        </div>
+      </section>
+
+      <!-- ============ FUNDING / TRANSPARENCY ============ -->
+      <section class="mb-12">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400 mb-4">How the site is funded</h2>
+        <div class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6 space-y-4 text-sm sm:text-[15px] text-base-400 leading-relaxed">
+          <p>
+            Every tool here is free and always will be. The site is supported by
+            <strong class="text-base-300">display advertising</strong> and by
+            <strong class="text-base-300">affiliate links</strong> — as an Amazon Associate I earn from
+            qualifying purchases, and gear recommendations are marked as such where they appear.
+          </p>
+          <p>
+            The line I hold: <strong class="text-base-300">advertising never touches the models.</strong> No
+            calculator output is tuned to sell anything, affiliate links never appear inside results copy,
+            and a product being linked has no bearing on what the math says. If a recommendation and the
+            model ever disagree, the model wins and the recommendation goes.
+          </p>
+          <p class="text-[13px] text-base-500">
+            See the <a href="/privacy" class="text-flame-400 hover:text-flame-300 underline underline-offset-2">privacy policy</a>
+            for what's collected (anonymous analytics, with a consent banner) and what isn't.
+          </p>
+        </div>
+      </section>
+
+      <!-- ============ THE DISCLAIMER THAT MATTERS ============ -->
+      <section class="mb-12">
+        <div class="rounded-2xl bg-flame-500/10 ring-1 ring-flame-500/30 p-5 sm:p-6">
+          <h2 class="text-sm font-bold text-white mb-2">One thing these tools will never do</h2>
+          <p class="text-sm text-base-300 leading-relaxed">
+            They will not tell you your food is done. Every output on this site is a
+            <strong class="text-white">planning estimate</strong> — useful for deciding when to light the fire
+            and how much to buy, and not a substitute for a thermometer. Cuts, pits, and weather vary more than
+            any model can capture. Build in a buffer, and always probe to temperature.
+          </p>
+        </div>
+      </section>
+
+      <nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-medium">
+        <a href="/" class="text-flame-400 hover:text-flame-300 transition-colors">← Home</a>
+        <a href="/methodology" class="text-base-400 hover:text-white transition-colors">Methodology</a>
+        <a href="/brisket-calculator" class="text-base-400 hover:text-white transition-colors">Calculators</a>
+        <a href="/blog" class="text-base-400 hover:text-white transition-colors">Blog</a>
+        <a href="/contact" class="text-base-400 hover:text-white transition-colors">Contact</a>
+        <a href="/privacy" class="text-base-400 hover:text-white transition-colors">Privacy</a>
+      </nav>
+    </div>
+  </div>
+</Layout>
+
+<style is:global>
+  body.page-about::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(1200px 600px at 82% -12%, rgba(249, 115, 22, 0.14), transparent 60%),
+      radial-gradient(950px 520px at -8% 108%, rgba(245, 158, 11, 0.09), transparent 55%);
+  }
+</style>
