@@ -1,10 +1,9 @@
 /*
  * Generates branded (non-photographic) hero graphics for blog posts that don't
- * have a real cook photo yet: public/blog/turkey-doesnt-stall.jpg and
- * public/blog/cold-weather-fuel-math.jpg (1600x900). Same dark/flame-gradient
- * language as generate-og.mjs, with a small topic-specific line motif. Run
- * once (or after changing the design): `node scripts/generate-blog-heroes.mjs`.
- * The JPGs are committed.
+ * have a real cook photo yet. Same dark/flame-gradient language as
+ * generate-og.mjs, with a small topic-specific line motif per post. Run once
+ * (or after changing the design or adding a post to `jobs`):
+ * `node scripts/generate-blog-heroes.mjs`. The JPGs are committed.
  */
 import sharp from 'sharp';
 
@@ -71,9 +70,39 @@ const fuelMotif = `
   </g>
 `;
 
+// Ribs post: a fixed 3-2-1 block schedule (stacked bars, proportional 3:2:1)
+// against the physics-model's smooth curve, to show the two disagreeing clocks.
+const ribsMotif = `
+  <g>
+    <rect x="140" y="640" width="330" height="52" rx="8" fill="url(#title)"/>
+    <rect x="484" y="640" width="220" height="52" rx="8" fill="url(#title)" fill-opacity="0.65"/>
+    <rect x="718" y="640" width="110" height="52" rx="8" fill="url(#title)" fill-opacity="0.4"/>
+    <text x="140" y="722" font-family="${FONT}" font-size="20" font-weight="600" fill="#fdba74">3-2-1 SCHEDULE — fixed blocks</text>
+  </g>
+  <g stroke-width="6" fill="none" opacity="0.75">
+    <polyline points="140,540 340,510 560,430 800,380 1040,300 1260,240 1440,200" stroke="#7c8aab" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2 14"/>
+  </g>
+  <text x="1440" y="180" font-family="${FONT}" font-size="20" font-weight="500" fill="#7c8aab" text-anchor="end">predictor — physics curve</text>
+`;
+
+// Turkey brine/spatchcock post: three comparison bars (baseline, brined,
+// spatchcocked) showing carved yield moving in different directions.
+const brineMotif = `
+  <g>
+    <rect x="1080" y="660" width="80" height="140" rx="10" fill="#7c8aab" fill-opacity="0.35"/>
+    <rect x="1200" y="560" width="80" height="240" rx="10" fill="url(#title)"/>
+    <rect x="1320" y="676" width="80" height="124" rx="10" fill="#7c8aab" fill-opacity="0.55"/>
+    <text x="1120" y="830" font-family="${FONT}" font-size="17" font-weight="600" fill="#7c8aab" text-anchor="middle">baseline</text>
+    <text x="1240" y="830" font-family="${FONT}" font-size="17" font-weight="600" fill="#fdba74" text-anchor="middle">brined</text>
+    <text x="1360" y="830" font-family="${FONT}" font-size="17" font-weight="600" fill="#7c8aab" text-anchor="middle">spatchcock</text>
+  </g>
+`;
+
 const jobs = [
   { file: 'public/blog/turkey-doesnt-stall.jpg', label: 'TURKEY: NO STALL', motif: turkeyMotif },
   { file: 'public/blog/cold-weather-fuel-math.jpg', label: 'COLD-WEATHER FUEL', motif: fuelMotif },
+  { file: 'public/blog/ribs-two-clocks.jpg', label: 'RIBS: TWO CLOCKS', motif: ribsMotif },
+  { file: 'public/blog/turkey-brine-vs-spatchcock-yield.jpg', label: 'BRINE VS SPATCHCOCK', motif: brineMotif },
 ];
 
 for (const { file, label, motif } of jobs) {
