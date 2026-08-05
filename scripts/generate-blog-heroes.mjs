@@ -98,11 +98,43 @@ const brineMotif = `
   </g>
 `;
 
+// Climate stall-paradox post: two stall curves on the same axes — arid
+// flattens (stalls) earlier and holds the plateau longer, humid flattens
+// later and breaks sooner, both converging by the finish.
+const climateMotif = `
+  <g stroke-width="6" fill="none" opacity="0.9">
+    <polyline points="140,790 320,660 460,630 700,615 880,600 1040,430 1220,300 1440,215" stroke="url(#title)" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g stroke-width="6" fill="none" opacity="0.32">
+    <polyline points="140,800 300,700 540,650 800,640 1000,630 1160,470 1440,260" stroke="#7c8aab" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2 14"/>
+  </g>
+  <text x="1440" y="195" font-family="${FONT}" font-size="22" font-weight="600" fill="#fdba74" text-anchor="end">arid — earlier, longer stall</text>
+  <text x="1440" y="440" font-family="${FONT}" font-size="20" font-weight="500" fill="#7c8aab" text-anchor="end">humid — later, shorter stall</text>
+`;
+
+// Brisket yield post: a rising bar chart of cooked yield % by grade — Prime
+// shortest, Select tallest, inverse of the price/prestige ordering.
+const yieldMotif = `
+  <g>
+    <rect x="1070" y="672" width="86" height="150" rx="10" fill="#7c8aab" fill-opacity="0.4"/>
+    <rect x="1186" y="592" width="86" height="230" rx="10" fill="#f59e0b" fill-opacity="0.65"/>
+    <rect x="1302" y="502" width="86" height="320" rx="10" fill="url(#title)"/>
+    <text x="1113" y="655" font-family="${FONT}" font-size="18" font-weight="700" fill="#7c8aab" text-anchor="middle">46.8%</text>
+    <text x="1229" y="575" font-family="${FONT}" font-size="18" font-weight="700" fill="#fdba74" text-anchor="middle">50.2%</text>
+    <text x="1345" y="485" font-family="${FONT}" font-size="18" font-weight="700" fill="#fdba74" text-anchor="middle">54.3%</text>
+    <text x="1113" y="850" font-family="${FONT}" font-size="18" font-weight="600" fill="#7c8aab" text-anchor="middle">PRIME</text>
+    <text x="1229" y="850" font-family="${FONT}" font-size="18" font-weight="600" fill="#7c8aab" text-anchor="middle">CHOICE</text>
+    <text x="1345" y="850" font-family="${FONT}" font-size="18" font-weight="600" fill="#7c8aab" text-anchor="middle">SELECT</text>
+  </g>
+`;
+
 const jobs = [
   { file: 'public/blog/turkey-doesnt-stall.jpg', label: 'TURKEY: NO STALL', motif: turkeyMotif },
   { file: 'public/blog/cold-weather-fuel-math.jpg', label: 'COLD-WEATHER FUEL', motif: fuelMotif },
   { file: 'public/blog/ribs-two-clocks.jpg', label: 'RIBS: TWO CLOCKS', motif: ribsMotif },
   { file: 'public/blog/turkey-brine-vs-spatchcock-yield.jpg', label: 'BRINE VS SPATCHCOCK', motif: brineMotif },
+  { file: 'public/blog/climate-stall-paradox.jpg', label: 'CLIMATE: STALL SHIFT', motif: climateMotif },
+  { file: 'public/blog/prime-brisket-yield-myth.jpg', label: 'BRISKET YIELD MATH', motif: yieldMotif },
 ];
 
 for (const { file, label, motif } of jobs) {
