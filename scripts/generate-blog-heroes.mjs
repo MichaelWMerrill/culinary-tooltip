@@ -128,6 +128,44 @@ const yieldMotif = `
   </g>
 `;
 
+// Brisket mass-exponent post: two bar pairs — climb rate roughly halving
+// 8lb->16lb (steep exponent) next to stall duration barely moving (shallow
+// exponent) — the decoupling is the whole point of the post.
+const massExponentMotif = `
+  <g>
+    <text x="1030" y="470" font-family="${FONT}" font-size="18" font-weight="700" fill="#7c8aab" text-anchor="middle">CLIMB RATE</text>
+    <rect x="990" y="500" width="80" height="220" rx="10" fill="url(#title)"/>
+    <rect x="1110" y="610" width="80" height="110" rx="10" fill="url(#title)" fill-opacity="0.5"/>
+    <text x="1030" y="745" font-family="${FONT}" font-size="16" font-weight="600" fill="#fdba74" text-anchor="middle">8 lb</text>
+    <text x="1150" y="745" font-family="${FONT}" font-size="16" font-weight="600" fill="#7c8aab" text-anchor="middle">16 lb</text>
+  </g>
+  <g>
+    <text x="1330" y="470" font-family="${FONT}" font-size="18" font-weight="700" fill="#7c8aab" text-anchor="middle">STALL LENGTH</text>
+    <rect x="1290" y="620" width="80" height="100" rx="10" fill="#7c8aab" fill-opacity="0.55"/>
+    <rect x="1410" y="595" width="80" height="125" rx="10" fill="#7c8aab" fill-opacity="0.55"/>
+    <text x="1330" y="745" font-family="${FONT}" font-size="16" font-weight="600" fill="#fdba74" text-anchor="middle">8 lb</text>
+    <text x="1450" y="745" font-family="${FONT}" font-size="16" font-weight="600" fill="#7c8aab" text-anchor="middle">16 lb</text>
+  </g>
+`;
+
+// Turkey danger-zone post: a bracketed 40-140°F band with a clock glyph, plus
+// the two levers (spatchcock / higher pit temp) that shrink the exposure.
+const dangerZoneMotif = `
+  <g>
+    <rect x="140" y="560" width="1180" height="70" rx="12" fill="#f97316" fill-opacity="0.16" stroke="#f97316" stroke-opacity="0.55" stroke-width="2"/>
+    <text x="170" y="605" font-family="${FONT}" font-size="24" font-weight="700" fill="#fdba74">40&#176;F</text>
+    <text x="1250" y="605" font-family="${FONT}" font-size="24" font-weight="700" fill="#fdba74" text-anchor="end">140&#176;F</text>
+    <text x="710" y="605" font-family="${FONT}" font-size="19" font-weight="600" fill="#fca5a5" text-anchor="middle" letter-spacing="1">DANGER ZONE</text>
+  </g>
+  <g transform="translate(1360,470) scale(0.42)">
+    <circle cx="256" cy="256" r="200" fill="none" stroke="#7c8aab" stroke-width="26" opacity="0.5"/>
+    <line x1="256" y1="256" x2="256" y2="120" stroke="#fdba74" stroke-width="26" stroke-linecap="round"/>
+    <line x1="256" y1="256" x2="360" y2="256" stroke="#fdba74" stroke-width="26" stroke-linecap="round"/>
+  </g>
+  <text x="1440" y="700" font-family="${FONT}" font-size="19" font-weight="600" fill="#7c8aab" text-anchor="end">spatchcock or raise pit temp</text>
+  <text x="1440" y="730" font-family="${FONT}" font-size="19" font-weight="600" fill="#7c8aab" text-anchor="end">to shrink the window</text>
+`;
+
 const jobs = [
   { file: 'public/blog/turkey-doesnt-stall.jpg', label: 'TURKEY: NO STALL', motif: turkeyMotif },
   { file: 'public/blog/cold-weather-fuel-math.jpg', label: 'COLD-WEATHER FUEL', motif: fuelMotif },
@@ -135,6 +173,8 @@ const jobs = [
   { file: 'public/blog/turkey-brine-vs-spatchcock-yield.jpg', label: 'BRINE VS SPATCHCOCK', motif: brineMotif },
   { file: 'public/blog/climate-stall-paradox.jpg', label: 'CLIMATE: STALL SHIFT', motif: climateMotif },
   { file: 'public/blog/prime-brisket-yield-myth.jpg', label: 'BRISKET YIELD MATH', motif: yieldMotif },
+  { file: 'public/blog/brisket-mass-exponents.jpg', label: 'MASS VS. THE STALL', motif: massExponentMotif },
+  { file: 'public/blog/turkey-danger-zone-clock.jpg', label: 'TURKEY DANGER ZONE', motif: dangerZoneMotif },
 ];
 
 for (const { file, label, motif } of jobs) {
