@@ -82,8 +82,9 @@ const recipeSchema = {
   datePublished: isoDate,
   dateModified: isoUpdated ?? isoDate,
   recipeYield: `${servings} servings`,
+  // cookTime only: the model covers smoker time, not the dry-brine hold or the
+  // rest, so a totalTime would understate the real start-to-serve time.
   cookTime: isoDuration(cookHours),
-  totalTime: isoDuration(cookHours),
   recipeIngredient: [meatLine(w), ...ingredientLines.map((r) => `${r.grams} g ${r.label.toLowerCase()}`)],
   recipeInstructions: steps.map((s) => ({ '@type': 'HowToStep', text: s.text })),
   mainEntityOfPage: ogUrl,
