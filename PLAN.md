@@ -1,4 +1,8 @@
 # Claude Code Prompt — Empirical BBQ: Pitmaster Command Center
+
+> **Status (2026-09-28):** Phases 1–7 below have shipped. This file is kept as the
+> original build plan. For what exists now, read `README.md`; for open work, `TODO.md`.
+
 ## Context
 
 This repo is empiricalbbq.com — physics-based BBQ calculators (Astro static
@@ -11,8 +15,9 @@ Read before writing any code:
 - `TODO.md` (roadmap — this plan implements items #4, #5, #11 and more)
 - `src/utils/brisketEngine.js`, `stallEngine.js`, `fuelEngine.js`
 - `src/utils/__tests__/` and `scripts/gen-golden.mjs`
-- One tool page end-to-end (`src/pages/brisket-calculator.astro`) to
-  understand the current inline-script wiring pattern
+- One tool page end-to-end (`src/pages/brisket-calculator.astro`, now a thin
+  wrapper) and the component it renders (`src/components/calc/YieldCalculator.astro`
+  + `yieldCalculator.controller.js`) to understand the wiring pattern
 - `src/utils/shareLink.js` (URL-param validation pattern)
 
 ## Non-negotiable constraints
@@ -129,7 +134,8 @@ Ribs:
 - Thermal: `shape: 'slab'` — implement the geometry shape factor in
   `stallEngine.js` so slab thin-dimension heat transfer replaces the
   W^(-1/3) packer scaling; stall nearly absent.
-- Page set + 3-2-1 scheduler variant of CookScheduler.
+- Page set + 3-2-1 scheduler variant of CookScheduler. *(Shipped: `/ribs-stall`
+  and the scheduler variant; no ribs yield-calculator page.)*
 
 Turkey:
 - Axes: preparation (whole/spatchcock), brined (toggle), weight.
@@ -192,11 +198,12 @@ share links.
 
 - Astro 7 upgrade (planned, separately tested — per README)
 - Live Cook Mode PWA (keep online-first when built; offline caching
-  suppresses ad impressions)
-- Community calibration loop
+  suppresses ad impressions) — *installable shell shipped; see TODO.md #8*
+- Community calibration loop — *data layer + capture UI live; recalibration
+  still manual; see TODO.md #9*
 - Email capture / ESP integration
-- CSP enforce-mode flip (manual, after production report review)
-- Turnstile production site key (manual, dashboard)
+- ~~CSP enforce-mode flip~~ — done (see README "Security")
+- ~~Turnstile production site key~~ — done
 - GSC sitemap resubmission (manual, post-deploy)
 
 Update `TODO.md` at the end: check off completed items, add the deferred

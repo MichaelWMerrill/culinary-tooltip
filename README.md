@@ -3,7 +3,8 @@
 Physics-flavored pitmaster calculators for [empiricalbbq.com](https://empiricalbbq.com) —
 yield & cost, the thermodynamic stall, cook scheduling, smoker fuel, and rest/hold — across
 four proteins (beef brisket, pork shoulder, pork ribs, turkey), plus a party planner, a
-brisket size calculator, a methodology page, and a science-focused blog.
+brisket size calculator, a methodology page, a science-focused blog, and weight-scaled
+recipes whose cook times come from the same models.
 
 Built with [Astro](https://astro.build) (static output) and pre-compiled Tailwind CSS,
 deployed as static assets on Cloudflare's **Workers static-assets** model (see
@@ -22,10 +23,10 @@ npm run test     # run the engine regression tests (Vitest)
 `npm run build` runs `astro build` and then `scripts/generate-sitemap.mjs`, which
 writes `dist/sitemap.xml` using the site's canonical URL forms — all
 extensionless (homepage `/`, tool/util pages `/<name>`, blog index `/blog`,
-posts `/blog/<slug>`).
+posts `/blog/<slug>`, recipes `/recipes/<slug>`).
 
 `<lastmod>` reflects when a page's **source** last changed, never the build
-date: blog posts use `updatedDate ?? pubDate` from their frontmatter, other
+date: blog posts and recipes use `updatedDate ?? pubDate` from their frontmatter, other
 pages use the last commit date of their `.astro` route. A URL whose date can't
 be resolved is emitted without `<lastmod>` rather than with a guessed one —
 stamping every URL with "today" on every deploy trains Google to ignore the
@@ -39,6 +40,7 @@ src/
   layouts/
     Layout.astro           Shared <head> (SEO + GA + AdSense), nav, sticky banner, consent
     BlogPostLayout.astro   Blog-post chrome
+    RecipeLayout.astro     Recipe page: scaled ingredients, steps with "why", Recipe JSON-LD
   components/
     Nav.astro              Responsive navigation header
     AdSlot.astro           Ad placement: dev mockup vs. production AdSense <ins>
@@ -47,11 +49,11 @@ src/
                            CookScheduler, RestCalculator, PartyPlanner,
                            ProteinSelector, GearModule, FaqSection,
                            CookLogCapture — see "Cook log capture UI" below)
-  pages/                   One .astro route per page (URLs preserved as *.html):
+  pages/                   One .astro route per page (built as *.html, served extensionless):
                            per-protein yield & stall pages, cook-scheduler,
                            fuel-estimator, rest-calculator, party-planner,
                            brisket-size-calculator, methodology, about, contact,
-                           privacy, and the blog + posts
+                           privacy, the blog + posts, recipes/[...slug], and rss.xml
   utils/
     proteinRegistry.js     Single source of truth for per-protein data: yield
                            matrices, thermal/stall constants, serving, input axes
@@ -65,14 +67,25 @@ src/
     analytics.js           Shared PitmasterAnalytics telemetry object
     author.js              Site author identity (name, role, Person schema) —
                            single source for bylines, /about, and JSON-LD
+    recipeModel.js         Recipe glue: cook time via cookDuration(), yield from the
+                           registry, ingredient grams from ratios × raw weight
+    recipeSources.js       Recipe citation rules checked at build time
+    relatedContent.js      Cross-links between calculators, blog posts, and recipes
+    inlineLinks.js         Restricted [text](/path) link parser for recipe frontmatter
+    cookLogClient.js       POST/PATCH client for the cook-log Worker
+    cookLogConsent.js      Cook-log opt-in state and anon_client_id
   content/blog/            Markdown blog posts
+  content/recipes/         Markdown recipes (frontmatter-heavy; see "Recipes" below)
+  content.config.ts        Collection schemas for blog + recipes
+  data/gear.js             Affiliate product catalog + state → product matching rules
+.claude/agents/            Claude Code subagents (science-editor — see "Recipes" below)
 server/contactHandler.ts   Contact-form handler (called by worker.ts)
 workers/cook-log-service/  Isolated Worker for anonymized cook logging (own
                            wrangler.jsonc + D1 binding; see "Cook log data
                            layer" below) — not part of the static site build
-scripts/                   Build/generator scripts: sitemap, OG images, golden specs, ads.txt check,
-                           cook-log-report (ad hoc D1 aggregation)
-public/                    Static assets copied verbatim (favicons, ads.txt, llms.txt, _headers,
+scripts/                   Build/generator scripts: sitemap, OG images, blog heroes, icons,
+                           golden specs, ads.txt check, cook-log-report (ad hoc D1 aggregation)
+public/                    Static assets copied verbatim (favicons, recipe images, ads.txt, llms.txt, _headers,
                            sw.js / sw-cache-utils.js / sw-queue-utils.js — see "PWA shell" below)
 ```
 
@@ -274,6 +287,34 @@ mid-cook, backgrounding, closing the tab and reconnecting while it's closed — 
 actual Background Sync manager doesn't behave deterministically under browser automation, so
 that specific path needs human hands) and the final consent copy.
 
+## Recipes
+
+Recipes live in `src/content/recipes/*.md` (schema in `src/content.config.ts`) and are
+built by `src/pages/recipes/[...slug].astro` through `RecipeLayout.astro` at
+`/recipes/<slug>` — currently one, live at `/recipes/dry-brined-pulled-pork`, with no
+recipes index page.
+
+- **No authored cook times.** Smoker time comes from `stallEngine.cookDuration()` on the
+  recipe's `modelProtein`, and pulled yield and servings come from that protein's yield
+  matrix. Ingredient amounts are the recipe's own `ratios` × raw weight
+  (`src/utils/recipeModel.js`). The weight slider rescales this page only; it never writes
+  to the URL or localStorage. The Recipe JSON-LD uses the same default-weight values the
+  page shows.
+- **Build-time checks.** The build fails if `modelVersion` doesn't match the registry, if a
+  `sourceIds` entry points at an undeclared source, or if a `review: approved` item has
+  neither a source nor `modelBasis` (`src/utils/recipeSources.js`). Pending items only
+  log a warning.
+- **Links in frontmatter prose.** `steps[].why` and `guidance[].text` are plain text apart
+  from one restricted syntax, `[text](/path)`, for same-site paths only
+  (`src/utils/inlineLinks.js`). Anything else — external URLs, `//host`, `javascript:` —
+  stays literal. The Markdown body below the frontmatter renders normally.
+- **Cross-links.** The homepage utilities grid shows a card for the newest recipe, blog
+  posts show a "Related recipe" card matched on protein tags, and each recipe lists
+  related posts (`src/utils/relatedContent.js`).
+- **Review.** `.claude/agents/science-editor.md` is a Claude Code subagent that checks
+  recipe and blog copy against the site's evidence tiers (tier A/B sources, with
+  food-safety claims tier A only). Run it before merging a new recipe or post.
+
 ## Authorship & E-E-A-T
 
 `src/utils/author.js` is the single source of truth for who wrote the site:
@@ -284,6 +325,7 @@ blog post bylines and end-of-post author box, the `author` field on blog
 the site-wide `WebSite` block. Because the visible text and the JSON-LD read
 from the same module, a byline can never claim something the structured data
 contradicts — which is the failure mode search and ad-quality crawlers punish.
+It also supplies the recipe byline and the `author` on each recipe's `Recipe` schema.
 
 Editorial rule for author-facing copy: **claim only what's true.** The bio
 states plainly that the author is a software/data professional rather than a
@@ -323,6 +365,12 @@ log capture UI (above) have their own coverage in this style plus plain Vitest s
 `swCacheUtils.spec.js`, `swQueueUtils.spec.js`, `cookLogClient.spec.js`,
 `cookLogConsent.spec.js`, and `CookLogCapture.smoke.test.js`.
 
+Recipes and cross-linking have plain Vitest specs: `recipeModel.spec.js` (wrap mapping,
+cook time equal to `cookDuration()`, duration formatting, and ingredient grams),
+`recipeSources.spec.js` (the build-time citation rules), `relatedContent.spec.js`, and
+`inlineLinks.spec.js` (the link syntax, including rejected external, protocol-relative,
+and `javascript:` hrefs).
+
 ## Security
 
 - **Response headers** (`public/_headers`, applied site-wide): `X-Content-Type-Options: nosniff`,
@@ -332,6 +380,9 @@ log capture UI (above) have their own coverage in this style plus plain Vitest s
 - **Shareable links** hydrate calculator state from URL query params, but every value is
   validated — numbers are clamped to their slider range and enums are whitelisted
   (`src/utils/shareLink.js`) — so a hostile URL cannot inject unexpected state or markup.
+- **Recipe frontmatter links** render through `src/utils/inlineLinks.js`, which only turns
+  `[text](/path)` into a link when the href is a same-site absolute path. No raw HTML is
+  accepted, and every other form is left as literal text.
 - **Contact endpoint** (`server/contactHandler.ts`): same-origin check, server-side Turnstile
   verification (single-use tokens), message length cap, control-character stripping and length
   caps on subject fields (email-header-injection defense), and reply-to email validation.
