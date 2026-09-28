@@ -204,7 +204,7 @@ const clientConfig = JSON.stringify({
             <dd class="mt-1 text-lg font-bold text-white"><span data-recipe-out="servings">{servings}</span> servings</dd>
           </div>
         </dl>
-        <p class="text-xs text-base-500 leading-relaxed mb-8">
+        <p class="text-xs text-base-400 leading-relaxed mb-8">
           {assumptions} Smoker time does not include the dry brine or the rest. Pulled weight and servings come from the
           <a href={calcHref} data-recipe-out="calc-link" class="text-flame-400 hover:text-flame-300 underline underline-offset-2">yield calculator</a>
           (model v{protein.meta.version}, about {protein.serving.lbPerGuestCooked.toFixed(2)} lb per serving).
@@ -225,8 +225,8 @@ const clientConfig = JSON.stringify({
             value={w}
             class="mt-2 w-full accent-orange-500"
           />
-          <p class="mt-2 text-xs text-base-500">
-            Amounts below are for an {w} lb shoulder. Move the slider to your weight and the numbers on this page change with it.
+          <p class="mt-2 text-xs text-base-400">
+            Amounts below are for your <span data-recipe-out="weight">{w}</span> lb shoulder. Move the slider to your weight and the numbers on this page change with it.
           </p>
           <ul class="mt-5 divide-y divide-base-700/70">
             <li class="flex items-baseline justify-between gap-4 py-2.5">
