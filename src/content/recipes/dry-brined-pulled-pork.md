@@ -2,6 +2,8 @@
 title: "Dry-Brined Pulled Pork"
 description: "A pork shoulder you salt the night before, with every amount scaled to the weight of your own shoulder and a smoker time from the same model behind our stall predictor."
 pubDate: 2026-09-28
+heroImage: '/recipes/dry-brined-pulled-pork.jpg'
+heroAlt: "Shredded smoked pork shoulder in a foil pan with metal shredding claws at both edges."
 pillar: how-to
 protein: [pork_shoulder]
 calculator: pork-shoulder-calculator
