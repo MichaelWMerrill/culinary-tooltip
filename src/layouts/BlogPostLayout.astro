@@ -9,11 +9,12 @@
  */
 import Layout from './Layout.astro';
 import { AUTHOR_NAME, AUTHOR_ROLE, AUTHOR_SCHEMA } from '../utils/author.js';
-import { pickRelatedCalculator } from '../utils/relatedContent.js';
+import { pickRelatedCalculator, pickRelatedRecipe } from '../utils/relatedContent.js';
 
-const { frontmatter } = Astro.props;
+const { frontmatter, recipes = [] } = Astro.props;
 const { title, description, pubDate, updatedDate, heroImage, protein } = frontmatter ?? Astro.props;
 const relatedCalculator = pickRelatedCalculator(protein ?? []);
+const relatedRecipe = pickRelatedRecipe(recipes, protein ?? []);
 
 const formattedDate = pubDate
   ? new Date(pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
@@ -129,6 +130,23 @@ const articleSchema = {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
           </svg>
         </a>
+
+        {
+          relatedRecipe && (
+            <a
+              href={relatedRecipe.href}
+              class="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-base-800/60 ring-1 ring-base-700 hover:ring-flame-500/50 p-5 sm:p-6 transition-all group"
+            >
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-widest text-flame-400 mb-1">Related recipe</p>
+                <p class="text-sm font-semibold text-white group-hover:text-flame-300">{relatedRecipe.title}</p>
+              </div>
+              <svg class="h-5 w-5 shrink-0 text-flame-400 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </a>
+          )
+        }
 
         <div class="mt-8 pt-8 border-t border-base-800">
           <a

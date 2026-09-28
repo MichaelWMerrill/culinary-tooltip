@@ -1,0 +1,20 @@
+---
+import { getCollection, render } from 'astro:content';
+import RecipeLayout from '../../layouts/RecipeLayout.astro';
+
+// Statically generate one page per recipe entry at /recipes/<id>.
+export async function getStaticPaths() {
+  const recipes = await getCollection('recipes');
+  return recipes.map((recipe) => ({ params: { slug: recipe.id }, props: { recipe } }));
+}
+
+const { recipe } = Astro.props;
+const { Content } = await render(recipe);
+// Blog posts are passed in (not fetched in the layout) so the layout stays
+// renderable without astro:content, matching YieldCalculator's relatedPosts.
+const posts = await getCollection('blog');
+---
+
+<RecipeLayout recipe={recipe.data} relatedPosts={posts}>
+  <Content />
+</RecipeLayout>
