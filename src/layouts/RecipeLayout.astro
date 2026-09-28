@@ -26,6 +26,7 @@ import {
   calculatorHref,
 } from '../utils/recipeModel.js';
 import { unknownSourceIds, unsupportedApprovedClaims, pendingWithoutSource } from '../utils/recipeSources.js';
+import { parseInlineLinks } from '../utils/inlineLinks.js';
 
 const { recipe, relatedPosts: allPosts = [] } = Astro.props;
 const {
@@ -267,7 +268,14 @@ const clientConfig = JSON.stringify({
                       </p>
                     )}
                     <p class="mt-1.5 text-sm text-base-400 leading-relaxed">
-                      <span class="font-semibold text-flame-400">Why:</span> {s.why}
+                      <span class="font-semibold text-flame-400">Why:</span>{' '}
+                      {parseInlineLinks(s.why).map((seg) =>
+                        seg.type === 'link' ? (
+                          <a href={seg.href} class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">{seg.text}</a>
+                        ) : (
+                          seg.value
+                        )
+                      )}
                     </p>
                   </div>
                 </li>
@@ -284,7 +292,15 @@ const clientConfig = JSON.stringify({
               </h2>
               <ul class="space-y-2 text-sm text-base-400 leading-relaxed">
                 {guidance.map((g) => (
-                  <li data-review={g.review}>{g.text}</li>
+                  <li data-review={g.review}>
+                    {parseInlineLinks(g.text).map((seg) =>
+                      seg.type === 'link' ? (
+                        <a href={seg.href} class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">{seg.text}</a>
+                      ) : (
+                        seg.value
+                      )
+                    )}
+                  </li>
                 ))}
               </ul>
             </aside>
