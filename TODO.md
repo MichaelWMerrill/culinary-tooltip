@@ -49,7 +49,7 @@ is a code problem:
 Indexed in Search Console. Resubmitting against stale crawl state burns a
 review cycle and extends the penalty window.
 
-Optional depth work if a second rejection lands: the seven blog posts run
+Optional depth work if a second rejection lands: the initial seven blog posts ran
 341–757 words each, which is thin for a content-quality assessment. Expanding
 the shortest ones (`how-much-bbq-per-person`, `faux-cambro-holding`,
 `science-of-smoke`) is the highest-leverage next lever.
@@ -143,7 +143,7 @@ After the extensionless-canonical migration deploys, do these by hand:
 - [ ] GSC sitemap resubmission — manual, post-deploy.
 - [ ] Whole-app security audit — the `/api/contact` Worker (input validation,
       injection, Turnstile verification) plus CSP/security-header config.
-      Deferred to after Phase 7 per project owner.
+      Deferred until Phase 7 shipped, which it now has.
 - [x] CI — `.github/workflows/ci.yml` added 2026-08-23: runs `npm test` (the
       golden regression suite, including ribs) and `npm run build` on every
       PR and push to `main`. Nothing previously gated merges on the test
