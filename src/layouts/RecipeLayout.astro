@@ -30,6 +30,7 @@ import { unknownSourceIds, unsupportedApprovedClaims, pendingWithoutSource } fro
 const { recipe, relatedPosts: allPosts = [] } = Astro.props;
 const {
   title,
+  seoTitle,
   description,
   pubDate,
   updatedDate,
@@ -138,7 +139,7 @@ const clientConfig = JSON.stringify({
 ---
 
 <Layout
-  title={`Empirical BBQ | ${title}`}
+  title={`Empirical BBQ | ${seoTitle ?? title}`}
   description={description}
   ogUrl={ogUrl}
   {...(absHero ? { ogImage: absHero } : {})}

@@ -1,6 +1,7 @@
 ---
 title: "Dry-Brined Pulled Pork"
-description: "A pork shoulder you salt the night before, with every amount scaled to the weight of your own shoulder and a smoker time from the same model behind our stall predictor."
+seoTitle: "Dry-Brined Pulled Pork Recipe by Weight"
+description: "Dry-brined pulled pork recipe with salt and rub scaled to your shoulder's weight, plus a smoker time from the model behind our stall predictor."
 pubDate: 2026-09-28
 heroImage: '/recipes/dry-brined-pulled-pork.jpg'
 heroAlt: "Shredded smoked pork shoulder in a foil pan with metal shredding claws at both edges."
@@ -31,7 +32,7 @@ sources:
     url: "https://www.sciencedirect.com/science/article/abs/pii/S0260877405005704"
     tier: A
     checked: 2026-09-27
-    note: "Brine immersion of pork Longissimus dorsi at 4C; effective diffusion coefficient about 0.6-5.0 x 10^-10 m2/s across 30-200 g/L NaCl. A wet-brine study, not a dry-rub study."
+    note: "Brine immersion of pork Longissimus dorsi at 4C; effective diffusion coefficient about 0.6-5.0 x 10^-10 m2/s across 30-200 g/L NaCl. A wet-brine study, not a dry-rub study. The millimeter-scale overnight penetration depth cited in this recipe is our own arithmetic from these coefficients (depth ~ sqrt(D*t)), not a figure the paper itself reports."
   - id: amazingribs-beef-rub
     title: "Big Bad Beef Rub"
     publisher: "AmazingRibs.com"
@@ -56,7 +57,7 @@ steps:
     why: "A smoker runs cool compared to an oven, so a shoulder that's still partly frozen in the middle can sit in the 40 to 140°F danger zone longer than it should while the frozen part catches up. Thawing it fully first keeps that clock from running long."
     sourceIds: [fsis-smoking-meat-poultry]
   - text: "Sprinkle the salt evenly over the whole shoulder. Set it on a rack over a pan on the bottom shelf of the fridge, away from any food that's ready to eat, and leave it overnight."
-    why: "Salt starts on the surface and moves inward slowly from there. The closest published measurement we found is a study of salt moving into pork sitting in a brine solution, not a dry rub on the surface, and even there it only reaches a millimeter or two overnight. So it's fair to say salt gets into the surface layer overnight and not much further, and we haven't measured our own dry-rub version of that."
+    why: "Salt starts on the surface and moves inward slowly from there. The closest published measurement we found is a study of salt moving into pork sitting in a brine solution, not a dry rub on the surface. Running its diffusion numbers ourselves puts overnight penetration at a few millimeters, our own arithmetic from that study, not a figure it reports directly. So it's fair to say salt gets into the surface layer overnight and not much further, and we haven't measured our own dry-rub version of that."
     sourceIds: [graiver-2006-nacl-diffusion]
   - text: "The next day, mix the brown sugar, pepper, paprika, and garlic powder, then press the rub onto every side."
     why: "Part of bark is a slow browning reaction between amino acids and sugars. Coarse pepper gives the smoke more rough surface to hold onto than fine pepper does."
@@ -64,14 +65,14 @@ steps:
     why: "The time estimate starts from fridge-cold meat at about 40°F, so putting it on cold keeps your cook matched to the number here."
     timing: model
   - text: "Leave the lid closed until the probe reads 160°F, then wrap the shoulder snugly in butcher paper and put it back on."
-    why: "At a 250°F pit in moderate weather, the model's stall starts near 165°F. That's when moisture evaporating off the surface carries heat away as fast as the smoker adds it. On a moderate day, wrapping just before then gives the paper the whole stall to work on, and because paper slows evaporation without sealing it off, the stall gets shorter. Drier or more humid air moves the onset temperature, so the same wrap point won't always land at the very start of the stall."
+    why: "At a 250°F pit in moderate weather, the model's stall starts near 165°F. That's when moisture evaporating off the surface carries heat away as fast as the smoker adds it. In moderate climate, wrapping just before then gives the paper the whole stall to work on, and because paper slows evaporation without sealing it off, the stall gets shorter. Drier or more humid air moves the onset temperature, so the same wrap point won't always land at the very start of the stall."
   - text: "Keep going until the probe slides in with almost no push, around 202°F. On a bone-in shoulder the bone should wiggle loose."
-    why: "202°F is a pulling target for texture, not a safety number. FSIS's minimum safe temperature for a pork roast is 145°F with a 3 minute rest, and this shoulder passes that point hours before it's done. By 202°F it's tender enough to shred. Cooks commonly use easy probing and a loose bone as signs it's gotten there, though we haven't measured either one ourselves. If the timing between 40°F and 140°F runs long on your cook, that's expected for a shoulder this size; [here's why that's not a warning sign](/blog/danger-zone-guideline-vs-real-cook)."
+    why: "202°F is a pulling target for texture, not a safety number. FSIS's minimum safe temperature for a pork roast is 145°F with a 3 minute rest, and this shoulder passes that point well before it's done. By 202°F it's tender enough to shred. Cooks commonly use easy probing and a loose bone as signs it's gotten there, though we haven't measured either one ourselves. If the timing between 40°F and 140°F runs long on your cook, that's expected for a shoulder this size; [here's why that's not a warning sign](/blog/danger-zone-guideline-vs-real-cook)."
     sourceIds: [fsis-smoking-meat-poultry]
   - text: "Take it off the smoker and let it rest in the paper before you shred it."
     why: "Once it leaves the heat the meat cools on a steady curve toward the air around it. Left loosely tented on the counter that curve drops fast, so don't let it sit long there. How long it actually stays above the 140°F holding line depends on how you hold it, so the rest calculator gives you that number for your setup."
   - text: "Once you've shredded it, refrigerate whatever you're not serving right away within 2 hours of it coming off the smoker, and use leftovers within about 4 days."
-    why: "That's FSIS's own guidance for cooked meat, not something specific to this recipe."
+    why: "That's FSIS's own guidance for cooked meat, not something specific to this recipe. Time spent resting in the paper counts toward that 2 hours; FSIS starts the clock the moment it leaves the smoker, not from when you finish shredding."
     sourceIds: [fsis-smoking-meat-poultry]
 ---
 

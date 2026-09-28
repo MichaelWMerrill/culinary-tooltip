@@ -48,6 +48,11 @@ const recipes = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/recipes' }),
   schema: z.object({
     title: z.string(),
+    // Optional override for the <title> tag / search snippet, when the H1 (a
+    // plain recipe name) isn't the phrasing worth ranking for. Falls back to
+    // `title` — see RecipeLayout's `Empirical BBQ | ${seoTitle ?? title}`,
+    // the same "Empirical BBQ | <page>" pattern every other page uses.
+    seoTitle: z.string().optional(),
     description: z.string(),
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
