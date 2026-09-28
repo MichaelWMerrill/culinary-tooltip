@@ -74,6 +74,11 @@ const recipes = defineCollection({
       climate: z.enum(['arid', 'moderate', 'humid']),
       wrapTemp: z.number(),
     }),
+    // Optional Recipe JSON-LD fields, straight from frontmatter (the layout
+    // never hardcodes a value for these; it only reads what's authored here).
+    recipeCategory: z.string().optional(),
+    recipeCuisine: z.string().optional(),
+    keywords: z.string().optional(),
     // This recipe's citation list. See recipeSourceSchema above; validated
     // against at build time by src/utils/recipeSources.js.
     sources: z.array(recipeSourceSchema).default([]),

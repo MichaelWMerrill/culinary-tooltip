@@ -18,6 +18,9 @@ defaults:
   pit: offset_smoker
   climate: moderate
   wrapTemp: 160
+recipeCategory: "Main course"
+recipeCuisine: "American"
+keywords: "pulled pork, dry brine, pork shoulder, smoker"
 sources:
   - id: fsis-smoking-meat-poultry
     title: "Smoking Meat and Poultry"

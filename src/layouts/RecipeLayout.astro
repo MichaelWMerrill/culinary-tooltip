@@ -40,6 +40,9 @@ const {
   modelProtein,
   modelVersion,
   defaults,
+  recipeCategory,
+  recipeCuisine,
+  keywords,
   sources = [],
   ratios,
   guidance,
@@ -115,8 +118,16 @@ const recipeSchema = {
   dateModified: isoUpdated ?? isoDate,
   recipeYield: `${servings} servings`,
   // cookTime only: the model covers smoker time, not the dry-brine hold or the
-  // rest, so a totalTime would understate the real start-to-serve time.
+  // rest, so a totalTime would understate the real start-to-serve time. No
+  // prepTime either: the dry brine isn't active prep time in the usual sense,
+  // and we don't have a real prep-time estimate to put there.
   cookTime: isoDuration(cookHours),
+  // Straight from frontmatter, never hardcoded here; omitted entirely when a
+  // recipe doesn't set them. No aggregateRating, nutrition, or video: none of
+  // those are backed by real data this site has.
+  ...(recipeCategory ? { recipeCategory } : {}),
+  ...(recipeCuisine ? { recipeCuisine } : {}),
+  ...(keywords ? { keywords } : {}),
   recipeIngredient: [meatLine(w), ...ingredientLines.map((r) => `${r.grams} g ${r.label.toLowerCase()}`)],
   recipeInstructions: steps.map((s) => ({ '@type': 'HowToStep', text: s.text })),
   mainEntityOfPage: ogUrl,
