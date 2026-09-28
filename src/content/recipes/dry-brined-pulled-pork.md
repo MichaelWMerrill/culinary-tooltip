@@ -73,7 +73,7 @@ steps:
     sourceIds: [fsis-smoking-meat-poultry]
 ---
 
-The first pork shoulder I smoked, I salted it right before it went on. This version moves the salt to the night before and scales every amount to your shoulder, so an 8 lb butt and a 10 lb butt get the right amount of salt instead of the same few tablespoons.
+This version moves the salt to the night before and scales every amount to your shoulder, so an 8 lb butt and a 10 lb butt get the right amount of salt instead of the same few tablespoons.
 
 A few things to know before you start:
 
