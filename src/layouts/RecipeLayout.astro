@@ -25,10 +25,25 @@ import {
   recipeYield,
   calculatorHref,
 } from '../utils/recipeModel.js';
+import { unknownSourceIds, unsupportedApprovedClaims, pendingWithoutSource } from '../utils/recipeSources.js';
 
 const { recipe, relatedPosts: allPosts = [] } = Astro.props;
-const { title, description, pubDate, updatedDate, heroImage, heroAlt, calculator, modelProtein, modelVersion, defaults, ratios, guidance, steps } =
-  recipe;
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  heroImage,
+  heroAlt,
+  calculator,
+  modelProtein,
+  modelVersion,
+  defaults,
+  sources = [],
+  ratios,
+  guidance,
+  steps,
+} = recipe;
 
 const protein = PROTEINS[modelProtein];
 // A recipe's printed times are only valid against the model version it was
@@ -41,6 +56,22 @@ const pending = ratios.filter((r) => r.review === 'pending').map((r) => r.id);
 const pendingGuidance = guidance.filter((g) => g.review === 'pending').map((g) => g.id);
 if (pending.length || pendingGuidance.length) {
   console.warn(`[recipe] "${title}" has items pending science-editor review: ${[...pending, ...pendingGuidance].join(', ')}`);
+}
+
+// Source-citation rules (src/utils/recipeSources.js): a bad reference or an
+// approved-but-uncited claim fails the build; a pending claim with no source
+// yet is only a second log line, alongside the warning above.
+const badRefs = unknownSourceIds(recipe);
+if (badRefs.length) {
+  throw new Error(`Recipe "${title}" references unknown source id(s): ${badRefs.join(', ')}`);
+}
+const unsupported = unsupportedApprovedClaims(recipe);
+if (unsupported.length) {
+  throw new Error(`Recipe "${title}" has review:approved item(s) with no source or model basis: ${unsupported.join(', ')}`);
+}
+const pendingNoSource = pendingWithoutSource(recipe);
+if (pendingNoSource.length) {
+  console.warn(`[recipe] "${title}" pending item(s) with no source yet: ${pendingNoSource.join(', ')}`);
 }
 
 // Stall-predictor route per registry protein (existing pages only).
@@ -275,6 +306,26 @@ const clientConfig = JSON.stringify({
                     <a href={`/blog/${post.id}`} class="text-sm font-semibold text-base-300 hover:text-flame-300 underline decoration-dotted underline-offset-2">
                       {post.data.title}
                     </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+
+        {
+          sources.length > 0 && (
+            <section class="mt-10" aria-labelledby="recipe-sources-heading">
+              <h2 id="recipe-sources-heading" class="text-[11px] font-semibold uppercase tracking-widest text-flame-400 mb-3">
+                Sources
+              </h2>
+              <ul class="space-y-1.5 text-sm text-base-400">
+                {sources.map((s) => (
+                  <li>
+                    <a href={s.url} rel="noopener" class="text-base-300 hover:text-flame-300 underline decoration-dotted underline-offset-2">
+                      {s.title}
+                    </a>
+                    {' · '}{s.publisher}
                   </li>
                 ))}
               </ul>

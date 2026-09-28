@@ -27,6 +27,20 @@ const blog = defineCollection({
   }),
 });
 
+// A citation a recipe's claims can point to. Tier is deliberately A|B only —
+// there is no tier for a lead you don't want cited (destination-bbq-style
+// aggregators): such a source simply can't be entered here, so a recipe can
+// never point a claim at one.
+const recipeSourceSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  publisher: z.string(),
+  url: z.string().url(),
+  tier: z.enum(['A', 'B']),
+  checked: z.coerce.date(),
+  note: z.string().optional(),
+});
+
 // Recipes: weight-scaled ingredient ratios plus steps that each explain why.
 // Cook time is never authored here; the layout computes it from the protein's
 // registry model (cookDuration) and fails the build if `modelVersion` drifts.
@@ -55,8 +69,13 @@ const recipes = defineCollection({
       climate: z.enum(['arid', 'moderate', 'humid']),
       wrapTemp: z.number(),
     }),
+    // This recipe's citation list. See recipeSourceSchema above; validated
+    // against at build time by src/utils/recipeSources.js.
+    sources: z.array(recipeSourceSchema).default([]),
     // Each ratio is a fraction of raw weight as purchased. `review` stays
-    // 'pending' until the science editor signs off on the number.
+    // 'pending' until the science editor signs off on the number. `sourceIds`
+    // points into `sources[]` above; `modelBasis` marks a number that comes
+    // from the registry/engine instead of a citation.
     ratios: z
       .array(
         z.object({
@@ -64,12 +83,22 @@ const recipes = defineCollection({
           label: z.string(),
           pct: z.number().positive().max(0.05),
           review: z.enum(['pending', 'approved']),
+          sourceIds: z.array(z.string()).default([]),
+          modelBasis: z.boolean().default(false),
         }),
       )
       .min(1),
     // Hand-written guidance that is not model output (e.g. a dry-brine hold).
     guidance: z
-      .array(z.object({ id: z.string(), text: z.string(), review: z.enum(['pending', 'approved']) }))
+      .array(
+        z.object({
+          id: z.string(),
+          text: z.string(),
+          review: z.enum(['pending', 'approved']),
+          sourceIds: z.array(z.string()).default([]),
+          modelBasis: z.boolean().default(false),
+        }),
+      )
       .default([]),
     steps: z
       .array(
@@ -77,6 +106,7 @@ const recipes = defineCollection({
           text: z.string(),
           why: z.string(),
           timing: z.enum(['model', 'none']).default('none'),
+          sourceIds: z.array(z.string()).default([]),
         }),
       )
       .min(1),
