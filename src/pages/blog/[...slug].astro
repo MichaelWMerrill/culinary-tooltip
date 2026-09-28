@@ -10,8 +10,9 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+const recipes = await getCollection('recipes');
 ---
 
-<BlogPostLayout frontmatter={post.data}>
+<BlogPostLayout frontmatter={post.data} recipes={recipes}>
   <Content />
 </BlogPostLayout>

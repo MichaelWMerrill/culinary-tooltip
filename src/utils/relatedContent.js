@@ -85,3 +85,19 @@ export function pickRelatedCalculator(protein) {
   }
   return { href: FALLBACK_CALCULATOR_URL, label: CALCULATOR_LABELS[FALLBACK_CALCULATOR_URL] };
 }
+
+/**
+ * The most recent recipe sharing a protein tag with a blog post, or null if
+ * none exist yet. Takes the `recipes` collection so callers control the
+ * fetch (matches pickRelatedPosts's shape), and reads only `id`, `data.title`
+ * `data.protein` and `data.pubDate` — nothing about a recipe's ratios,
+ * defaults, or model version.
+ */
+export function pickRelatedRecipe(recipes, protein) {
+  const matches = recipes
+    .filter((recipe) => recipe.data.protein.some((id) => protein.includes(id)))
+    .sort((a, b) => new Date(b.data.pubDate) - new Date(a.data.pubDate));
+  if (!matches.length) return null;
+  const recipe = matches[0];
+  return { href: `/recipes/${recipe.id}`, title: recipe.data.title };
+}
