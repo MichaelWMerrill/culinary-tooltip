@@ -53,9 +53,9 @@ const HAS_GIT_HISTORY = git('rev-parse', '--is-inside-work-tree') === 'true' && 
 /** Map a dist-relative html path back to the source file that produced it. */
 function toSource(relPath) {
   const slug = relPath.replace(/\.html$/, '');
-  // Blog posts come from Markdown in the content collection; every other page
-  // is a .astro route of the same name.
-  if (slug.startsWith('blog/')) return `src/content/${slug}.md`;
+  // Blog posts and recipes both come from Markdown in a content collection;
+  // every other page is a .astro route of the same name.
+  if (slug.startsWith('blog/') || slug.startsWith('recipes/')) return `src/content/${slug}.md`;
   return `src/pages/${slug}.astro`;
 }
 
@@ -122,6 +122,7 @@ function meta(url) {
   if (url === `${SITE}/`) return { priority: '1.0', changefreq: 'weekly' };
   if (url === `${SITE}/blog`) return { priority: '0.7', changefreq: 'weekly' };
   if (url.startsWith(`${SITE}/blog/`)) return { priority: '0.6', changefreq: 'monthly' }; // blog posts
+  if (url.startsWith(`${SITE}/recipes/`)) return { priority: '0.6', changefreq: 'monthly' }; // recipes: same cadence as blog posts
   return { priority: '0.8', changefreq: 'weekly' }; // tool/util pages
 }
 
