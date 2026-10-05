@@ -27,6 +27,7 @@ import {
 } from '../utils/recipeModel.js';
 import { unknownSourceIds, unsupportedApprovedClaims, pendingWithoutSource } from '../utils/recipeSources.js';
 import { parseInlineLinks } from '../utils/inlineLinks.js';
+import CorrectionsNote from '../components/CorrectionsNote.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 
 const { recipe, relatedPosts: allPosts = [] } = Astro.props;
@@ -361,6 +362,8 @@ const clientConfig = JSON.stringify({
             </section>
           )
         }
+
+        <CorrectionsNote class="mt-10" />
 
         <aside class="mt-12 rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6">
           <p class="text-[11px] font-semibold uppercase tracking-widest text-flame-400 mb-2.5">About the author</p>
