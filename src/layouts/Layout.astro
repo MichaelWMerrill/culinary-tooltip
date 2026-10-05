@@ -17,6 +17,7 @@
 import Nav from '../components/Nav.astro';
 import AdSlot from '../components/AdSlot.astro';
 import { AUTHOR_SCHEMA } from '../utils/author.js';
+import { CONTACT_EMAIL } from '../utils/siteContact.js';
 
 export interface Props {
   title: string;
@@ -67,6 +68,11 @@ const siteSchema = {
     // Ties the site entity to a named person site-wide, matching the visible
     // bylines and the /about bio (all from src/utils/author.js).
     founder: AUTHOR_SCHEMA,
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: CONTACT_EMAIL,
+    },
   },
 };
 const schemaBlocks = [siteSchema, ...(schema ? (Array.isArray(schema) ? schema : [schema]) : [])];
