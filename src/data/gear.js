@@ -29,7 +29,7 @@ export const GEAR = {
   wood_pellets: {
     id: 'wood_pellets',
     name: 'Hardwood Smoker Pellets',
-    blurb: 'Consistent low-ash pellets keep the burn rate — and your fuel math — predictable.',
+    blurb: 'Consistent low-ash pellets keep the burn rate (and your fuel math) predictable.',
     url: 'https://amzn.to/4wuM3N2',
     cta: 'View Smoker Pellets',
     icon: '🪵',
