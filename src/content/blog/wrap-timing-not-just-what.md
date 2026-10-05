@@ -1,5 +1,5 @@
 ---
-title: "Wrapping Doesn't Just Depend on What — It Depends on When"
+title: "Wrapping Doesn't Just Depend on What. It Depends on When"
 description: "I foiled a brisket right as the plateau looked like it was finally breaking on its own, feeling clever about it. The model says I picked almost exactly the one moment that wrap could do nothing for me."
 pubDate: '2026-08-09'
 heroImage: '/blog/wrap-timing-not-just-what.jpg'

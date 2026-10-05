@@ -1,6 +1,6 @@
 ---
 title: "The Party Planner's Appetite Dial Isn't Centered Where You'd Think"
-description: "Bumped the appetite setting from standard to hearty for a crew of hungry coworkers, expecting a modest bump in the shopping list. The raw weight jumped 35% — while dropping to light only saves 30%. The dial isn't symmetric, and the code says exactly why."
+description: "Bumped the appetite setting from standard to hearty for a crew of hungry coworkers, expecting a modest bump in the shopping list. The raw weight jumped 35%, while dropping to light only saves 30%. The dial isn't symmetric, and the code says exactly why."
 pubDate: '2026-08-28'
 heroImage: '/blog/party-planner-appetite-asymmetry.jpg'
 pillar: planning-safety

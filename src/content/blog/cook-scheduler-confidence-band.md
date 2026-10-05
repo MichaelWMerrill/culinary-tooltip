@@ -1,6 +1,6 @@
 ---
 title: "The Cook Scheduler's Fire-Up Time Is a Range Wearing a Point Estimate's Clothes"
-description: "Planned a dinner party off the scheduler's single fire-up clock time and cut it close on a naked brisket that ran long. The tool had already told me how much slack to expect — I just wasn't looking at the number that carried it."
+description: "Planned a dinner party off the scheduler's single fire-up clock time and cut it close on a naked brisket that ran long. The tool had already told me how much slack to expect. I just wasn't looking at the number that carried it."
 pubDate: '2026-08-28'
 heroImage: '/blog/cook-scheduler-confidence-band.jpg'
 pillar: how-to

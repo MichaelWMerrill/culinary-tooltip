@@ -1,6 +1,6 @@
 ---
 title: "The Bone-In vs. Boneless Pork Shoulder Yield Gap Happens Before the Smoker"
-description: "Boneless butts cost a real premium and pull a higher percentage of cooked meat — but the entire yield gap between the two cuts happens at the trim step, before either one sees smoke. Running the true cost per pound tells a different story than the sticker price does."
+description: "Boneless butts cost a real premium and pull a higher percentage of cooked meat, but the entire yield gap between the two cuts happens at the trim step, before either one sees smoke. Running the true cost per pound tells a different story than the sticker price does."
 pubDate: '2026-08-16'
 heroImage: '/blog/pork-shoulder-bone-in-yield-gap.jpg'
 pillar: myth-bust

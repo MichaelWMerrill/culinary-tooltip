@@ -1,6 +1,6 @@
 ---
 title: "The Wrap's Permeability Number Never Actually Touches the Stall Model"
-description: "Went looking for why foil kills the stall outright while paper only trims it, and found a clean-looking permeability number sitting right in the site's wrap config. Traced it through the code and it goes nowhere — it's decoration, not a driver."
+description: "Went looking for why foil kills the stall outright while paper only trims it, and found a clean-looking permeability number sitting right in the site's wrap config. Traced it through the code and it goes nowhere. It's decoration, not a driver."
 pubDate: '2026-08-23'
 heroImage: '/blog/wrap-permeability-is-decorative.jpg'
 pillar: myth-bust

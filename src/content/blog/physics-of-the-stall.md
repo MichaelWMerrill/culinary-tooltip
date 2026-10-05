@@ -1,6 +1,6 @@
 ---
 title: 'The Physics of the Stall: Why Your Smoked Meat Stops Cooking'
-description: "My first overnight brisket parked at 158°F for two and a half hours and I was sure the thermometer had died. It hadn't — the meat was sweating, and the site's own stall constants explain exactly why."
+description: "My first overnight brisket parked at 158°F for two and a half hours and I was sure the thermometer had died. It hadn't. The meat was sweating, and the site's own stall constants explain exactly why."
 pubDate: '2026-07-13'
 updatedDate: '2026-08-23'
 heroImage: '/blog/physics-of-the-stall.jpg'

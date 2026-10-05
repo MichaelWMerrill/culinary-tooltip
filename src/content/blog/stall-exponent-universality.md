@@ -1,6 +1,6 @@
 ---
 title: "Brisket and Pork Shoulder Share the Exact Same Stall-Duration Exponent"
-description: "Two different animals, two different climb-rate exponents, two different geometric constants — and one mass-scaling number that matches to three decimal places. It's not a coincidence, and the constant that looks like it should explain the difference turns out to be decorative."
+description: "Two different animals, two different climb-rate exponents, two different geometric constants, and one mass-scaling number that matches to three decimal places. It's not a coincidence, and the constant that looks like it should explain the difference turns out to be decorative."
 pubDate: '2026-08-19'
 heroImage: '/blog/stall-exponent-universality.jpg'
 pillar: science
