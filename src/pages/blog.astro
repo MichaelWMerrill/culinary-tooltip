@@ -66,7 +66,7 @@ const proteinChips = PROTEINS.filter(([id]) => usedProteins.has(id));
       <main class="pb-16">
         {
           posts.length === 0 ? (
-            <p class="text-center text-base-500 py-16">No posts yet — check back soon.</p>
+            <p class="text-center text-base-500 py-16">No posts yet. Check back soon.</p>
           ) : (
             <>
               <div class="mb-8 flex flex-col gap-3" id="blogFilters">
@@ -95,7 +95,7 @@ const proteinChips = PROTEINS.filter(([id]) => usedProteins.has(id));
               </div>
 
               <p id="blogEmptyState" class="hidden text-center text-base-500 py-16">
-                No posts match that filter combination — try widening it.
+                No posts match that filter combination. Try widening it.
               </p>
 
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="blogGrid">

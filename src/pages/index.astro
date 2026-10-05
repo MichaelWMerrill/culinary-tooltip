@@ -72,7 +72,7 @@ const utilityCards = [
               </span>
             </div>
             <p class="mt-1 text-xs text-base-400 leading-relaxed">
-              Lock in your rig configurations. Saved locally in your browser, these preselect the <strong class="text-base-300 font-semibold">Stall Predictor</strong>'s pit type and target temperature and the <strong class="text-base-300 font-semibold">Fuel Estimator</strong>'s fuel type on your first visit — anything you change inside a calculator always takes precedence. (Wood species is saved for upcoming smoke-profile features.)
+              Lock in your rig configurations. Saved locally in your browser, these preselect the <strong class="text-base-300 font-semibold">Stall Predictor</strong>'s pit type and target temperature and the <strong class="text-base-300 font-semibold">Fuel Estimator</strong>'s fuel type on your first visit. Anything you change inside a calculator always takes precedence. (Wood species is saved for upcoming smoke-profile features.)
             </p>
           </div>
 
@@ -116,7 +116,7 @@ const utilityCards = [
 
       <main class="pb-16">
         <div class="flex items-baseline justify-between gap-4 mb-5">
-          <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400">Command Center — Calculator Matrix</h2>
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400">Command Center: Calculator Matrix</h2>
           <span class="text-[11px] text-base-500 hidden sm:inline">Pick a protein × tool · every cell is a live page</span>
         </div>
 
@@ -156,7 +156,7 @@ const utilityCards = [
                             <td class="py-3 px-2">
                               <a
                                 href={t.urls[p.id]}
-                                aria-label={`${p.name} — ${t.label}`}
+                                aria-label={`${p.name}: ${t.label}`}
                                 class="inline-flex items-center gap-1 rounded-lg bg-base-900/80 ring-1 ring-base-700 hover:ring-flame-500/50 hover:bg-flame-500/10 text-flame-300 hover:text-flame-200 font-medium px-2.5 py-1.5 text-xs transition-all"
                               >
                                 Open
@@ -236,7 +236,7 @@ const utilityCards = [
             Stall duration is derived from Newton's law of cooling
             (<span class="font-mono text-base-300">q = h<sub>c</sub>·A·(T<sub>pit</sub> − T<sub>meat</sub>)</span>)
             balanced against evaporative flux, scaled by a mass exponent fitted per
-            protein to field cook-time data — not the idealized geometric
+            protein to field cook-time data, not the idealized geometric
             <span class="font-mono text-base-300">W<sup>−1/3</sup></span> derivation.
           </p>
         </div>

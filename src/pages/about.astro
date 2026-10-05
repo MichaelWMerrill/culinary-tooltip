@@ -59,7 +59,7 @@ const schema = [
         </h1>
         <p class="mt-5 text-base sm:text-lg text-base-400 leading-relaxed">
           Empirical BBQ is built and maintained by one person: <strong class="text-base-300">{AUTHOR_NAME}</strong>.
-          Not an agency, not a content farm, and not a chef with a cookbook to sell — just someone who
+          Not an agency, not a content farm, and not a chef with a cookbook to sell, just someone who
           kept missing the mark on his own cooks and decided to go find the actual numbers.
         </p>
       </header>
@@ -79,14 +79,14 @@ const schema = [
           <p>
             Outside of work I'm a husband and a father of three, which is its own lesson in cooking for a
             deadline. I've been <strong class="text-base-300">seriously cooking, grilling, and smoking for
-            about two years</strong> — long enough to have made most of the classic mistakes, and recently
+            about two years</strong>, long enough to have made most of the classic mistakes, and recently
             enough that I still remember exactly how it feels to have guests arriving at six with a brisket
             that has been sitting at 160°F for three hours.
           </p>
           <p>
             I want to be straightforward about that, because it matters for how you should read this site:
             <strong class="text-base-300">I'm not a chef, a food scientist, or a competition pitmaster.</strong>
-            What I am is someone who is good at finding, modeling, and stress-testing data — and who applied
+            What I am is someone who is good at finding, modeling, and stress-testing data, and who applied
             that to a hobby where an unusual amount of the advice turns out to be folklore repeated with
             confidence.
           </p>
@@ -109,19 +109,19 @@ const schema = [
             Every time I went looking for an answer, I got the same thing back: a rule of thumb with no
             reasoning attached. "About an hour and a quarter per pound." "Half a pound per person." "Wrap it
             at 165." Some of that folklore is roughly right. Some of it is off by hours. None of it tells you
-            <em class="text-base-300">which</em> — or what changes when your brisket is 18&nbsp;lb instead of 12,
+            <em class="text-base-300">which</em>, or what changes when your brisket is 18&nbsp;lb instead of 12,
             when it's 40°F and windy, or when you're running a kamado instead of an offset.
           </p>
           <p>
             So I went into the raw data and the food science behind it: USDA yield figures, published
             heat-transfer and evaporative-cooling work, and field cook-time consensus from people who cook far
-            more than I do. Then I did the thing I do professionally — turned it into models, wrote down every
+            more than I do. Then I did the thing I do professionally: turned it into models, wrote down every
             constant and where it came from, and locked the outputs with regression tests so the numbers can't
             quietly drift. That's what these {TOOL_COUNT} calculators are, across {proteinCount} proteins.
           </p>
           <p>
             The goal isn't to replace your judgment or your thermometer. It's to replace
-            <em class="text-base-300">guessing</em> with a stated estimate you can see the reasoning behind —
+            <em class="text-base-300">guessing</em> with a stated estimate you can see the reasoning behind,
             so when you plan a cook, you know what the model assumed and where it might be wrong.
           </p>
         </div>
@@ -159,7 +159,7 @@ const schema = [
               <span>
                 <strong class="text-base-300">Model changes are versioned and logged.</strong> Each protein model
                 carries a version number shown in the results panel, and material recalibrations are written up in
-                the changelog on the methodology page — including the time I found the model was running roughly
+                the changelog on the methodology page, including the time I found the model was running roughly
                 45% fast and had to refit it.
               </span>
             </li>
@@ -168,7 +168,7 @@ const schema = [
               <span>
                 <strong class="text-base-300">Every calculation runs client-side.</strong> There are no
                 accounts, and by default your cook details aren't sent anywhere. The Stall Predictor's
-                cook log is the one opt-in exception — off unless you turn it on, and anonymous even
+                cook log is the one opt-in exception, off unless you turn it on, and anonymous even
                 then: no name, email, or precise location, ever. See the
                 <a href="/privacy" class="text-flame-400 hover:text-flame-300 underline underline-offset-2">privacy policy</a>
                 for exactly what that sends.
@@ -176,7 +176,7 @@ const schema = [
             </li>
           </ul>
           <p class="text-[13px] text-base-500 pt-1">
-            If you find a number that doesn't match your results, I genuinely want to hear it — that's the
+            If you find a number that doesn't match your results, I genuinely want to hear it. That's the
             fastest way these models get better. <a href="/contact" class="text-flame-400 hover:text-flame-300 underline underline-offset-2">Tell me what happened</a>,
             including your cut, weight, pit, and what actually took how long.
           </p>
@@ -212,7 +212,7 @@ const schema = [
           <h2 class="text-sm font-bold text-white mb-2">One thing these tools will never do</h2>
           <p class="text-sm text-base-300 leading-relaxed">
             They will not tell you your food is done. Every output on this site is a
-            <strong class="text-white">planning estimate</strong> — useful for deciding when to light the fire
+            <strong class="text-white">planning estimate</strong>, useful for deciding when to light the fire
             and how much to buy, and not a substitute for a thermometer. Cuts, pits, and weather vary more than
             any model can capture. Build in a buffer, and always probe to temperature.
           </p>
