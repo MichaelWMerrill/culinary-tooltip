@@ -7,6 +7,7 @@
  * engines actually compute. Linked from every calculator footer.
  */
 import Layout from '../layouts/Layout.astro';
+import StandaloneFooter from '../components/StandaloneFooter.astro';
 import { PROTEINS } from '../utils/proteinRegistry.js';
 import { AUTHOR_NAME, AUTHOR_SCHEMA } from '../utils/author.js';
 
@@ -245,6 +246,7 @@ const schema = {
       </nav>
     </div>
   </div>
+  <StandaloneFooter />
 </Layout>
 
 <style is:global>
