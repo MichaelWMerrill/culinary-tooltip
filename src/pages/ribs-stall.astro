@@ -14,7 +14,7 @@ const publisher = {
 const faqs = [
   {
     q: 'Do ribs stall like brisket?',
-    a: 'Barely. Ribs are thin, so heat reaches the center fast and the evaporative plateau is small to nonexistent. The predictor models a near-flat, brief stall — cook time is driven far more by the cut (thickness) than by the stall.',
+    a: 'Barely. Ribs are thin, so heat reaches the center fast and the evaporative plateau is small to nonexistent. The predictor models a near-flat, brief stall. Cook time is driven far more by the cut (thickness) than by the stall.',
   },
   {
     q: 'How long does it take to smoke ribs?',
@@ -22,11 +22,11 @@ const faqs = [
   },
   {
     q: 'Why does the number of racks not change the cook time?',
-    a: 'Ribs cook by their thin dimension (thickness), not their total mass. Two racks and eight racks of the same cut reach temperature in about the same time as long as the pit holds its temperature and airflow — more racks mainly means more fuel and grate space, not more hours.',
+    a: 'Ribs cook by their thin dimension (thickness), not their total mass. Two racks and eight racks of the same cut reach temperature in about the same time as long as the pit holds its temperature and airflow. More racks mainly means more fuel and grate space, not more hours.',
   },
   {
     q: 'What temperature are ribs done?',
-    a: 'Ribs are best judged by feel — a toothpick slides in like butter and the rack bends and cracks when lifted, typically around 200–203°F between the bones. The predictor targets a ~203°F probe-tender finish.',
+    a: 'Ribs are best judged by feel: a toothpick slides in like butter and the rack bends and cracks when lifted, typically around 200–203°F between the bones. The predictor targets a ~203°F probe-tender finish.',
   },
   {
     q: 'Which rib cut cooks fastest?',
@@ -34,7 +34,7 @@ const faqs = [
   },
   {
     q: 'Can I log my actual cook time against the prediction?',
-    a: 'Yes — the "Cook Log" panel below the results lets you opt in to track a real cook: it auto-fills the weight and prediction from this page, then lets you mark wrap, stall start/end, finish, and rest as they happen. It is off by default and anonymous — no name, email, or precise location, ever.',
+    a: 'Yes. The "Cook Log" panel below the results lets you opt in to track a real cook: it auto-fills the weight and prediction from this page, then lets you mark wrap, stall start/end, finish, and rest as they happen. It is off by default and anonymous: no name, email, or precise location, ever.',
   },
 ];
 const schema = [
@@ -72,6 +72,6 @@ const schema = [
   <StallPredictor protein={PROTEINS.pork_ribs} />
   <FaqSection
     faqs={faqs}
-    intro="Ribs are a slab, not a block, so their cook time is set by the rack's thickness — not by how many racks are on the pit — and the evaporative stall is nearly absent. That is why two racks and six racks finish in about the same time. This tool lays out rib cook time by cut (spare, St. Louis, baby back) and wrap, following the classic 3-2-1 method (or a shorter 2-2-1 for thinner baby backs)."
+    intro="Ribs are a slab, not a block, so their cook time is set by the rack's thickness (not by how many racks are on the pit) and the evaporative stall is nearly absent. That is why two racks and six racks finish in about the same time. This tool lays out rib cook time by cut (spare, St. Louis, baby back) and wrap, following the classic 3-2-1 method (or a shorter 2-2-1 for thinner baby backs)."
   />
 </Layout>

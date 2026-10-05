@@ -45,7 +45,7 @@ const defaultVisible = new Set(['weight']);
           <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-flame-500/15 ring-1 ring-flame-500/40 text-2xl">🗓️</div>
           <div>
             <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">Cook Scheduler</h1>
-            <p class="text-sm text-base-400 mt-0.5">Tell it when you want to eat — it back-calculates when to light the fire</p>
+            <p class="text-sm text-base-400 mt-0.5">Tell it when you want to eat. It back-calculates when to light the fire</p>
           </div>
         </div>
         <button id="shareBtn" type="button" class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-base-800 ring-1 ring-base-700 hover:ring-flame-500/50 text-base-300 hover:text-white text-xs font-semibold px-3.5 py-2 transition-all">
@@ -159,7 +159,7 @@ const defaultVisible = new Set(['weight']);
                 <p id="fireUpBig" class="mt-2 text-3xl sm:text-4xl font-extrabold text-white leading-none">—</p>
                 <p id="totalSub" class="text-xs text-base-400 mt-2">—</p>
                 <p class="text-[10px] font-mono text-base-500 mt-1.5">Model v<span id="modelVer">{protein.meta.version}</span> · cook time shown as a &plusmn;15&ndash;25% window (narrower with foil, wider unwrapped)</p>
-                <p class="text-[11px] text-base-500 mt-1 leading-snug">These times are fitted to published field cook-time guidance, not logged from our own pit &mdash; a planning estimate, not a guarantee. Probe to temperature.</p>
+                <p class="text-[11px] text-base-500 mt-1 leading-snug">These times are fitted to published field cook-time guidance, not logged from our own pit (a planning estimate, not a guarantee). Probe to temperature.</p>
                 <p id="versionNotice" class="hidden text-[11px] text-amber-400/90 mt-1 leading-snug"></p>
                 <p id="dangerZone" class="hidden text-[11px] mt-1 leading-snug"></p>
               </div>
@@ -184,7 +184,7 @@ const defaultVisible = new Set(['weight']);
       </div>
 
       <footer class="mt-8 text-center text-[11px] text-base-500">
-        <p>Schedule derives from the same phenomenological stall model as the <a href="/stall-predictor" class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">Stall Predictor</a>. Real cooks vary &mdash; build in a buffer and probe your meat.</p>
+        <p>Schedule derives from the same phenomenological stall model as the <a href="/stall-predictor" class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">Stall Predictor</a>. Real cooks vary. Build in a buffer and probe your meat.</p>
         <p class="mt-2">Read more: <a href="/blog/chemistry-of-wood-smoke" class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">The Chemistry of Wood Smoke: Clean Blue vs. Dirty White</a></p>
         <p class="mt-2"><a href="/methodology" class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">Methodology &amp; sources</a></p>
       </footer>

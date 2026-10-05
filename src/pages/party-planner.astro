@@ -13,7 +13,7 @@ const publisher = {
 const faqs = [
   {
     q: 'How much barbecue do I need per person?',
-    a: 'As a main with sides, plan about 1/2 lb of cooked brisket or turkey per guest, or about 1/3 lb of pulled pork — more for hearty eaters or if you want leftovers. The planner converts that cooked target back into the raw weight to buy, accounting for cook shrinkage.',
+    a: 'As a main with sides, plan about 1/2 lb of cooked brisket or turkey per guest, or about 1/3 lb of pulled pork (more for hearty eaters or if you want leftovers). The planner converts that cooked target back into the raw weight to buy, accounting for cook shrinkage.',
   },
   {
     q: 'How much raw meat should I buy for a party?',
@@ -29,7 +29,7 @@ const faqs = [
   },
   {
     q: 'Does the planner account for bone-in vs boneless or brining?',
-    a: 'Yes. Pick the protein and its options (USDA grade and trim for brisket, bone-in vs boneless for pork, whole vs spatchcock and brined for turkey) and the yield fraction — and therefore the raw weight to buy — updates accordingly.',
+    a: 'Yes. Pick the protein and its options (USDA grade and trim for brisket, bone-in vs boneless for pork, whole vs spatchcock and brined for turkey) and the yield fraction, and therefore the raw weight to buy, updates accordingly.',
   },
 ];
 const schema = [
@@ -67,6 +67,6 @@ const schema = [
   <PartyPlanner />
   <FaqSection
     faqs={faqs}
-    intro="Every cookout comes down to two numbers: how much cooked meat each guest eats, and how much raw weight you have to buy to get there after shrinkage. The mistake is planning around the cooked number — because low-and-slow cooking is brutal on weight, the raw target is often nearly double. This planner inverts our yield model across brisket, pork, and turkey: enter a guest count and appetite, and it back-solves the raw weight to buy and the budget."
+    intro="Every cookout comes down to two numbers: how much cooked meat each guest eats, and how much raw weight you have to buy to get there after shrinkage. The mistake is planning around the cooked number. Because low-and-slow cooking is brutal on weight, the raw target is often nearly double. This planner inverts our yield model across brisket, pork, and turkey: enter a guest count and appetite, and it back-solves the raw weight to buy and the budget."
   />
 </Layout>

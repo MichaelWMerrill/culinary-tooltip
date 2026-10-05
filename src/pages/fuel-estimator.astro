@@ -29,15 +29,15 @@ const faqs = [
   },
   {
     q: 'How much does a long smoke cost?',
-    a: 'Multiply your effective burn rate by hours and by the cost per pound of fuel. For example, about 14 lb of pellets at roughly $0.90/lb runs near $13 for a 12-hour cook on a single-wall cooker in mild weather — the estimator computes total weight, bags, cost, and cost per hour, and adjusts for insulation, cold, and wind.',
+    a: 'Multiply your effective burn rate by hours and by the cost per pound of fuel. For example, about 14 lb of pellets at roughly $0.90/lb runs near $13 for a 12-hour cook on a single-wall cooker in mild weather. The estimator computes total weight, bags, cost, and cost per hour, and adjusts for insulation, cold, and wind.',
   },
   {
     q: 'Do pellets or charcoal burn more efficiently?',
-    a: 'Per pound, hardwood splits carry the most energy (~12,000 BTU/lb), then charcoal (~9,500), then pellets (~8,000). But real-world fuel use depends far more on cooker insulation, weather, and cook length — all of which the estimator models.',
+    a: 'Per pound, hardwood splits carry the most energy (~12,000 BTU/lb), then charcoal (~9,500), then pellets (~8,000). But real-world fuel use depends far more on cooker insulation, weather, and cook length, all of which the estimator models.',
   },
   {
     q: 'How many bags of pellets do I need for an overnight brisket?',
-    a: 'For a ~14-hour cook on a single-wall pellet smoker in mild weather, budget roughly 17 lb — about one 20 lb bag. Cold temperatures or wind can push you into a second bag; the estimator adjusts for both.',
+    a: 'For a ~14-hour cook on a single-wall pellet smoker in mild weather, budget roughly 17 lb, about one 20 lb bag. Cold temperatures or wind can push you into a second bag; the estimator adjusts for both.',
   },
 ];
 const schema = [
@@ -77,6 +77,6 @@ const schema = [
   <FuelEstimator />
   <FaqSection
     faqs={faqs}
-    intro="How much fuel a long cook burns comes down to three things: your fuel's baseline burn rate, how efficiently your pit holds heat, and the weather working against it. A cold, windy day on a thin-walled offset can double consumption versus a still, mild day on an insulated cooker. This estimator turns cook length, pit type, ambient temperature, and wind into the pounds, bags, and dollars you will actually spend — so you buy once and never run dry mid-cook."
+    intro="How much fuel a long cook burns comes down to three things: your fuel's baseline burn rate, how efficiently your pit holds heat, and the weather working against it. A cold, windy day on a thin-walled offset can double consumption versus a still, mild day on an insulated cooker. This estimator turns cook length, pit type, ambient temperature, and wind into the pounds, bags, and dollars you will actually spend, so you buy once and never run dry mid-cook."
   />
 </Layout>

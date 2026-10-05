@@ -14,7 +14,7 @@ const publisher = {
 const faqs = [
   {
     q: 'How much brisket do I need per person?',
-    a: 'Plan about 0.5 lb of cooked, sliced brisket per adult as a standard serving — roughly 0.33 lb for lighter eaters with plenty of sides, and up to 0.67 lb for big eaters or a brisket-forward menu. Because a whole packer only yields around 50% after trimming and the cook, you have to buy close to double the cooked weight in raw brisket.',
+    a: 'Plan about 0.5 lb of cooked, sliced brisket per adult as a standard serving (roughly 0.33 lb for lighter eaters with plenty of sides, and up to 0.67 lb for big eaters or a brisket-forward menu). Because a whole packer only yields around 50% after trimming and the cook, you have to buy close to double the cooked weight in raw brisket.',
   },
   {
     q: 'What size brisket should I buy for 10 people?',
@@ -22,7 +22,7 @@ const faqs = [
   },
   {
     q: 'How big a brisket do I need for 20 guests?',
-    a: 'About 10 lb of cooked brisket, which is roughly a 19–20 lb raw packer at standard yield — at the top of a single packer. Many pitmasters split that across two smaller briskets for more even cooking and bark. This calculator flags when your target exceeds a single packer and suggests how to split it.',
+    a: 'About 10 lb of cooked brisket, which is roughly a 19–20 lb raw packer at standard yield (at the top of a single packer). Many pitmasters split that across two smaller briskets for more even cooking and bark. This calculator flags when your target exceeds a single packer and suggests how to split it.',
   },
   {
     q: 'Why do I have to buy so much more brisket than I serve?',
@@ -116,7 +116,7 @@ const schema = [
             <button data-appetite="standard" class="appetite-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="true">Standard</button>
             <button data-appetite="hearty" class="appetite-opt rounded-md px-2 py-2 text-sm font-medium transition-colors" aria-pressed="false">Hearty</button>
           </div>
-          <p class="text-[11px] text-smoke-500 mt-1.5" id="appetiteDesc">Standard &mdash; ~0.50 lb cooked brisket per guest.</p>
+          <p class="text-[11px] text-smoke-500 mt-1.5" id="appetiteDesc">Standard: ~0.50 lb cooked brisket per guest.</p>
         </div>
 
         <!-- Price Per Pound -->
@@ -159,7 +159,7 @@ const schema = [
               Aggressive
             </button>
           </div>
-          <p class="text-[11px] text-smoke-500 mt-1.5" id="trimDesc">Light retail trim &mdash; more fat cap left on.</p>
+          <p class="text-[11px] text-smoke-500 mt-1.5" id="trimDesc">Light retail trim: more fat cap left on.</p>
         </div>
 
         <!-- Cook Wrap Method -->
@@ -235,7 +235,7 @@ const schema = [
             <span class="text-2xl">🔥</span>
             <div>
               <p class="text-sm font-semibold text-white group-hover:text-ember-300">Already have a brisket?</p>
-              <p class="text-[11px] text-smoke-400 mt-0.5">Flip it around — get yield, cook loss &amp; true cost per cooked pound from a raw weight.</p>
+              <p class="text-[11px] text-smoke-400 mt-0.5">Flip it around: get yield, cook loss &amp; true cost per cooked pound from a raw weight.</p>
             </div>
           </div>
           <svg class="h-5 w-5 shrink-0 text-ember-400 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
@@ -246,7 +246,7 @@ const schema = [
     <GearModule tool="yield" state={{ protein: 'beef_brisket' }} />
 
     <footer class="mt-8 text-center text-[11px] text-smoke-500">
-      <p>Sizing back-solves the same empirical trim &amp; shrinkage matrix (Model v{PROTEINS.beef_brisket.meta.version}) as the yield calculator. Actual yields vary by cut, cooker, and pitmaster — buy a little long for a crowd.</p>
+      <p>Sizing back-solves the same empirical trim &amp; shrinkage matrix (Model v{PROTEINS.beef_brisket.meta.version}) as the yield calculator. Actual yields vary by cut, cooker, and pitmaster. Buy a little long for a crowd.</p>
       <p class="mt-2"><a href="/methodology" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">Methodology &amp; sources</a> · <a href="/privacy" class="text-ember-400 hover:text-ember-300 underline decoration-dotted underline-offset-2">Privacy Policy</a></p>
     </footer>
   </div>
@@ -364,10 +364,10 @@ const schema = [
     $('wrapDesc').innerHTML = WRAP_COPY[state.wrap];
     $('appetiteDesc').innerHTML =
       state.appetite === 'light'
-        ? 'Light &mdash; ~0.33 lb per guest (sliders, lots of sides).'
+        ? 'Light: ~0.33 lb per guest (sliders, lots of sides).'
         : state.appetite === 'hearty'
-        ? 'Hearty &mdash; ~0.67 lb per guest (big eaters, brisket-forward).'
-        : 'Standard &mdash; ~0.50 lb cooked brisket per guest.';
+        ? 'Hearty: ~0.67 lb per guest (big eaters, brisket-forward).'
+        : 'Standard: ~0.50 lb cooked brisket per guest.';
     $('marketHint').textContent = '$' + money(DATA.defaults.market_prices[state.grade]);
 
     persist();
@@ -395,7 +395,7 @@ const schema = [
       icon.textContent = '⚠️';
       text.className = 'flex-1 text-ember-200';
       text.textContent =
-        `That's more than one packer can cover. Buy about ${n} briskets (~${fmt(rawNeeded / n)} lb each) — ` +
+        `That's more than one packer can cover. Buy about ${n} briskets (~${fmt(rawNeeded / n)} lb each): ` +
         'splitting the load also cooks more evenly and gives you more bark. Stagger them or run a second rack.';
     } else if (rawNeeded < 8) {
       box.classList.add('bg-smoke-800/60', 'ring-smoke-700');
