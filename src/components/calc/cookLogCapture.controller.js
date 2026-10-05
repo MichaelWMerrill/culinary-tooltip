@@ -136,7 +136,7 @@ export function initCookLogCapture(proteinTypeId, modelVersion, stallControls) {
       // the real id arrives once the queued POST actually lands (id swap
       // handled by syncActiveCookId(), called from the online fallback).
       await globalThis.SWQueueUtils.setActiveCook({ id: null, proteinType: proteinTypeId, startedAt: payload.start_time });
-      setStatus('Offline — will start syncing once you are back online.');
+      setStatus('Offline: will start syncing once you are back online.');
     } else if (!result.ok) {
       setStatus('Could not start tracking (server rejected the request).');
       return;
@@ -161,12 +161,12 @@ export function initCookLogCapture(proteinTypeId, modelVersion, stallControls) {
     const cook = await globalThis.SWQueueUtils.getActiveCook();
     if (!cook) return;
     if (cook.id == null) {
-      setStatus('Still offline from cook start — this update will sync once the cook itself does.');
+      setStatus('Still offline from cook start: this update will sync once the cook itself does.');
       return;
     }
     setStatus(statusMessage ? statusMessage + '…' : 'Saving…');
     const result = await patchCookLog(cook.id, { ...fields, anon_client_id: getAnonClientId() });
-    setStatus(result.queued ? 'Saved — will sync once back online.' : result.ok ? '' : 'Could not save (server rejected the request).');
+    setStatus(result.queued ? 'Saved: will sync once back online.' : result.ok ? '' : 'Could not save (server rejected the request).');
     if (result.ok || result.queued) {
       await globalThis.SWQueueUtils.setActiveCook({ ...cook, ...fields, finishedAt: fields.finish_time ? true : cook.finishedAt });
       refresh();

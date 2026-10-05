@@ -124,7 +124,7 @@ export function initRestCalculator() {
       vIcon.textContent = '✅';
       vText.textContent = 'Safe to serve';
       vText.className = 'text-sm font-bold text-emerald-300';
-      vSub.textContent = `At ${fmtHrs(state.holdHours)} the ${protein.meta.shortName.toLowerCase()} is ${Math.round(r.tempAtServe)}°F — above the 140°F floor. Safe window ${fmtHrs(r.safeHours)}.`;
+      vSub.textContent = `At ${fmtHrs(state.holdHours)} the ${protein.meta.shortName.toLowerCase()} is ${Math.round(r.tempAtServe)}°F, above the 140°F floor. Safe window ${fmtHrs(r.safeHours)}.`;
     } else {
       verdict.classList.add('bg-ember-500/10', 'ring-ember-500/50');
       vIcon.textContent = '⚠️';
