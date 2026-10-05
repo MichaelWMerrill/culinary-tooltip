@@ -121,7 +121,7 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
           icon: '📦',
           at: new Date(meatOn.getTime() + wh * HR),
           title: `Wrap at ${state.wrapTemp}°F`,
-          sub: `Roughly when the internal temp hits your wrap target — have paper/foil ready once the bark is set.`,
+          sub: `Roughly when the internal temp hits your wrap target. Have paper/foil ready once the bark is set.`,
         });
       }
     }
@@ -239,7 +239,7 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
       dot.textContent = ms.icon;
       const time = document.createElement('p');
       time.className = 'text-sm font-bold text-white';
-      time.textContent = `${ms.title} — ${fmtClock(ms.at)}`;
+      time.textContent = `${ms.title}: ${fmtClock(ms.at)}`;
       const sub = document.createElement('p');
       sub.className = 'text-[13px] text-base-400 leading-relaxed mt-0.5';
       sub.textContent = ms.sub;
@@ -275,7 +275,7 @@ export function initCookScheduler(protein = PROTEINS.beef_brisket) {
         `DTSTART:${icsDate(start)}`,
         `DTEND:${icsDate(end)}`,
         `SUMMARY:${icsEscape(ms.icon + ' ' + ms.title)}`,
-        `DESCRIPTION:${icsEscape(ms.sub + '  — planned with Empirical BBQ (empiricalbbq.com/cook-scheduler)')}`,
+        `DESCRIPTION:${icsEscape(ms.sub + ' Planned with Empirical BBQ (empiricalbbq.com/cook-scheduler)')}`,
         'BEGIN:VALARM',
         'ACTION:DISPLAY',
         `DESCRIPTION:${icsEscape(ms.title)}`,
