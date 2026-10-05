@@ -1,6 +1,6 @@
 ---
 title: "Poor Man's Burnt Ends: Why a $4/lb Chuck Roast Fakes Brisket Point"
-description: "Burnt ends are supposed to come from brisket point, and most butcher counters won't even sell that on its own — so I cubed a chuck roast instead and landed on the same sticky, pull-apart texture for less than half the price."
+description: "Burnt ends are supposed to come from brisket point, and most butcher counters won't even sell that on its own, so I cubed a chuck roast instead and landed on the same sticky, pull-apart texture for less than half the price."
 pubDate: '2026-09-10'
 heroImage: '/blog/poor-mans-burnt-ends.jpg'
 pillar: science

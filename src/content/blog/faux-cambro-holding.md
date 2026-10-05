@@ -1,6 +1,6 @@
 ---
 title: 'The Faux Cambro: How Long You Can Really Hold Barbecue'
-description: 'The physics of resting and holding a cook — why a cooler full of towels buys you hours, and exactly when your brisket crosses the 140°F food-safety line.'
+description: 'The physics of resting and holding a cook: why a cooler full of towels buys you hours, and exactly when your brisket crosses the 140°F food-safety line.'
 pubDate: '2026-07-20'
 updatedDate: '2026-08-23'
 heroImage: '/blog/faux-cambro-holding.jpg'

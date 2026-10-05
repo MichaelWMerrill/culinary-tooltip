@@ -1,6 +1,6 @@
 ---
 title: "Bigger Brisket, Proportionally Longer Stall? The Math Says No"
-description: "Doubling a brisket's weight roughly doubles the climb to the stall — but barely touches how long the stall itself lasts. Two separate mass exponents explain why the plateau doesn't scale like the rest of the cook."
+description: "Doubling a brisket's weight roughly doubles the climb to the stall, but barely touches how long the stall itself lasts. Two separate mass exponents explain why the plateau doesn't scale like the rest of the cook."
 pubDate: '2026-08-05'
 heroImage: '/blog/brisket-mass-exponents.jpg'
 pillar: science

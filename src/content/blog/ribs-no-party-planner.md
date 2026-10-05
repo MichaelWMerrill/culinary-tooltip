@@ -1,6 +1,6 @@
 ---
 title: "Why Ribs Don't Show Up on the Party Planner"
-description: "Went to plan a rib cookout the same way I'd planned every brisket and turkey party — punch in a guest count, let the tool back-solve the shopping list. Ribs weren't in the protein dropdown at all. Not a bug — the site's own yield model genuinely doesn't apply to a rack."
+description: "Went to plan a rib cookout the same way I'd planned every brisket and turkey party: punch in a guest count, let the tool back-solve the shopping list. Ribs weren't in the protein dropdown at all. Not a bug: the site's own yield model genuinely doesn't apply to a rack."
 pubDate: '2026-09-09'
 heroImage: '/blog/ribs-no-party-planner.jpg'
 pillar: tool-spotlight

@@ -1,6 +1,6 @@
 ---
-title: "Your Cooker Trades Climb Speed for Stall Length — and Not the Way You'd Guess"
-description: "Picked a pellet grill for a faster cook and it delivered — right up until the stall, which ran longer than any cook I'd done on a kamado. The site's own pit-profile math explains why the fastest cooker to the plateau is also the slowest through it."
+title: "Your Cooker Trades Climb Speed for Stall Length, and Not the Way You'd Guess"
+description: "Picked a pellet grill for a faster cook and it delivered, right up until the stall, which ran longer than any cook I'd done on a kamado. The site's own pit-profile math explains why the fastest cooker to the plateau is also the slowest through it."
 pubDate: '2026-08-09'
 heroImage: '/blog/pit-type-climb-vs-stall-tradeoff.jpg'
 pillar: science

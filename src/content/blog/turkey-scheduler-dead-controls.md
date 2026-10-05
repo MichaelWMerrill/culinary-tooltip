@@ -1,6 +1,6 @@
 ---
 title: "The Cook Scheduler Shows Turkey Controls That Do Nothing"
-description: "Dragged the climate toggle and swapped wrap types building a Thanksgiving schedule, and the fire-up time never moved a minute. Turkey clears the wrong gate in the scheduler's UI logic — its own stall model never reads either control."
+description: "Dragged the climate toggle and swapped wrap types building a Thanksgiving schedule, and the fire-up time never moved a minute. Turkey clears the wrong gate in the scheduler's UI logic: its own stall model never reads either control."
 pubDate: '2026-08-23'
 heroImage: '/blog/turkey-scheduler-dead-controls.jpg'
 pillar: myth-bust

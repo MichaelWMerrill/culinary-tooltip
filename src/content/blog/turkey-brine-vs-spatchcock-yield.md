@@ -1,6 +1,6 @@
 ---
 title: "Brine or Spatchcock? They Pull Turkey Yield in Opposite Directions"
-description: "Brining and spatchcocking both make for a better turkey, but our yield model shows they win in different ledger lines — one cuts cook loss, the other adds a trim cost. The math on which actually leaves more meat on the platter."
+description: "Brining and spatchcocking both make for a better turkey, but my yield model shows they win in different ledger lines: one cuts cook loss, the other adds a trim cost. The math on which actually leaves more meat on the platter."
 pubDate: '2026-08-04'
 heroImage: '/blog/turkey-brine-vs-spatchcock-yield.jpg'
 pillar: myth-bust

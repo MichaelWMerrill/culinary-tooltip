@@ -1,6 +1,6 @@
 ---
 title: "Turkey's Danger-Zone Clock Runs Different (and Stricter) Than Brisket's"
-description: "The slow-and-low instinct that's fine on a brisket is a real food-safety risk on a whole turkey. Poultry is treated as potentially contaminated throughout, and the site's danger-zone model explains exactly why — plus the two levers that fix it."
+description: "The slow-and-low instinct that's fine on a brisket is a real food-safety risk on a whole turkey. Poultry is treated as potentially contaminated throughout, and the site's danger-zone model explains exactly why, plus the two levers that fix it."
 pubDate: '2026-08-05'
 heroImage: '/blog/turkey-danger-zone-clock.jpg'
 pillar: planning-safety

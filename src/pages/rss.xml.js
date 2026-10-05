@@ -7,7 +7,7 @@ export async function GET(context) {
   );
 
   return rss({
-    title: 'Empirical BBQ — Field Notes',
+    title: 'Empirical BBQ: Field Notes',
     description:
       'The science, data, and hard-won technique behind precision low-and-slow cooking, from Empirical BBQ.',
     // context.site comes from `site` in astro.config.mjs (https://empiricalbbq.com).

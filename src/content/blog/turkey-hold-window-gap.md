@@ -1,5 +1,5 @@
 ---
-title: "Turkey's Hold Window Is a Fraction of Brisket's — Same Cooler, Same Math"
+title: "Turkey's Hold Window Is a Fraction of Brisket's: Same Cooler, Same Math"
 description: "I planned a turkey hold the way I plan a brisket hold and nearly served a bird that had drifted into the danger zone at the table. The same cooling formula, the same cooler, and a pull temperature 40+ degrees lower changes everything."
 pubDate: '2026-08-19'
 heroImage: '/blog/turkey-hold-window-gap.jpg'

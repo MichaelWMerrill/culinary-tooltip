@@ -1,6 +1,6 @@
 ---
-title: "Wood Splits Carry the Most BTU/lb — and Burn Through the Most Pounds an Hour"
-description: "More energy per pound and fewer pounds burned per hour sound like the same claim. In the site's fuel model they aren't even close — hardwood splits top the BTU/lb chart and the burn-rate chart at the same time."
+title: "Wood Splits Carry the Most BTU/lb, and Burn Through the Most Pounds an Hour"
+description: "More energy per pound and fewer pounds burned per hour sound like the same claim. In the site's fuel model they aren't even close: hardwood splits top the BTU/lb chart and the burn-rate chart at the same time."
 pubDate: '2026-08-16'
 heroImage: '/blog/wood-splits-btu-vs-burn-rate.jpg'
 pillar: science
