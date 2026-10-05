@@ -1,7 +1,7 @@
 {
   "name": "Empirical BBQ",
   "short_name": "Empirical BBQ",
-  "description": "Cook-time, yield, fuel and rest calculators for brisket, pork shoulder, ribs and turkey — fitted to published field guidance.",
+  "description": "Cook-time, yield, fuel and rest calculators for brisket, pork shoulder, ribs and turkey, fitted to published field guidance.",
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#121824",

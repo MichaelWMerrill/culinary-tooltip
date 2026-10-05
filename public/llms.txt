@@ -1,24 +1,24 @@
 # Empirical BBQ
 
-> Physics-based barbecue calculators and field notes for precision low-and-slow cooking. Free, client-side tools that model brisket yield, the thermodynamic stall, smoker fuel & cost, and cook scheduling — plus a science-focused blog.
+> Physics-based barbecue calculators and field notes for precision low-and-slow cooking. Free, client-side tools that model brisket yield, the thermodynamic stall, smoker fuel & cost, and cook scheduling, plus a science-focused blog.
 
-Empirical BBQ (empiricalbbq.com) is a suite of free, ad-supported pitmaster calculators. All calculations run client-side from documented empirical models. Estimates are for planning only — always probe to temperature. Models cover beef brisket, pork shoulder, pork ribs (slab geometry), and turkey (no-stall poultry); more proteins are on the roadmap.
+Empirical BBQ (empiricalbbq.com) is a suite of free, ad-supported pitmaster calculators. All calculations run client-side from documented empirical models. Estimates are for planning only. Always probe to temperature. Models cover beef brisket, pork shoulder, pork ribs (slab geometry), and turkey (no-stall poultry); more proteins are on the roadmap.
 
 ## Calculators
 - [Brisket Trim, Shrinkage & Yield Calculator](https://empiricalbbq.com/brisket-calculator): USDA grade, trim style, and wrap method → usable yield, cook loss, and true cost per cooked pound. A typical USDA Choice packer finishes near 50% total yield.
 - [Pork Shoulder Yield & Pulled-Pork Cost Calculator](https://empiricalbbq.com/pork-shoulder-calculator): bone-in vs boneless Boston butt and wrap method → pulled-pork yield (~50% bone-in to ~62% boneless), cook loss, and true cost per cooked pound. Plan ~1/3 lb pulled per guest.
 - [Pork Shoulder Stall Predictor](https://empiricalbbq.com/pork-shoulder-stall): plots the internal-temperature curve and shorter pork stall to a ~202°F pull temperature from pit airflow and humidity, wrap method, weight, and climate.
-- [Ribs Cook-Time & Stall Predictor](https://empiricalbbq.com/ribs-stall): rib cook time by cut (spare, St. Louis, baby back) and wrap — slab-geometry heat transfer where thickness, not rack count, drives the time; stall is near-absent.
+- [Ribs Cook-Time & Stall Predictor](https://empiricalbbq.com/ribs-stall): rib cook time by cut (spare, St. Louis, baby back) and wrap: slab-geometry heat transfer where thickness, not rack count, drives the time; stall is near-absent.
 - [Turkey Yield & Cost Calculator](https://empiricalbbq.com/turkey-calculator): whole vs spatchcock and brined vs not → carved-meat yield (~65–75%) and true cost per cooked pound. Plan ~0.5 lb carved per guest.
 - [Smoked Turkey Cook-Time Predictor](https://empiricalbbq.com/turkey-stall): poultry cook time as a single monotonic climb (no stall) to a 160°F breast pull (carryover to a safe 165°F), by weight, preparation, and pit temperature.
 - [Thermodynamic Stall Predictor](https://empiricalbbq.com/stall-predictor): plots the internal-temperature curve and predicts stall duration (evaporative cooling, roughly 150–170°F) from pit airflow and humidity, wrap method, meat mass, and regional climate.
-- [Smoker Fuel & Cost Estimator](https://empiricalbbq.com/fuel-estimator): fuel weight, bags, and cost from burn-rate thermodynamics — pit efficiency, ambient temperature, and wind load. Baselines: pellets ~1.2 lb/hr, charcoal ~1.5 lb/hr, hardwood splits ~3.5 lb/hr.
+- [Smoker Fuel & Cost Estimator](https://empiricalbbq.com/fuel-estimator): fuel weight, bags, and cost from burn-rate thermodynamics: pit efficiency, ambient temperature, and wind load. Baselines: pellets ~1.2 lb/hr, charcoal ~1.5 lb/hr, hardwood splits ~3.5 lb/hr.
 - [BBQ Cook Scheduler](https://empiricalbbq.com/cook-scheduler): enter when you want to eat → back-calculated smoker fire-up time, wrap window, and rest period, with a downloadable .ics calendar file.
-- [Brisket Size Calculator — How Much Brisket Per Person](https://empiricalbbq.com/brisket-size-calculator): enter a guest count → the raw packer weight to buy and total budget, back-solved from the same trim and cook-shrinkage yield as the yield calculator. Standard serving ~0.5 lb cooked per guest.
-- [BBQ Party Planner](https://empiricalbbq.com/party-planner): generalized "how much to buy" across brisket, pork shoulder, and turkey — guest count + protein + appetite → raw purchase weight and budget, inverted from the trim-and-shrinkage yield model.
-- [Rest & Hold Calculator](https://empiricalbbq.com/rest-calculator): Newton's-law-of-cooling model of a rested/held cut — how long it stays above the 140°F food-safe floor by pull temperature and hold method (warm oven, faux cambro, bare cooler, counter).
+- [Brisket Size Calculator: How Much Brisket Per Person](https://empiricalbbq.com/brisket-size-calculator): enter a guest count → the raw packer weight to buy and total budget, back-solved from the same trim and cook-shrinkage yield as the yield calculator. Standard serving ~0.5 lb cooked per guest.
+- [BBQ Party Planner](https://empiricalbbq.com/party-planner): generalized "how much to buy" across brisket, pork shoulder, and turkey: guest count + protein + appetite → raw purchase weight and budget, inverted from the trim-and-shrinkage yield model.
+- [Rest & Hold Calculator](https://empiricalbbq.com/rest-calculator): Newton's-law-of-cooling model of a rested/held cut: how long it stays above the 140°F food-safe floor by pull temperature and hold method (warm oven, faux cambro, bare cooler, counter).
 
-## Blog — Field Notes
+## Blog: Field Notes
 - [The Science of Smoke: How to Get Perfect Brisket Bark](https://empiricalbbq.com/blog/science-of-smoke): the Maillard reaction, polymerization, rub granulation, and wrap strategy for bark.
 - [The Physics of the Stall](https://empiricalbbq.com/blog/physics-of-the-stall): evaporative cooling, the variables that control stall duration, and how to break it cleanly.
 - [The Chemistry of Wood Smoke: Clean Blue vs. Dirty White](https://empiricalbbq.com/blog/chemistry-of-wood-smoke): combustion phases, creosote, and chasing thin blue smoke.
@@ -29,7 +29,7 @@ Empirical BBQ (empiricalbbq.com) is a suite of free, ad-supported pitmaster calc
 - [Blog index](https://empiricalbbq.com/blog)
 
 ## About
-- [About / the author](https://empiricalbbq.com/about): Empirical BBQ is built and maintained by Mike Merrill, a software and data professional (B.S. Computer Science; ~10 years in senior public-sector technical roles) who built sourced, version-controlled cook models after repeatedly missing on timing, quantity, and quality. Explicitly not a chef, food scientist, or competition pitmaster — the site's authority rests on published sources and inspectable math, not credentials. Also covers how the site is funded (display ads + Amazon affiliate links, kept strictly separate from model outputs).
+- [About / the author](https://empiricalbbq.com/about): Empirical BBQ is built and maintained by Mike Merrill, a software and data professional (B.S. Computer Science; ~10 years in senior public-sector technical roles) who built sourced, version-controlled cook models after repeatedly missing on timing, quantity, and quality. Explicitly not a chef, food scientist, or competition pitmaster: the site's authority rests on published sources and inspectable math, not credentials. Also covers how the site is funded (display ads + Amazon affiliate links, kept strictly separate from model outputs).
 - [Methodology](https://empiricalbbq.com/methodology): the equations behind every calculator, the per-protein calibration constants (generated from the engine registry so they can't drift), engine/model versions, and the golden-test regression story in plain language.
 - [Contact](https://empiricalbbq.com/contact): feedback form for pitmasters.
 - [Privacy Policy](https://empiricalbbq.com/privacy): client-side local storage only, no accounts, anonymous analytics, and a cookie-consent banner (Google Consent Mode v2).
