@@ -1,0 +1,16 @@
+---
+/*
+ * CorrectionsNote: the one-line invitation to report a mistake. Rendered under
+ * every calculator (via FaqSection), at the end of every blog post
+ * (BlogPostLayout) and every recipe (RecipeLayout). Theme-neutral so it fits
+ * each calculator's palette. The address comes from src/utils/siteContact.js.
+ */
+import { CORRECTIONS_EMAIL } from '../utils/siteContact.js';
+const { class: className } = Astro.props;
+---
+
+<p class:list={['rounded-xl bg-white/[0.03] ring-1 ring-white/10 p-4 text-sm leading-relaxed text-slate-300/90', className]}>
+  Spot something off in the math or the science? Email
+  <a href={`mailto:${CORRECTIONS_EMAIL}`} class="text-amber-400 hover:text-amber-300 underline decoration-dotted underline-offset-2">{CORRECTIONS_EMAIL}</a>.
+  I read every report and fix what's wrong.
+</p>
