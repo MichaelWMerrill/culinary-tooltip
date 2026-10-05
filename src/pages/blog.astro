@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 
 // Load every blog entry from the content collection, newest first.
 const posts = (await getCollection('blog')).sort(
@@ -167,6 +168,7 @@ const proteinChips = PROTEINS.filter(([id]) => usedProteins.has(id));
           RSS
         </a>
       </nav>
+      <SiteFooter />
       <div class="pt-6 border-t border-base-800 flex flex-col sm:flex-row items-center justify-between gap-3">
         <p class="text-xs text-base-500">&copy; 2026 Empirical BBQ · Pitmaster Science &amp; Mathematics Suite</p>
         <p class="text-[11px] text-base-600 font-mono">Estimates for planning only — always probe to temperature.</p>

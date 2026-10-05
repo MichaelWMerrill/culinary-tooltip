@@ -1,0 +1,15 @@
+---
+/*
+ * SiteFooter: the two public email lines shown in a page footer. Renders only
+ * these lines; each page's own footer keeps its nav and disclaimer text. The
+ * addresses come from src/utils/siteContact.js.
+ */
+import { CONTACT_EMAIL, CORRECTIONS_EMAIL } from '../utils/siteContact.js';
+const { class: className } = Astro.props;
+const linkClass = 'text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2 transition-colors';
+---
+
+<div class:list={['mb-6 flex flex-col items-center gap-1 text-center text-xs text-base-400', className]}>
+  <p>Questions: <a href={`mailto:${CONTACT_EMAIL}`} class={linkClass}>{CONTACT_EMAIL}</a></p>
+  <p>Found a mistake in the numbers? <a href={`mailto:${CORRECTIONS_EMAIL}`} class={linkClass}>{CORRECTIONS_EMAIL}</a></p>
+</div>

@@ -5,6 +5,7 @@ import AdSlot from '../components/AdSlot.astro';
 import { MATRIX_PROTEINS, MATRIX_TOOLS, STANDALONE_TOOLS, TOOL_COUNT } from '../utils/toolMatrix.js';
 import { SITE_VERSION } from '../utils/version.js';
 import { pickRelatedRecipe } from '../utils/relatedContent.js';
+import SiteFooter from '../components/SiteFooter.astro';
 
 // All protein tags, so any recipe matches — unlike pickRelatedRecipe's usual
 // blog/calculator callers, the homepage card isn't scoped to one protein.
@@ -249,6 +250,7 @@ const utilityCards = [
         </div>
       </div>
 
+      <SiteFooter class="mt-8" />
       <div class="mt-8 pt-6 border-t border-base-800 flex flex-col sm:flex-row items-center justify-between gap-3">
         <p class="text-xs text-base-500">
           &copy; 2026 Pitmaster Science &amp; Mathematics Suite · Site v{SITE_VERSION} · <a href="/about" class="text-flame-400 hover:text-flame-300 transition-colors">About</a> · <a href="/methodology" class="text-flame-400 hover:text-flame-300 transition-colors">Methodology</a> · <a href="/contact" class="text-flame-400 hover:text-flame-300 transition-colors">Contact</a> · <a href="/privacy" class="text-flame-400 hover:text-flame-300 transition-colors">Privacy Policy</a>

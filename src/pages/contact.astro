@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 
 // Cloudflare Turnstile *site* key (public — it ships in the page HTML). The
 // matching secret key is set in the deploy environment as TURNSTILE_SECRET_KEY
@@ -150,6 +151,7 @@ if (TURNSTILE_TEST_SITE_KEYS.has(TURNSTILE_SITE_KEY)) {
         <a href="/contact" class="text-flame-400 hover:text-flame-300 transition-colors">Contact</a>
         <a href="/privacy" class="hover:text-white transition-colors">Privacy Policy</a>
       </nav>
+      <SiteFooter />
       <div class="pt-6 border-t border-base-800 flex flex-col sm:flex-row items-center justify-between gap-3">
         <p class="text-xs text-base-500">&copy; 2026 Empirical BBQ · Pitmaster Science &amp; Mathematics Suite</p>
         <p class="text-[11px] text-base-600 font-mono">Estimates for planning only — always probe to temperature.</p>

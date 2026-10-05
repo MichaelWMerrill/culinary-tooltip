@@ -27,6 +27,7 @@ import {
 } from '../utils/recipeModel.js';
 import { unknownSourceIds, unsupportedApprovedClaims, pendingWithoutSource } from '../utils/recipeSources.js';
 import { parseInlineLinks } from '../utils/inlineLinks.js';
+import SiteFooter from '../components/SiteFooter.astro';
 
 const { recipe, relatedPosts: allPosts = [] } = Astro.props;
 const {
@@ -384,6 +385,7 @@ const clientConfig = JSON.stringify({
         <a href="/contact" class="hover:text-white transition-colors">Contact</a>
         <a href="/privacy" class="text-flame-400 hover:text-flame-300 transition-colors">Privacy Policy</a>
       </nav>
+      <SiteFooter />
       <div class="pt-6 border-t border-base-800 flex flex-col sm:flex-row items-center justify-between gap-3">
         <p class="text-xs text-base-500">&copy; 2026 Empirical BBQ · Pitmaster Science &amp; Mathematics Suite</p>
         <p class="text-[11px] text-base-600 font-mono">Estimates for planning only. Always probe to temperature.</p>

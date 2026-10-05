@@ -9,6 +9,7 @@
 import { PROTEINS } from '../../utils/proteinRegistry.js';
 import ProteinSelector from './ProteinSelector.astro';
 import GearModule from './GearModule.astro';
+import SiteFooter from '../SiteFooter.astro';
 
 export interface Props {
   protein?: (typeof PROTEINS)[keyof typeof PROTEINS];
@@ -203,6 +204,7 @@ const defaultVisible = new Set(['weight']);
         <a href="/contact" class="hover:text-white transition-colors">Contact</a>
         <a href="/privacy" class="hover:text-white transition-colors">Privacy Policy</a>
       </nav>
+      <SiteFooter />
       <div class="pt-6 border-t border-base-800 flex flex-col sm:flex-row items-center justify-between gap-3">
         <p class="text-xs text-base-500">&copy; 2026 Empirical BBQ · Pitmaster Science &amp; Mathematics Suite</p>
         <p class="text-[11px] text-base-600 font-mono">Estimates for planning only — always probe to temperature.</p>

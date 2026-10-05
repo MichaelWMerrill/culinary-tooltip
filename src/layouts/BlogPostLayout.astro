@@ -10,6 +10,7 @@
 import Layout from './Layout.astro';
 import { AUTHOR_NAME, AUTHOR_ROLE, AUTHOR_SCHEMA } from '../utils/author.js';
 import { pickRelatedCalculator, pickRelatedRecipe } from '../utils/relatedContent.js';
+import SiteFooter from '../components/SiteFooter.astro';
 
 const { frontmatter, recipes = [] } = Astro.props;
 const { title, description, pubDate, updatedDate, heroImage, protein } = frontmatter ?? Astro.props;
@@ -176,6 +177,7 @@ const articleSchema = {
         <a href="/contact" class="hover:text-white transition-colors">Contact</a>
         <a href="/privacy" class="text-flame-400 hover:text-flame-300 transition-colors">Privacy Policy</a>
       </nav>
+      <SiteFooter />
       <div class="pt-6 border-t border-base-800 flex flex-col sm:flex-row items-center justify-between gap-3">
         <p class="text-xs text-base-500">&copy; 2026 Empirical BBQ · Pitmaster Science &amp; Mathematics Suite</p>
         <p class="text-[11px] text-base-600 font-mono">Estimates for planning only — always probe to temperature.</p>
