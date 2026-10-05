@@ -9,6 +9,8 @@
  * Theme-neutral (translucent white on the page's own dark background) so it
  * looks at home on every calculator's palette. Answers render as plain text.
  */
+import CorrectionsNote from '../CorrectionsNote.astro';
+
 export interface Props {
   faqs: { q: string; a: string }[];
   intro?: string;
@@ -36,4 +38,5 @@ const { faqs, intro, heading = 'Frequently Asked Questions' } = Astro.props;
       ))
     }
   </dl>
+  <CorrectionsNote class="mt-8" />
 </section>
