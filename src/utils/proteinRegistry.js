@@ -56,13 +56,13 @@ export const PROTEINS = {
       // Per-option help copy (HTML-entity strings, matching site convention).
       copy: {
         trim: {
-          commercial: 'Light retail trim &mdash; more fat cap left on.',
-          competition: 'Aggressive competition trim &mdash; squared &amp; defatted.',
+          commercial: 'Light retail trim: more fat cap left on.',
+          competition: 'Aggressive competition trim: squared &amp; defatted.',
         },
         wrap: {
-          naked: 'No wrap &mdash; deepest bark, highest moisture loss.',
+          naked: 'No wrap: deepest bark, highest moisture loss.',
           paper: 'Balanced bark and moisture retention.',
-          foil: 'Texas crutch &mdash; fastest cook, least shrinkage.',
+          foil: 'Texas crutch: fastest cook, least shrinkage.',
         },
       },
 
@@ -214,13 +214,13 @@ export const PROTEINS = {
 
       copy: {
         cut: {
-          bone_in: 'Bone-in butt &mdash; more forgiving, richer bark; the blade bone is not pulled meat.',
-          boneless: 'Boneless &mdash; higher usable yield and faster to pull, at a price premium.',
+          bone_in: 'Bone-in butt: more forgiving, richer bark; the blade bone is not pulled meat.',
+          boneless: 'Boneless: higher usable yield and faster to pull, at a price premium.',
         },
         wrap: {
-          naked: 'No wrap &mdash; deepest bark, highest moisture loss.',
+          naked: 'No wrap: deepest bark, highest moisture loss.',
           paper: 'Balanced bark and moisture retention.',
-          foil: 'Foil boat/crutch &mdash; fastest cook, least shrinkage.',
+          foil: 'Foil boat/crutch: fastest cook, least shrinkage.',
         },
       },
 
@@ -361,9 +361,9 @@ export const PROTEINS = {
 
       copy: {
         cut: {
-          spare: 'Full spare rack &mdash; thickest, meatiest, longest cook.',
-          st_louis: 'St. Louis trim &mdash; squared spare, even cooking.',
-          baby_back: 'Baby back (loin) &mdash; thinnest and quickest.',
+          spare: 'Full spare rack: thickest, meatiest, longest cook.',
+          st_louis: 'St. Louis trim: squared spare, even cooking.',
+          baby_back: 'Baby back (loin): thinnest and quickest.',
         },
       },
 
@@ -434,12 +434,12 @@ export const PROTEINS = {
 
       copy: {
         preparation: {
-          whole: 'Whole bird &mdash; classic presentation, slower cook.',
-          spatchcock: 'Spatchcock &mdash; backbone out, laid flat; cooks faster and more evenly.',
+          whole: 'Whole bird: classic presentation, slower cook.',
+          spatchcock: 'Spatchcock: backbone out, laid flat; cooks faster and more evenly.',
         },
         brined: {
-          no: 'No brine &mdash; more evaporative loss during the cook.',
-          yes: 'Brined &mdash; retains moisture, higher finished yield.',
+          no: 'No brine: more evaporative loss during the cook.',
+          yes: 'Brined: retains moisture, higher finished yield.',
         },
       },
 
@@ -528,12 +528,12 @@ export const PROTEINS = {
 
       // Food-safety note surfaced in the stall results (sourced).
       safetyNote:
-        'Pull the breast at 160°F — carryover heat carries it to a safe 165°F. 165°F is the instant pasteurization point, but the USDA also recognizes equivalent time-at-temperature (e.g. ~3.7 min held at 160°F). Cook dark meat/thighs toward 175°F for texture. (USDA FSIS Appendix A / poultry guidance.)',
+        'Pull the breast at 160°F. Carryover heat carries it to a safe 165°F. 165°F is the instant pasteurization point, but the USDA also recognizes equivalent time-at-temperature (e.g. ~3.7 min held at 160°F). Cook dark meat/thighs toward 175°F for texture. (USDA FSIS Appendix A / poultry guidance.)',
 
       copy: {
         preparation: {
-          whole: 'Whole bird &mdash; slower, more even climb.',
-          spatchcock: 'Spatchcock &mdash; flattened, so it heats faster.',
+          whole: 'Whole bird: slower, more even climb.',
+          spatchcock: 'Spatchcock: flattened, so it heats faster.',
         },
       },
 
