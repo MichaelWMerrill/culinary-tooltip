@@ -32,4 +32,4 @@ I'd used an app that gave me one "done" alert at 165°F everywhere. Breast came 
 
 If you're used to brisket logic (long cook, wrap around the stall, wait it out), none of that transfers. Spatchcocking (backbone removed, laid flat) opens the bird up and speeds the climb by about 35% on top of the geometry effect, which is its own scheduling variable, not a stall workaround.
 
-Our **[turkey predictor](/turkey-stall)** models this directly as a single monotonic climb to a 160°F breast pull: no stall band, no wrap step, just the geometry and your pit temp. Run your weight and prep through it before the bird goes on, not while you're standing next to the cooker realizing you've got ninety extra minutes and a house full of hungry relatives.
+My **[turkey predictor](/turkey-stall)** models this directly as a single monotonic climb to a 160°F breast pull: no stall band, no wrap step, just the geometry and your pit temp. Run your weight and prep through it before the bird goes on, not while you're standing next to the cooker realizing you've got ninety extra minutes and a house full of hungry relatives.

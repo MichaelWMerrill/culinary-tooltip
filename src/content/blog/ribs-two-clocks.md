@@ -7,9 +7,9 @@ pillar: science
 protein: [pork_ribs]
 ---
 
-I had two tabs open planning a rib cook: our cook scheduler in one, the rib stall predictor in the other, both set to the same spare ribs at 250°F. The scheduler said 6 hours, flat, no matter what I touched. The predictor gave me a curve that shifted a little with wrap and climate. They weren't telling the same story, and for a minute I assumed one of them was just wrong.
+I had two tabs open planning a rib cook: my cook scheduler in one, the rib stall predictor in the other, both set to the same spare ribs at 250°F. The scheduler said 6 hours, flat, no matter what I touched. The predictor gave me a curve that shifted a little with wrap and climate. They weren't telling the same story, and for a minute I assumed one of them was just wrong.
 
-They're not wrong. They're two different models that happen to share a page, and ribs are the one cut where we never fully merged them.
+They're not wrong. They're two different models that happen to share a page, and ribs are the one cut where I never fully merged them.
 
 ## The scheduler runs on a recipe, not a curve
 
@@ -29,7 +29,7 @@ That thinness has a second consequence: ribs barely stall. The base stall length
 
 ## Two honest models, one shared assumption
 
-Here's the part that's easy to miss: our own test suite calls this out. The cross-tool consistency check that verifies the scheduler and predictor agree on cook time explicitly carves out ribs as a **known, declared exception**. The two paths are allowed to diverge because they're built on different assumptions on purpose, not by accident.
+Here's the part that's easy to miss: my own test suite calls this out. The cross-tool consistency check that verifies the scheduler and predictor agree on cook time explicitly carves out ribs as a **known, declared exception**. The two paths are allowed to diverge because they're built on different assumptions on purpose, not by accident.
 
 3-2-1 assumes a specific wrap discipline (wrap at hour 3, unwrap and sauce at hour 5) and a fairly standard pit temp. The physics model doesn't assume a wrap schedule at all. It computes one from whatever pit temp, wrap material, and climate you hand it. If you're running 3-2-1 exactly as written, the scheduler's block timeline is the more useful tool: it hands you the wrap and sauce moments directly. If you're running a hotter pit, skipping the wrap, or just want to see how sensitive rib time actually is to weather and equipment, the predictor is the one modeling that.
 

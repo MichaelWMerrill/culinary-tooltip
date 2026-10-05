@@ -48,7 +48,7 @@ if (TURNSTILE_TEST_SITE_KEYS.has(TURNSTILE_SITE_KEY)) {
         </div>
         <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-[1.05]">Talk to the Pit</h1>
         <p class="mt-4 max-w-xl mx-auto text-base text-base-400 leading-relaxed">
-          These calculators live or die by real-world cooks. Tell us where the numbers matched your brisket (and
+          These calculators live or die by real-world cooks. Tell me where the numbers matched your brisket (and
           where they didn't), what you'd like to see next, or anything else on your mind.
         </p>
       </header>
@@ -59,17 +59,17 @@ if (TURNSTILE_TEST_SITE_KEYS.has(TURNSTILE_SITE_KEY)) {
           <div class="rounded-xl bg-base-800/60 ring-1 ring-base-700 p-4">
             <div class="text-xl mb-1.5">🎯</div>
             <h2 class="text-sm font-bold text-white">Dial in the math</h2>
-            <p class="mt-1 text-[13px] text-base-400 leading-relaxed">Did the yield, stall, or fuel estimate track your actual cook? Tell us your inputs and what really happened.</p>
+            <p class="mt-1 text-[13px] text-base-400 leading-relaxed">Did the yield, stall, or fuel estimate track your actual cook? Tell me your inputs and what really happened.</p>
           </div>
           <div class="rounded-xl bg-base-800/60 ring-1 ring-base-700 p-4">
             <div class="text-xl mb-1.5">🧪</div>
             <h2 class="text-sm font-bold text-white">Request a feature</h2>
-            <p class="mt-1 text-[13px] text-base-400 leading-relaxed">A cut, cooker, or variable we're missing? Pork shoulder, ribs, wind chill, altitude. Tell us what to build.</p>
+            <p class="mt-1 text-[13px] text-base-400 leading-relaxed">A cut, cooker, or variable I'm missing? Pork shoulder, ribs, wind chill, altitude. Tell me what to build.</p>
           </div>
           <div class="rounded-xl bg-base-800/60 ring-1 ring-base-700 p-4">
             <div class="text-xl mb-1.5">🐞</div>
             <h2 class="text-sm font-bold text-white">Flag anything off</h2>
-            <p class="mt-1 text-[13px] text-base-400 leading-relaxed">Bugs, confusing wording, a value that looks wrong. The more specific, the faster we can fix it.</p>
+            <p class="mt-1 text-[13px] text-base-400 leading-relaxed">Bugs, confusing wording, a value that looks wrong. The more specific, the faster I can fix it.</p>
           </div>
         </section>
 
@@ -133,7 +133,7 @@ if (TURNSTILE_TEST_SITE_KEYS.has(TURNSTILE_SITE_KEY)) {
 
         <!-- Direct fallback -->
         <p class="text-center text-[13px] text-base-500">
-          Prefer email? Write us directly at
+          Prefer email? Write me directly at
           <a href="mailto:contact@empiricalbbq.com?subject=Empirical%20BBQ%20feedback" class="text-flame-400 hover:text-flame-300 underline decoration-dotted underline-offset-2">contact@empiricalbbq.com</a>.
         </p>
       </main>
@@ -238,21 +238,21 @@ if (TURNSTILE_TEST_SITE_KEYS.has(TURNSTILE_SITE_KEY)) {
           if (window.turnstile) {
             try { window.turnstile.reset(); } catch (e) {}
           }
-          showStatus(true, 'Thanks. Your message is on its way. We’ll get back to you if a reply is needed.');
+          showStatus(true, 'Thanks. Your message is on its way. I’ll get back to you if a reply is needed.');
           status.classList.remove('hidden');
           btn.textContent = original;
           btn.disabled = false;
         } else {
           showStatus(
             false,
-            (data && data.error ? data.error + ' ' : '') + 'You can also email us directly at ' + CONTACT_TO + '.'
+            (data && data.error ? data.error + ' ' : '') + 'You can also email me directly at ' + CONTACT_TO + '.'
           );
           status.classList.remove('hidden');
           btn.textContent = original;
           btn.disabled = false;
         }
       } catch (err2) {
-        showStatus(false, 'Network error. Please try again, or email us directly at ' + CONTACT_TO + '.');
+        showStatus(false, 'Network error. Please try again, or email me directly at ' + CONTACT_TO + '.');
         status.classList.remove('hidden');
         btn.textContent = original;
         btn.disabled = false;

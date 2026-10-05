@@ -83,7 +83,7 @@ const schema = {
         <p class="mt-5 text-base sm:text-lg text-base-400 leading-relaxed">
           Every tool here runs a documented empirical model in your browser: no server, no black box.
           This page lays out the equations, the constants behind each protein, the engine versions, and
-          how we keep the numbers from silently changing. All outputs are planning estimates:
+          how I keep the numbers from silently changing. All outputs are planning estimates:
           <strong class="text-base-300">always probe to temperature.</strong>
         </p>
         <p class="mt-4 text-sm text-base-500">
@@ -219,7 +219,7 @@ const schema = {
           </div>
           <p>
             Each protein model carries a <strong class="text-base-300">version</strong> (shown as
-            "Model v{PROTEINS.beef_brisket.meta.version}" in the results panels). When we recalibrate a
+            "Model v{PROTEINS.beef_brisket.meta.version}" in the results panels). When I recalibrate a
             constant, the version bumps so a shared link or screenshot stays traceable to the model that
             produced it.
           </p>
@@ -227,7 +227,7 @@ const schema = {
             Every engine is covered by <strong class="text-base-300">golden regression tests</strong>: a frozen
             set of input → output snapshots checked in with the code. The brisket yield and stall outputs in
             particular are byte-frozen: any change to the math that would move a published number fails the
-            test suite before it can ship. That's how we add proteins and features without silently shifting
+            test suite before it can ship. That's how I add proteins and features without silently shifting
             the numbers you've already planned around.
           </p>
           <p class="text-[13px] text-base-500">
