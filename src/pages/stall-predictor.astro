@@ -36,7 +36,7 @@ const faqs = [
   },
   {
     q: 'How does pit type affect the stall?',
-    a: 'In this model, higher-airflow, drier pits — pellet cookers, kettles, and offsets — drive more evaporative cooling, which deepens and lengthens the stall. Low-airflow, higher-humidity cookers like ceramic kamados suppress evaporation, so their stall is shorter and milder — though their gentler convective heat makes the overall cook the longest. The predictor separates the two: stall duration and total cook time.',
+    a: 'In this model, higher-airflow, drier pits (pellet cookers, kettles, and offsets) drive more evaporative cooling, which deepens and lengthens the stall. Low-airflow, higher-humidity cookers like ceramic kamados suppress evaporation, so their stall is shorter and milder, though their gentler convective heat makes the overall cook the longest. The predictor separates the two: stall duration and total cook time.',
   },
   {
     q: 'How long does it take to smoke a brisket?',
@@ -44,7 +44,7 @@ const faqs = [
   },
   {
     q: 'At what temperature does the brisket stall start?',
-    a: 'Most commonly between 150°F and 170°F. The exact onset shifts with climate — drier air intensifies evaporative cooling and lowers it (nearer 145°F), while humid air suppresses evaporation and raises it (nearer 162°F).',
+    a: 'Most commonly between 150°F and 170°F. The exact onset shifts with climate: drier air intensifies evaporative cooling and lowers it (nearer 145°F), while humid air suppresses evaporation and raises it (nearer 162°F).',
   },
   {
     q: 'Why is my brisket taking so long?',
@@ -52,7 +52,7 @@ const faqs = [
   },
   {
     q: 'Can I log my actual cook time against the prediction?',
-    a: 'Yes — the "Cook Log" panel below the results lets you opt in to track a real cook: it auto-fills the weight and prediction from this page, then lets you mark wrap, stall start/end, finish, and rest as they happen. It is off by default and anonymous — no name, email, or precise location, ever.',
+    a: 'Yes. The "Cook Log" panel below the results lets you opt in to track a real cook: it auto-fills the weight and prediction from this page, then lets you mark wrap, stall start/end, finish, and rest as they happen. It is off by default and anonymous: no name, email, or precise location, ever.',
   },
 ];
 const schema = [
@@ -92,6 +92,6 @@ const schema = [
   <StallPredictor />
   <FaqSection
     faqs={faqs}
-    intro="The stall is the hours-long temperature plateau that frustrates every new pitmaster — and it is not your thermometer failing. It is evaporative cooling: as moisture wicks to the surface and evaporates, it pulls heat away about as fast as the pit adds it, so the internal temperature stalls until the surface dries. This predictor models exactly how long that plateau lasts for your cut, pit, wrap, and climate, so you can plan the cook around it instead of panicking through it."
+    intro="The stall is the hours-long temperature plateau that frustrates every new pitmaster, and it is not your thermometer failing. It is evaporative cooling: as moisture wicks to the surface and evaporates, it pulls heat away about as fast as the pit adds it, so the internal temperature stalls until the surface dries. This predictor models exactly how long that plateau lasts for your cut, pit, wrap, and climate, so you can plan the cook around it instead of panicking through it."
   />
 </Layout>

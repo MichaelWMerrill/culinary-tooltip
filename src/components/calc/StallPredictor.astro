@@ -169,7 +169,7 @@ const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${prot
         Phenomenological stall model · <span class="text-slate-400 font-semibold">Model v{protein.meta.version}</span> · times shown as a &plusmn;15&ndash;25% window (narrower with foil, wider unwrapped)
       </p>
       <p class="text-[11px] text-slate-500 leading-snug text-right">
-        These times are fitted to published field cook-time guidance, not logged from our own pit &mdash; a planning estimate, not a guarantee. Probe to temperature.
+        These times are fitted to published field cook-time guidance, not logged from our own pit (a planning estimate, not a guarantee). Probe to temperature.
       </p>
       <p id="versionNotice" class="hidden text-[11px] text-amber-400/90 leading-snug text-right"></p>
       {thermal.dangerZone && (
@@ -223,7 +223,7 @@ const heading = protein.meta.id === 'beef_brisket' ? 'Stall Predictor' : `${prot
   </div>
 
   <footer class="mt-8 text-center text-[11px] text-slate-500">
-    <p>Phenomenological model (stall engine v{ENGINE_VERSION}) using convective, radiative &amp; evaporative boundary conditions. Real cooks vary &mdash; probe your meat.</p>
+    <p>Phenomenological model (stall engine v{ENGINE_VERSION}) using convective, radiative &amp; evaporative boundary conditions. Real cooks vary. Probe your meat.</p>
     <p class="mt-2">Read more: <a href="/blog/physics-of-the-stall" class="text-amber-400 hover:text-amber-300 underline decoration-dotted underline-offset-2">The Physics of the Stall: Why Your Smoked Meat Stops Cooking</a></p>
     <p class="mt-2"><a href="/methodology" class="text-amber-400 hover:text-amber-300 underline decoration-dotted underline-offset-2">Methodology &amp; sources</a> · <a href="/privacy" class="text-amber-400 hover:text-amber-300 underline decoration-dotted underline-offset-2">Privacy Policy</a></p>
   </footer>

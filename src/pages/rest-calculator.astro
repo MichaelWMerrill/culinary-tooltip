@@ -27,7 +27,7 @@ const faqs = [
   },
   {
     q: 'How does a faux cambro work?',
-    a: 'Wrapping the meat in foil and towels inside a pre-warmed cooler traps the heat, so it cools very slowly — the model uses Newton’s law of cooling with a low heat-loss constant. It is the closest home approximation to a commercial Cambro holding box.',
+    a: 'Wrapping the meat in foil and towels inside a pre-warmed cooler traps the heat, so it cools very slowly. The model uses Newton’s law of cooling with a low heat-loss constant. It is the closest home approximation to a commercial Cambro holding box.',
   },
   {
     q: 'Does resting a brisket really matter?',
@@ -35,7 +35,7 @@ const faqs = [
   },
   {
     q: 'How does the cooling model work?',
-    a: 'It applies Newton’s law of cooling: the meat’s temperature decays exponentially toward the temperature of its surroundings, at a rate set by how well the hold is insulated. Constants are calibration estimates — always confirm with a probe.',
+    a: 'It applies Newton’s law of cooling: the meat’s temperature decays exponentially toward the temperature of its surroundings, at a rate set by how well the hold is insulated. Constants are calibration estimates. Always confirm with a probe.',
   },
 ];
 const schema = [
@@ -73,6 +73,6 @@ const schema = [
   <RestCalculator relatedPosts={relatedPosts} />
   <FaqSection
     faqs={faqs}
-    intro="A rested cut does not cool in a straight line — it cools exponentially toward the temperature of its surroundings, fast at first and then ever more slowly. A long, warm rest is not a compromise either: it lets the muscle fibers relax and reabsorb rendered juices. The only hard limit is food safety — cooked meat must stay above the 140°F danger-zone floor. This calculator applies Newton's law of cooling to show how long your cook holds safe in a warm oven, faux cambro, bare cooler, or on the counter."
+    intro="A rested cut does not cool in a straight line. It cools exponentially toward the temperature of its surroundings, fast at first and then ever more slowly. A long, warm rest is not a compromise either: it lets the muscle fibers relax and reabsorb rendered juices. The only hard limit is food safety: cooked meat must stay above the 140°F danger-zone floor. This calculator applies Newton's law of cooling to show how long your cook holds safe in a warm oven, faux cambro, bare cooler, or on the counter."
   />
 </Layout>

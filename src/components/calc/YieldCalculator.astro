@@ -139,7 +139,7 @@ const segPad = (c) => (c === 2 ? 'px-3' : 'px-2');
           <div class="hidden sm:flex h-14 w-14 items-center justify-center rounded-xl bg-ember-500/15 ring-1 ring-ember-500/40 text-3xl">💵</div>
         </div>
         <p class="mt-3 text-[10px] font-mono text-smoke-500 text-right">Trim &amp; shrinkage model · <span class="text-smoke-400 font-semibold">Model v{protein.meta.version}</span></p>
-        <p class="mt-1 text-[11px] text-smoke-500 text-right leading-snug">Based on published USDA trim-and-shrinkage data &mdash; a planning estimate, not a guarantee.</p>
+        <p class="mt-1 text-[11px] text-smoke-500 text-right leading-snug">Based on published USDA trim-and-shrinkage data (a planning estimate, not a guarantee).</p>
       </div>
 
       <!-- Total Yield progress -->
@@ -199,7 +199,7 @@ const segPad = (c) => (c === 2 ? 'px-3' : 'px-2');
       <span class="flex items-center gap-2.5">
         <span class="text-xl">🍽️</span>
         <span class="text-sm font-semibold text-white">Serving Estimator</span>
-        <span class="text-[11px] text-smoke-500 hidden sm:inline">&mdash; {threshold} lb per guest threshold</span>
+        <span class="text-[11px] text-smoke-500 hidden sm:inline">({threshold} lb per guest threshold)</span>
       </span>
       <svg id="servingChevron" class="h-5 w-5 text-smoke-400 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
     </button>
@@ -237,7 +237,7 @@ const segPad = (c) => (c === 2 ? 'px-3' : 'px-2');
           <span class="text-2xl">🧮</span>
           <div>
             <p class="text-sm font-semibold text-white group-hover:text-ember-300">Planning around a headcount instead?</p>
-            <p class="text-[11px] text-smoke-400 mt-0.5">Enter your guest count and get the raw packer weight to buy &amp; the budget — how much brisket per person.</p>
+            <p class="text-[11px] text-smoke-400 mt-0.5">Enter your guest count and get the raw packer weight to buy &amp; the budget (how much brisket per person).</p>
           </div>
         </div>
         <svg class="h-5 w-5 shrink-0 text-ember-400 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>

@@ -18,7 +18,7 @@ const faqs = [
   },
   {
     q: 'What temperature is pulled pork done?',
-    a: 'Pull around 200–205°F internal — near 202°F the collagen has rendered and the blade bone wobbles free, so the meat shreds easily. That is well above the 145°F food-safety minimum for pork; the extra time at temperature is what makes it pull.',
+    a: 'Pull around 200–205°F internal: near 202°F the collagen has rendered and the blade bone wobbles free, so the meat shreds easily. That is well above the 145°F food-safety minimum for pork; the extra time at temperature is what makes it pull.',
   },
   {
     q: 'How long does it take to smoke a pork shoulder?',
@@ -34,7 +34,7 @@ const faqs = [
   },
   {
     q: 'Can I log my actual cook time against the prediction?',
-    a: 'Yes — the "Cook Log" panel below the results lets you opt in to track a real cook: it auto-fills the weight and prediction from this page, then lets you mark wrap, stall start/end, finish, and rest as they happen. It is off by default and anonymous — no name, email, or precise location, ever.',
+    a: 'Yes. The "Cook Log" panel below the results lets you opt in to track a real cook: it auto-fills the weight and prediction from this page, then lets you mark wrap, stall start/end, finish, and rest as they happen. It is off by default and anonymous: no name, email, or precise location, ever.',
   },
 ];
 const schema = [
@@ -72,6 +72,6 @@ const schema = [
   <StallPredictor protein={PROTEINS.pork_shoulder} />
   <FaqSection
     faqs={faqs}
-    intro="Pork shoulder hits the same evaporative stall as brisket, but a fattier, more compact cut renders through it faster — the plateau is shorter and softer. This predictor plots the full internal-temperature curve and the pork stall to a roughly 202°F pull, where the bone wobbles and the meat shreds, from your pit airflow and humidity, wrap method, weight, and climate."
+    intro="Pork shoulder hits the same evaporative stall as brisket, but a fattier, more compact cut renders through it faster. The plateau is shorter and softer. This predictor plots the full internal-temperature curve and the pork stall to a roughly 202°F pull, where the bone wobbles and the meat shreds, from your pit airflow and humidity, wrap method, weight, and climate."
   />
 </Layout>
