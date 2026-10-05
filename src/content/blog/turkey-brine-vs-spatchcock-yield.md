@@ -11,7 +11,7 @@ Two Thanksgivings, two birds, same 14-lb weight on the tag. One year I brined a 
 
 ## Brining buys you less evaporation, full stop
 
-Our yield model treats a turkey cook as two sequential losses: **trim** (giblets, neck, and for spatchcock the backbone) and **cook loss** (moisture and fat that leaves during the smoke). Brining only touches the second number. A salt brine draws water into the muscle before it ever sees heat, and that extra bound moisture is harder to evaporate out, so the model drops cook loss from **28% unbrined to 20% brined**, applied to whatever's left after trim. Nothing else about the bird changes: same trim fraction, same starting weight.
+My yield model treats a turkey cook as two sequential losses: **trim** (giblets, neck, and for spatchcock the backbone) and **cook loss** (moisture and fat that leaves during the smoke). Brining only touches the second number. A salt brine draws water into the muscle before it ever sees heat, and that extra bound moisture is harder to evaporate out, so the model drops cook loss from **28% unbrined to 20% brined**, applied to whatever's left after trim. Nothing else about the bird changes: same trim fraction, same starting weight.
 
 Run a 14-lb whole bird through both settings and the difference isn't subtle. At 5% trim you start with 13.3 lb of meat and bone. Unbrined, 28% cook loss leaves **9.58 lb** carved. Brined, 20% cook loss leaves **10.64 lb**: better than a pound more meat off the same bird, purely from resisting evaporation.
 
@@ -21,7 +21,7 @@ Spatchcocking is a completely different lever. Cutting out the backbone doesn't 
 
 That's a small yield cost (on a 14-lb bird, the extra 2% trim is a bit over a quarter pound) in exchange for the real reason people spatchcock: laying the bird flat opens it up to heat from every direction, and the stall engine's rate modifier gives spatchcock a **1.35× speed multiplier** on top of the geometry effect that already makes turkey fast. That's a genuinely faster, more even cook. It's just not a yield play.
 
-> **The two levers, side by side (14-lb whole bird, our model):**
+> **The two levers, side by side (14-lb whole bird, my model):**
 > - Baseline (whole, unbrined): 13.3 lb trimmed → **9.58 lb carved**
 > - Brined only: 13.3 lb trimmed → **10.64 lb carved** (+1.06 lb)
 > - Spatchcocked only: 13.02 lb trimmed → **9.37 lb carved** (−0.21 lb, but ~35% faster climb)

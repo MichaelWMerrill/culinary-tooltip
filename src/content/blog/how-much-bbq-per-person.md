@@ -50,6 +50,6 @@ To serve **10 lb of cooked brisket**, at ~50% yield you buy closer to **20 lb of
 
 ## Step 4: Let the Math Do It
 
-You do not have to keep this in your head, and after running out of pork once, I don't anymore. The **[BBQ Party Planner](/party-planner)** inverts our trim-and-shrinkage yield model: enter your guest count, pick the protein and its options, and it back-solves the **raw weight to buy** and the **budget**, the same engine as the [brisket](/brisket-calculator), [pork shoulder](/pork-shoulder-calculator), and [turkey](/turkey-calculator) yield calculators, just run backward.
+You do not have to keep this in your head, and after running out of pork once, I don't anymore. The **[BBQ Party Planner](/party-planner)** inverts my trim-and-shrinkage yield model: enter your guest count, pick the protein and its options, and it back-solves the **raw weight to buy** and the **budget**, the same engine as the [brisket](/brisket-calculator), [pork shoulder](/pork-shoulder-calculator), and [turkey](/turkey-calculator) yield calculators, just run backward.
 
 Round up when you are buying whole cuts, build in a buffer for the big eaters, and you will never be the host who runs out of brisket (or pulled pork).
