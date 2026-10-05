@@ -48,8 +48,8 @@ if (TURNSTILE_TEST_SITE_KEYS.has(TURNSTILE_SITE_KEY)) {
         </div>
         <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-[1.05]">Talk to the Pit</h1>
         <p class="mt-4 max-w-xl mx-auto text-base text-base-400 leading-relaxed">
-          These calculators live or die by real-world cooks. Tell us where the numbers matched your brisket — and
-          where they didn't — what you'd like to see next, or anything else on your mind.
+          These calculators live or die by real-world cooks. Tell us where the numbers matched your brisket (and
+          where they didn't), what you'd like to see next, or anything else on your mind.
         </p>
       </header>
 
@@ -64,12 +64,12 @@ if (TURNSTILE_TEST_SITE_KEYS.has(TURNSTILE_SITE_KEY)) {
           <div class="rounded-xl bg-base-800/60 ring-1 ring-base-700 p-4">
             <div class="text-xl mb-1.5">🧪</div>
             <h2 class="text-sm font-bold text-white">Request a feature</h2>
-            <p class="mt-1 text-[13px] text-base-400 leading-relaxed">A cut, cooker, or variable we're missing? Pork shoulder, ribs, wind chill, altitude — tell us what to build.</p>
+            <p class="mt-1 text-[13px] text-base-400 leading-relaxed">A cut, cooker, or variable we're missing? Pork shoulder, ribs, wind chill, altitude. Tell us what to build.</p>
           </div>
           <div class="rounded-xl bg-base-800/60 ring-1 ring-base-700 p-4">
             <div class="text-xl mb-1.5">🐞</div>
             <h2 class="text-sm font-bold text-white">Flag anything off</h2>
-            <p class="mt-1 text-[13px] text-base-400 leading-relaxed">Bugs, confusing wording, a value that looks wrong — the more specific, the faster we can fix it.</p>
+            <p class="mt-1 text-[13px] text-base-400 leading-relaxed">Bugs, confusing wording, a value that looks wrong. The more specific, the faster we can fix it.</p>
           </div>
         </section>
 
@@ -92,7 +92,7 @@ if (TURNSTILE_TEST_SITE_KEYS.has(TURNSTILE_SITE_KEY)) {
                 <label for="cf-topic" class="block text-[11px] font-bold uppercase tracking-wider text-base-400 mb-1.5">Topic</label>
                 <select id="cf-topic" name="topic" class="w-full rounded-lg bg-base-900 border border-base-700 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-flame-500 transition-all">
                   <option value="Feedback on the calculations">Feedback on the calculations</option>
-                  <option value="Feature request">Feature request — what you'd like to see</option>
+                  <option value="Feature request">Feature request: what you'd like to see</option>
                   <option value="Bug or inaccuracy">Bug / something looks off</option>
                   <option value="Something else">Something else</option>
                 </select>
@@ -110,7 +110,7 @@ if (TURNSTILE_TEST_SITE_KEYS.has(TURNSTILE_SITE_KEY)) {
 
             <div>
               <label for="cf-message" class="block text-[11px] font-bold uppercase tracking-wider text-base-400 mb-1.5">Your message</label>
-              <textarea id="cf-message" name="message" rows="6" placeholder="e.g. 14 lb Choice packer, butcher paper on an offset at 250°F — your estimate said ~9h and I finished in 9h20m, spot on. But the yield read low vs. what I sliced…" class="w-full rounded-lg bg-base-900 border border-base-700 px-3 py-2.5 text-sm text-white placeholder-base-600 leading-relaxed focus:outline-none focus:ring-1 focus:ring-flame-500 transition-all resize-y"></textarea>
+              <textarea id="cf-message" name="message" rows="6" placeholder="e.g. 14 lb Choice packer, butcher paper on an offset at 250°F. Your estimate said ~9h and I finished in 9h20m, spot on. But the yield read low vs. what I sliced…" class="w-full rounded-lg bg-base-900 border border-base-700 px-3 py-2.5 text-sm text-white placeholder-base-600 leading-relaxed focus:outline-none focus:ring-1 focus:ring-flame-500 transition-all resize-y"></textarea>
               <p id="cf-error" class="hidden mt-1.5 text-xs text-red-400"></p>
             </div>
 
@@ -238,7 +238,7 @@ if (TURNSTILE_TEST_SITE_KEYS.has(TURNSTILE_SITE_KEY)) {
           if (window.turnstile) {
             try { window.turnstile.reset(); } catch (e) {}
           }
-          showStatus(true, 'Thanks — your message is on its way. We’ll get back to you if a reply is needed.');
+          showStatus(true, 'Thanks. Your message is on its way. We’ll get back to you if a reply is needed.');
           status.classList.remove('hidden');
           btn.textContent = original;
           btn.disabled = false;
@@ -252,7 +252,7 @@ if (TURNSTILE_TEST_SITE_KEYS.has(TURNSTILE_SITE_KEY)) {
           btn.disabled = false;
         }
       } catch (err2) {
-        showStatus(false, 'Network error — please try again, or email us directly at ' + CONTACT_TO + '.');
+        showStatus(false, 'Network error. Please try again, or email us directly at ' + CONTACT_TO + '.');
         status.classList.remove('hidden');
         btn.textContent = original;
         btn.disabled = false;

@@ -81,7 +81,7 @@ const schema = {
         </div>
         <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-[1.08]">How these calculators actually work</h1>
         <p class="mt-5 text-base sm:text-lg text-base-400 leading-relaxed">
-          Every tool here runs a documented empirical model in your browser — no server, no black box.
+          Every tool here runs a documented empirical model in your browser: no server, no black box.
           This page lays out the equations, the constants behind each protein, the engine versions, and
           how we keep the numbers from silently changing. All outputs are planning estimates:
           <strong class="text-base-300">always probe to temperature.</strong>
@@ -89,7 +89,7 @@ const schema = {
         <p class="mt-4 text-sm text-base-500">
           Models built and maintained by
           <a href="/about" rel="author" class="font-semibold text-flame-400 hover:text-flame-300 transition-colors">{AUTHOR_NAME}</a>
-          — <a href="/about" class="underline underline-offset-2 hover:text-base-300 transition-colors">who I am and why I built this</a>.
+          (<a href="/about" class="underline underline-offset-2 hover:text-base-300 transition-colors">who I am and why I built this</a>).
         </p>
       </header>
 
@@ -98,7 +98,7 @@ const schema = {
         <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400">The Models</h2>
 
         <div class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6">
-          <h3 class="text-base font-bold text-white">Yield &amp; shrinkage — mass transfer</h3>
+          <h3 class="text-base font-bold text-white">Yield &amp; shrinkage: mass transfer</h3>
           <p class="mt-2 text-sm text-base-400 leading-relaxed">
             Trim and cook losses apply evaporative mass-loss relations
             (<span class="font-mono text-base-300">ṁ = h<sub>m</sub>·A·Δρ<sub>v</sub></span>) with the latent
@@ -109,17 +109,17 @@ const schema = {
         </div>
 
         <div class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6">
-          <h3 class="text-base font-bold text-white">The stall &amp; cook time — convective heat</h3>
+          <h3 class="text-base font-bold text-white">The stall &amp; cook time: convective heat</h3>
           <p class="mt-2 text-sm text-base-400 leading-relaxed">
             The internal-temperature climb is a phenomenological model driven by Newton's law of cooling
             (<span class="font-mono text-base-300">q = h<sub>c</sub>·A·(T<sub>pit</sub> − T<sub>meat</sub>)</span>)
             balanced against evaporative flux during the stall. Cook time scales with weight through a
-            mass exponent that is <strong class="text-base-300">empirically fitted — not derived from an
-            idealized shape</strong> — to published field cook-time guidance (roughly 1.25–1.5 hr/lb; a
+            mass exponent that is <strong class="text-base-300">empirically fitted, not derived from an
+            idealized shape</strong>, to published field cook-time guidance (roughly 1.25–1.5 hr/lb; a
             12&nbsp;lb packer at 225°F unwrapped lands near 16&nbsp;h). We fit rather than derive because a
-            packer doesn't get proportionally thicker as it gets heavier — brisket thickness is
-            anatomically capped around 3–4″, and time-to-core is governed by thickness, not total mass —
-            so cook time runs closer to linear in weight than an idealized <span class="font-mono text-base-300">W<sup>2/3</sup></span>
+            packer doesn't get proportionally thicker as it gets heavier: brisket thickness is
+            anatomically capped around 3–4″, and time-to-core is governed by thickness, not total mass.
+            So cook time runs closer to linear in weight than an idealized <span class="font-mono text-base-300">W<sup>2/3</sup></span>
             conduction law predicts. Stall <em>duration</em> carries its own, separate mass exponent, since
             core heating and surface evaporation scale differently. Slab cuts like ribs are governed by
             thickness, not weight, so rack count doesn't change the time.
@@ -127,7 +127,7 @@ const schema = {
         </div>
 
         <div class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6">
-          <h3 class="text-base font-bold text-white">Fuel &amp; cost — combustion</h3>
+          <h3 class="text-base font-bold text-white">Fuel &amp; cost: combustion</h3>
           <p class="mt-2 text-sm text-base-400 leading-relaxed">
             Fuel demand integrates a baseline burn rate against pit thermal efficiency
             <span class="font-mono text-base-300">η</span> and a heat-loss coefficient
@@ -137,7 +137,7 @@ const schema = {
         </div>
 
         <div class="rounded-2xl bg-base-800/60 ring-1 ring-base-700 p-5 sm:p-6">
-          <h3 class="text-base font-bold text-white">Rest &amp; hold — Newtonian cooling</h3>
+          <h3 class="text-base font-bold text-white">Rest &amp; hold: Newtonian cooling</h3>
           <p class="mt-2 text-sm text-base-400 leading-relaxed">
             A rested cut cools exponentially toward its surroundings:
             <span class="font-mono text-base-300">T(t) = T<sub>amb</sub> + (T<sub>pull</sub> − T<sub>amb</sub>)·e<sup>−k·t</sup></span>.
@@ -152,7 +152,7 @@ const schema = {
       <section class="mb-12">
         <h2 class="text-xs font-semibold uppercase tracking-widest text-flame-400 mb-2">Per-Protein Constants</h2>
         <p class="text-sm text-base-400 leading-relaxed mb-5">
-          These values are read directly from the engine's protein registry at build time — the table below
+          These values are read directly from the engine's protein registry at build time: the table below
           cannot drift from what the calculators actually compute. Constants are calibration estimates unless
           a published source is cited; they are refreshed per data version.
         </p>
@@ -176,7 +176,7 @@ const schema = {
                 {r.hasSafetyNote && (
                   <p class="mt-2 text-[12px] text-base-500 leading-relaxed">
                     <span class="text-base-400 font-semibold">Carryover:</span> the {r.finishTemp}°F finish is a
-                    breast-pull temp, not the safe-to-eat temp — carryover heat then carries it up to the
+                    breast-pull temp, not the safe-to-eat temp. Carryover heat then carries it up to the
                     USDA-safe 165°F off the pit. Cook thighs/dark meat further for texture.
                   </p>
                 )}
@@ -194,23 +194,23 @@ const schema = {
             <h3 class="text-[11px] font-semibold uppercase tracking-widest text-flame-300 mb-2.5">Model changelog</h3>
             <ul class="space-y-2.5 text-[13px] text-base-300 leading-relaxed">
               <li>
-                <span class="font-mono font-semibold text-flame-300">2026-07 · turkey v2026.2, brisket/pork v2026.3</span> —
+                <span class="font-mono font-semibold text-flame-300">2026-07 · turkey v2026.2, brisket/pork v2026.3</span>:
                 <strong class="text-base-200">Turkey recalibration &amp; climate-humidity fix.</strong>
                 Turkey cook time was refit to the USDA unstuffed roasting timetable (mass exponent −0.333 → −0.63,
-                matching conduction physics for a roughly isotropic bird), and two pit temps — 300°F and 325°F — were
+                matching conduction physics for a roughly isotropic bird), and two pit temps (300°F and 325°F) were
                 added so a by-the-book poultry cook can be modelled at all. Separately, the regional-climate humidity
                 term was corrected: humid air now shortens the stall (it had wrongly lengthened it) and arid lengthens
-                it, symmetric about neutral — this moves outputs only at the <em>Humid/Arid</em> settings: brisket &amp;
+                it, symmetric about neutral. This moves outputs only at the <em>Humid/Arid</em> settings: brisket &amp;
                 pork noticeably (v2026.3), and ribs' near-absent stall by a fraction of a percent (v2026.2). Ribs were
-                <strong class="text-base-200">not refitted</strong> — they moved only through the shared climate term and
+                <strong class="text-base-200">not refitted</strong>: they moved only through the shared climate term and
                 remain on their pre-recalibration cook-time model (a later pass). The default Moderate setting is
                 unchanged for every protein.
               </li>
               <li>
-                <span class="font-mono font-semibold text-flame-300">2026-07 · v2026.2</span> —
+                <span class="font-mono font-semibold text-flame-300">2026-07 · v2026.2</span>:
                 <strong class="text-base-200">Brisket &amp; pork shoulder cook-time recalibration.</strong>
                 Refit to published field cook-time consensus (≈1.25–1.5&nbsp;hr/lb): a 12&nbsp;lb brisket now
-                lands near 16&nbsp;h at 225°F unwrapped, up from ~9&nbsp;h — the previous model ran roughly 45%
+                lands near 16&nbsp;h at 225°F unwrapped, up from ~9&nbsp;h. The previous model ran roughly 45%
                 fast. The base climb rate and the climb-rate mass exponent were fitted together, stall duration
                 was given its own mass exponent, and the base stall was raised into the field's observed
                 2–6&nbsp;h range. Ribs and turkey unchanged.
@@ -226,12 +226,12 @@ const schema = {
           <p>
             Every engine is covered by <strong class="text-base-300">golden regression tests</strong>: a frozen
             set of input → output snapshots checked in with the code. The brisket yield and stall outputs in
-            particular are byte-frozen — any change to the math that would move a published number fails the
+            particular are byte-frozen: any change to the math that would move a published number fails the
             test suite before it can ship. That's how we add proteins and features without silently shifting
             the numbers you've already planned around.
           </p>
           <p class="text-[13px] text-base-500">
-            Bottom line: these are transparent estimates, not guarantees. Cuts, pits, and weather vary — build
+            Bottom line: these are transparent estimates, not guarantees. Cuts, pits, and weather vary. Build
             in a buffer and probe to temperature.
           </p>
         </div>
