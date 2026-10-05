@@ -10,13 +10,16 @@
  * looks at home on every calculator's palette. Answers render as plain text.
  */
 import CorrectionsNote from '../CorrectionsNote.astro';
+import StandaloneFooter from '../StandaloneFooter.astro';
 
 export interface Props {
   faqs: { q: string; a: string }[];
   intro?: string;
   heading?: string;
+  /** Render the email footer after the FAQ. Pass false on a page whose component already renders a full footer. */
+  siteFooter?: boolean;
 }
-const { faqs, intro, heading = 'Frequently Asked Questions' } = Astro.props;
+const { faqs, intro, heading = 'Frequently Asked Questions', siteFooter = true } = Astro.props;
 ---
 
 <section class="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-2">
@@ -40,3 +43,4 @@ const { faqs, intro, heading = 'Frequently Asked Questions' } = Astro.props;
   </dl>
   <CorrectionsNote class="mt-8" />
 </section>
+{siteFooter && <StandaloneFooter />}

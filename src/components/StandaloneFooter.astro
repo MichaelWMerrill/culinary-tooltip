@@ -1,0 +1,15 @@
+---
+/*
+ * StandaloneFooter: a minimal footer for pages that have no footer of their own
+ * (most calculators, about, methodology, 404). It only wraps SiteFooter. Do not
+ * use it on a page that already renders a full footer, or the email lines
+ * would appear twice.
+ */
+import SiteFooter from './SiteFooter.astro';
+---
+
+<footer class="relative z-10 border-t border-base-700 bg-base-900/70 backdrop-blur">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <SiteFooter class="mb-0" />
+  </div>
+</footer>
