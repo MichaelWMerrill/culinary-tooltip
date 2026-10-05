@@ -1,6 +1,6 @@
 ---
-title: "Ribs Run on Two Different Clocks, and We Never Reconciled Them"
-description: "Our own rib scheduler and rib predictor disagree with each other by design: a fixed 3-2-1 block schedule versus a slab-geometry physics model. Here's why, and which one to trust."
+title: "Ribs Run on Two Different Clocks, and I Never Reconciled Them"
+description: "My own rib scheduler and rib predictor disagree with each other by design: a fixed 3-2-1 block schedule versus a slab-geometry physics model. Here's why, and which one to trust."
 pubDate: '2026-08-04'
 heroImage: '/blog/ribs-two-clocks.jpg'
 pillar: science
